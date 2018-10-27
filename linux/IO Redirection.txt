@@ -1,0 +1,55 @@
+IO Redirection
+
+Input
+Ouput 
+방향전환
+
+
+ls -l > result.txt
+- ls -l 의 결과를 result.txt에 저장한다.
+
+출력되는것이 콘솔이 기본인데
+그 출력되는 방향을 틀어서 파일과 같은형태로 출력하는것이
+IO Redirection
+
+
+> 
+= Redirection 을 의미한다
+앞에 붙는 숫자에따라 output이 결정됨
+1 은 standard output
+2 는 standard error 
+를 리다이렉션하며
+
+꺽새앞에는 1이 생략되어있는것과 마찬가지이다.
+
+rm rename2.txt 1> result.txt 2> error.log
+rm명ㄹ여어로 출력되는값은 reult.txt,
+error발생시 로그는 error.log에 저장한다.
+
+
+cat 
+-cat 명령어 입력후
+텍스트입력시 해당 텍스트를 출력해준다.
+종료 = ctrl + d 
+
+
+head
+- 텍스트의 일부만을 출력한다. (기본 10줄만 출려함.)
+- head -n1 < linux.txt 
+= 1줄만 출력
+
+head -n1 < hello.html > one.txt 
+= hello.html 의 내용 1줄을 one.txt로 출력
+
+꺽새가 2개 일경우
+ls -al >> result.txt
+- Redirection 결과를 덧붙인다. append 
+
+
+mail kimono10@naver.com << hello 
+해당 메일로 방향을튼다
+hello가 종료문자.
+
+
+/dev/null = 리눅스의 쓰레기통같은곳
+- 출력방햐을 위로 바꾸ㅕㄴ 아무것도진행되지않음.

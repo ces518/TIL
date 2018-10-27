@@ -1,0 +1,13 @@
+sudo
+
+수퍼 관리자 권한으로 명령을 실행한다.
+
+다중화 시스템 (리눅스특징)
+
+
+permission = 사용자별 권한 
+
+super user or root user 
+
+
+apt-get install git < git 설치명령

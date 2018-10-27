@@ -1,0 +1,19 @@
+wget, git
+
+
+wget
+= url기반으로 다운로드를 할수있다.
+
+wget -O 파일명 url 
+= 해당파일명으로 다운로드한다.
+
+
+
+
+
+git
+- 버전관리시스템
+
+git clone url dirname
+- url의 프로젝트를 디렉터리에 clone받음.
+

@@ -1,0 +1,11 @@
+프로세스
+
+프로세스 모니터링
+
+-ps aux 
+ps aux | grep apache 
+= apache 라는 텍스트를 포함중인 프로세스를 찾음. 
+
+PID 라는것이 존재함.
+PID 를 이용해서 해당 프로세스를 죽일수있다.
+- sudo kill pid 

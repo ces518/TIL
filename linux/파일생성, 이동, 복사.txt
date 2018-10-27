@@ -1,0 +1,13 @@
+파일생성 , 이동
+
+
+touch filename
+- 파일생성
+
+cp filename dirname
+-파일 복사
+
+mv filename dirname(newFilename)
+- 파일이동 , 파일명 변경
+
+

@@ -1,0 +1,152 @@
+우분투 Mysql 설치 및 삭제
+
+
+참조URL
+http://www.peterchen.net/2013/02/20/en-how-to-install-mysql-5-6-on-ubuntu-12-04-precise/
+
+
+설치
+sudo apt-get install mysql-server mysql-client
+
+sudo /etc/init.d/mysql start
+
+
+
+삭제제
+
+sudo /etc/init.d/mysql stop
+
+sudo apt-get remove --purge mysql-server mysql-client
+
+sudo netstat -tap | grep mysql
+
+
+ sudo apt-get remove --purge mysql-server*
+
+sudo apt-get remove --purge mysql-client*
+
+
+
+패키지로 설치
+
+ /opt> /sudo dpkg -i mysql-5.6.17-debian6.0-x86_64.deb
+
+
+
+/opt/mysql/server-5.6$> sudo apt-get install libaio1
+
+
+
+
+
+
+
+
+
+
+
+cp mysql.server /etc/init.d/mysql
+ls /etc/init.d/mysql
+
+
+
+update-rc.d mysql defaults
+
+
+
+출처: http://gocoding.tistory.com/24 [Developer Factory]
+
+
+
+1.mysql 기본 문자셋 설정
+
+
+# 설정파일이 있는곳으로 이동
+cd /etc/mysql/conf.d
+
+# mysql.cnf 파일편집
+sudo nano mysql.cnf
+
+===========================================================
+ [mysqld]
+ datadir=/var/lib/mysql
+ socket=/var/lib/mysql/mysql.sock
+ user=mysql
+ character-set-server=utf8
+ collation-server=utf8_general_ci
+ init_connect = set collation_connection = utf8_general_ci
+ init_connect = set names utf8
+ 
+ [mysql]
+ default-character-set=utf8
+ 
+ [mysqld_safe]
+ log-error=/var/log/mysqld.log
+ pid-file=/var/run/mysqld/mysqld.pid
+ default-character-set=utf8
+ 
+ [client]
+ default-character-set=utf8
+ 
+ [mysqldump]
+ default-character-set=utf8
+
+
+출처: http://all-record.tistory.com/183 [세상의 모든 기록]
+=============================================================
+
+
+2.사용자 계정생성 및 외부접속 설정
+
+# MYSQL root 계정로그인
+-mysql -uroot -p 
+
+# DATABASE 생성
+- create database test_db01;
+
+# DATABASE 조회
+- show databases;
+
+# 사용자 계정생성
+- create user '아이디'@호스트 identified by '비밀번호';
+
+# 로컬 접속계정생성
+- create user '아이디'@localhost identified by '비밀번호';
+
+# 모든 ip로 접속가능한 계정 생성
+create user '아이디'@'%' identified by '비밀번호';
+
+# 사용자 권한 설정
+GRANT ALL PRIVILEGES ON 데이터베이스명.테이블명  TO '아이디'@'호스트' identified by '비밀번호';
+
+# 모든 데이터베이스, 모든테이블, 모든 ip 접속허용
+GRANT ALL PRIVILEGES ON *.* TO '아이디'@'%' IDENTIFIED BY '비밀번호';
+
+# 특정 데이터베이스, 모든테이블 모든 IP 접속허용
+GRANT ALL PRIVILEGES ON TEST.* TO '아이디'@'%' IDENTIFIED BY '비밀번호';
+
+# 적용하기 
+FLUSH PRIVILEGES; 
+
+# MYSQL 데이터베이스 선택
+user mysql;
+
+# user 테이블 조회 
+select host,user from user; 
+> 방금 생성한 계정과 접속가능한 host가나온다.
+
+
+# MySQL 포트 외부접속 허용 
+sudo ufw allow 3306/tcp
+
+LISTEN IP 대역변경 
+
+cd /etc/mysql/mysql.con.f 
+
+# mysqld.cnf 파일편집
+sudo nano mysqld.cnf 
+
+bind-address 앞에 # 을 붙여줌.
+
+#mysqld 재시작
+- sudo /etc/init.d/mysql restart

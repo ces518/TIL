@@ -1,0 +1,18 @@
+Package Manager
+
+
+
+sudo apt-get update;  = 설치가능한 파일들을 apt서버에서 가져온다.
+
+sudo apt-get cache search htop 
+= htop 이라는 프로그램을 찾는다.
+
+
+top = 윈도우로치면 작업관리자와동일하다.
+htop = top을개선한 프로그램.
+
+sudo apt-get upgrade htop 
+= htop을 최신버전으로업글
+
+sodu apt-get remove htop
+= htop 을 삭제.

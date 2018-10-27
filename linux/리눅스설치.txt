@@ -1,0 +1,13 @@
+VMWare 리눅스 우분투 설치
+
+1. VMWare 설치
+2. VMWare 실행
+ - Create a New Vitual Machine 클릭
+ - 리눅스 설치파일 .iso 선택
+ - next
+ - 리눅스 설치정보 입력 (리눅스의 로그인 아이디/패스워드 정보)
+ - 가상머신 정보입력 
+ - 가상머신 최대 디스크용량 지정 
+ - 가상머신 하드웨어 설정
+    Processor , Memory 설정
+ 
