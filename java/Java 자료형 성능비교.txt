@@ -1,0 +1,178 @@
+Java 자료형 성능비교
+
+
+
+1. Collection 및 Map 인터페이스의 이해
+
+배열을 제외하고 데이터를 담기 가장 좋은 객체는 Collection 및 Map 인터페이스를 상속한 객체입니다.
+
+ 
+
+
+
+사진 출처 ( http://foratgweb.blogspot.kr/2015/09/java-collection-diagram-with-short-notes.html )
+
+ 
+
+Collection: 가장 상위 인터페이스
+
+Set: 중복을 허용하지 않는 집합을 처리하기 위한 인터페이스
+
+SortedSet: 오름차순을 갖는 Set 인터페이스
+
+List: 순서가 있는 집합을 처리하기 위한 인터페이스이기 때문에 인덱스가 있어 위치를 지정하여 값을 찾을 수 있다. 중복을 허용하며, List 인터페이스를 상속받는 클래스 중에 가장 많이 사용하는 것으로 Vector가 있다.
+
+Queue: 여러 개의 객체를 처리하기 전에 담아서 처리할 때 사용하기 위한 인터페이스. 기본적으로 FIFO를 따른다.
+
+Map: Map은 키와 값의 쌍으로 구성된 객체의 집합을 처리하기 위한 인터페이스. 중복되는 키를 허용하지 않음.
+
+SortedMap: 키를 오름차순으로 정렬하는 Map 인터페이스
+
+ 
+
+1-1. Set 인터페이스
+
+Set은 중복이 없는 집합 객체를 만들때 유용하며, 이를 구현한 클래스에는 HashSet, TreeSet, LinkedHashSet 이렇게 세가지가 있습니다.
+
+HashSet: 데이터를 해쉬 테이블에 담는 클래스로 순서없이 됩니다.
+
+TreeSet: red-black이라는 트리에 데이터를 담아지며, 값에 따라서 순서가 정해집니다. HashSet보다 성능상 느립니다.
+
+LinkedHashSet: 해쉬 테이블에 데이터를 담는데, 저장된 순서에 따라서 순서가 결정됩니다.
+
+* red-black 트리란 이진 트리 구조로 데이터를 담는 구조를 말합니다. 성능이 좋지 않은 트리 구조이므로 되도록이면 사용하지 않는 것이 좋습니다.
+
+ 
+
+1-2. List 인터페이스
+
+List는 두 개의 ArrayList와 Linked 클래스가 있으며, 원조 클래스격인 Vector 클래스가 있습니다.
+
+Vector: 크기를 객체 생성시에 지정할 필요가 없는 배열 클래스입니다.
+
+ArrayList: Vector와 비슷하지만, 동기화 처리가 되어 있지 않습니다.
+
+LinkedList: ArrayList와 동일하지만, Queue 인터페이스를 구현했기 때문에 FIFO 큐 작업을 수행합니다.
+
+ 
+
+1-3. Map 인터페이스
+
+Map을 상속받는 클래스들은 HashMap, TreeMap, LinkedHashMap 이렇게 세개가 있으며, 원조 클래스격인 Hashtable 클래스가 있습니다.
+
+Hashtable: 데이터를 해쉬 테이블에 담는 클래스입니다. 내부에서 관리하는 해쉬 테이블 객체가 동기화되어 있으므로, 동기화가 필요한 부분에서는 이 클래스를 사용 해야합니다.
+
+HashMap: 데이터를 해쉬 테이블에 담는 클래스입니다. Hashtable 클래스와 다른 점은 null 값을 허용한다는 것과 동기화되어 있지 않다는 점입니다.
+
+TreeMap: red-black 트리에 데이터를 담습니다. TreeSet과 다른 점은 키에 의해서 순서가 정해진다는 점입니다.
+
+LinkedHashMap: HashMap과 거의 동일하며 이중 연결 리스트(doubly-linkedlist)라는 방식을 사용하여 데이터를 담는다는 점만 다릅니다.
+
+이중 연결 리스트는 자료 구조론에서 그림과 같이 앞 뒤 노드에 대한 링크 정보를 갖고 있는 것을 말합니다. 만약 앞의 링크 값이 null이거나 비어 있으면 가장 첫 노드를 의미하며, 뒤의 링크 값이 null이거나 비어 있으면 가장 마지막 노드를 의미합니다.
+
+ 
+
+1-4. Queue 인터페이스
+
+Queue 인터페이스를 구현한 클래스는 두 가지로 나뉩니다. java.util 패키지에 속하는 LinkedList와 PriorityQueue는 일반적인 목적의 큐 클래스이며, java.util.concurrent 패키지에 속하는 클래스들은 concurrent 큐 클래스입니다.
+
+PrioriryQueue: 큐에 추가된 순서와 상관없이 먼저 생성한 객체가 먼저 나오도록 되어 있는 큐 입니다.
+
+LinkedBlockingQueue: 선택적으로 저장할 데이터의 크기를 정할 수도 있는 FIFO 기반의 링크 노드를 사용하는 블로킹 큐입니다.
+
+ArrayBlockingQueue: 저장되는 데이터의 크기가 정해져 있는 FIFO 기반의 블로킹 큐입니다.
+
+PriorityBlockingQueue: 저장되는 데이터의 크기가 정해져 있지 않고, 객체의 생성 순서에 따라서 순서가 저장되는 블로킹 큐입니다.
+
+DelayQueue: 큐가 대기하는 시간을 지정하여 처리하도록 되어 있는 큐 입니다.
+
+SynchronousQueue: put() 메소드를 호출하면, 다른 스레드에서 take() 메소드가 호출될 때까지 대기하도록 되어 있는 큐 입니다. 이 큐에는 저장되는 데이터가 없습니다. API에서 제공하는 대부분의 메소드는 0이나 null을 리턴합니다.
+
+* 블로킹 큐(blocking queue)란 크기가 지정되어 있는 큐에 공간이 더 이상 없을 때, 공간이 생길 때까지 대기하도록 만들어진 큐를 의미합니다.
+
+ 
+
+ 
+
+2. 인터페이스별 성능 비교
+
+
+2-1. Set 인터페이스
+
+Set인터페이스의 경우, 데이터를 담을때에는 시간 차이가 크지 않으므로 데이터를 읽을 때 얼마나 많은 차이가 발생하는지 확인해보면
+
+ 
+
+[HashSet] Run Count: 100, Total: 159.96 ms, Average: 1.59 ms
+
+[TreeSet] Run Count: 100, Total: 184.38 ms, Average: 1.84 ms
+
+[LinkedHashSet] Run Count: 100, Total: 106.66ms, Average: 1.06 ms
+
+ 
+
+데이터를 꺼낼때 응답 속도는 TreeSet이 가장 느리고, LinkedHashSet이 가장 빠릅니다.
+
+ 
+
+2-2. List 인터페이스
+
+List 인터페이스를 구현한 클래스들의 속도를 비교해보면, 아래와 같은 결과가 나옵니다.
+
+ 
+
+[ArrayList] Run Count: 100, Total: 11.52 ms, Average: 0.11 ms
+
+[LinkedList] Run Count: 100, Total: 7596.95 ms, Average: 75.96 ms
+
+[Vector] Run Count: 100, Total: 8.08ms, Average: 0.08 ms
+
+ 
+
+LinkedList가 75ms로 다른 클래스보다 느리게 나왔습니다. 이러한 결과가 나온 이유는 LinkedList가 Queue 인터페이스를 상속받기 때문입니다. 이를 수정하기 위해서는 get() 메소드를 순차적으로 결과를 받아오는 poll() 메소드를 변경하면 됩니다.
+
+ 
+
+poll() 메소드 변경이후, 결과는 다음과 같습니다.
+
+ 
+
+[ArrayList] Run Count: 100, Total: 18.09 ms, Average: 0.18 ms
+
+[LinkedList] Run Count: 100, Total: 16.83 ms, Average: 0.16 ms
+
+[Vector] Run Count: 100, Total: 12.93 ms, Average: 0.12 ms
+
+ 
+
+LinkedList 클래스를 사용할 때는 get() 메소드보다 poll() 메소드를 사용하면 좋습니다. 또한 전체적인 응답시간을 보면 List가 Set보다 속도가 빠릅니다.
+
+ 
+
+2-3. Map 인터페이스
+
+대부분의 클래스들이 동일하지만, 트리 형태로 처리하는 TreeMap 클래스가 가장 느립니다. HashMap이나 Hashtable, LinkedHashMap은 거의 비슷한 속도를 보입니다.
+
+ 
+
+[HashMap] Run Count: 100, Total: 256.67 ms, Average: 2.56 ms
+
+[Hashtable] Run Count: 100, Total: 229.22 ms, Average: 2.29 ms
+
+[TreeMap] Run Count: 100, Total: 427.92 ms, Average: 4.27 ms
+
+[LinkedHashMap] Run Count: 100, Total: 224.32 ms, Average: 2.24 ms
+
+ 
+
+평균적으로 List > Set > Map 순으로 성능차이가 납니다. Set 중에서는 LinkedHashSet, List에서는 Vector, Map에서는 Hashtable이나 LinkedHashMap이 가장 빠릅니다. 다만 중요한 것은 대부분의 웹 애플리케이션에서는 10,000개까지 데이터를 저장할 일이 없다는 점입니다. 그렇게까지 수행을 하지 않는다면 어떤 Set, List, Map을 사용해도 시간상 별 차이는 없습니다.
+
+ 
+
+Sun에서 정리한, 각 인터페이스 별로 가장 일반적으로 사용되는 클래스는 다음과 같습니다.
+
+Set -> HashSet, List -> ArrayList, Map -> HashMap, Queue -> LinkedList
+
+
+
+출처: http://12bme.tistory.com/91 [길은 가면, 뒤에 있다]
