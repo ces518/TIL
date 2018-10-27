@@ -1,0 +1,12 @@
+Java Set
+
+HashSet	
+: 순서가 필요없는 데이터를 hash table에 저장. Set 중에 가장 성능이 좋음 [해시 알고리즘]
+TreeSet	
+: 저장된 데이터의 값에 따라 정렬됨. red-black tree 타입으로 값이 저장. HashSet보다 성능이 느림 [이진탐색트리](Comparator 아용 )
+LinkedHashSet	
+: 연결된 목록 타입으로 구현된 hash table에 데이터 저장. 저장된 순서에 따라 값이 정렬. 셋 중 가장 느림
+
+
+
+
