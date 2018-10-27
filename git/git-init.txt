@@ -1,0 +1,11 @@
+git 초기 세팅방법 
+
+1. github에 repository를 생성
+2. 터미널 
+3. git init 
+4. git add README.md readme.md 파일 추가 
+5. commit -m "test"  커밋메시지 test 로 등록
+6. git remote add 'alias 명' url
+7. git push -u alias master 
+
+master branch 로 해당 git에 push 된다.
