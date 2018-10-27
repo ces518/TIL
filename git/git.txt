@@ -1,0 +1,58 @@
+git 사용법 
+
+
+git은  총 7단계로 나뉜다.
+
+1.Fork
+
+2.clone,remote설정
+
+3.branch 생성
+
+4.수정작업 후 add,commit,push
+
+5.Pull Request 생성
+
+6.코드리뷰, Merge Pull Request
+
+7.Merge이후 branch 삭제및 동기화
+
+
+
+
+- Fork
+
+타겟 프로젝트의 저장소를 자신의 저장소로 Fork한다.
+Fork가 완료되면 자신의 계정에 새로운 저장소가 생긴다.
+
+
+- clone,remote 설정
+
+fork로 생성한 본인 계정의 저장소에서 clone or download 버튼을 누르고
+표시되는 url을 복사한다.
+
+터미널을 키고 Fork한 저장소를 로컬에 clone한다.
+
+$git clone https://github.com/아이디/저장소명
+
+# 원본 플젝 저장소를 원격 저장소로 추가
+$git remote add real-blog https://github.com/원본아이디/원본저장소
+
+# 원격 저장소 설정 현황확인
+$git remote -v
+
+
+- branch 생성
+
+자신의 로컬 컴퓨터에 코드를 추가하는 작업은 branch를 만들어서 진행한다.
+# develop 이라는 이름의 branch 를 생성한다.
+
+$ git checkout -b develop 
+Switched to a new branch 'develop'
+
+# 이제 2개의 브랜치가 존재하낟.
+$ git branch 
+develop
+master
+
+
