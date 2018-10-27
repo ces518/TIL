@@ -1,0 +1,143 @@
+Optional 
+
+자바 프로그래밍에서 NullPointerException 은 언제 터질지 모르는에러의 근원.
+이를 방지하기위해 대부분의 메서드에선 null체크를 하는 문제가있다.
+
+public void method (Object obj){
+    if(obj == null){
+        return;
+    }
+    ....
+}
+
+public String method2 (String str){
+    if(str == null){
+        return null; // null을 그대로 리턴하면 클라이언트에서 다시 null 체크가필요하므로 기본값을 리턴하도록하자.
+        return "";
+    }
+}
+
+
+이러한 반복적인 null 체크를 없애기위해 Java8에 Optional<T>라는 클래스가 추가됬다.
+실제 레퍼런스를 한번 감싸는 래퍼객체를 만들어 null 체크를 내부로 숨겼기에
+외부 코드에선 null체크가 보이지않게 감춘것이다.
+
+class Optional<T>{
+    private T t;
+}
+
+Stream과 마찬가지로 생성자가 아니라 Static Factory 메서드를 이용하여 객체를 생성한다.
+
+public static void main(String args[]) {
+   String str = "hello";
+   Optional<String> o1 = Optional.of(str); // str이 null이면 NPE 발생
+   Optional<String> o2 = Optional.ofNullable(str); // str이 null이면 빈 Optional 객체 반환
+   Optional<String> o3 = Optional.empty(); // 빈 Optional 객체 반환
+}
+
+
+of 같은 경우엔 인자가 null이면 NPE발생이기 떄문에 ofNullable 을 주로사용할듯하다.
+
+
+
+# Optional API
+
+-boolean isPresent()
+
+내부객체가 null이 아닌지 확인한다. null이면 false를 반환한다.
+
+
+
+-void ifPresent(Consumer<T>)
+
+void 추상메서드를 갖고있다. null이 아닐때만 실행된다.
+
+
+
+-Optional<T> filter(Predicate<T>)
+
+스트림은 여러 데이터를 들고있는 객체다보니 filter로 걸러지는 데이터들이 반환됐지만, Optional은 내부객체가 단일객체인만큼 해당 조건을 만족하는지만 확인하는 정도로 사용할 수 있을 것 같다.
+
+
+
+-Optional<U> map(Function<T, U>)
+
+스트림과 같다. 내부 객체를 변환하는 용도로 사용한다.
+
+
+
+-T get()
+
+내부 객체를 반환한다. 다만 내부 객체가 null이면 NPE가 발생한다. null이 아니라는 확실한 경우에만 사용을 권장한다.
+
+
+
+-T orElse(T)
+
+내부 객체를 반환한다. 내부 객체가 null이면 인자로 들어간 기본값을 반환한다.
+
+
+
+-T orElseGet(Supplier<T>)
+
+orElse()와 동일한데 orElse()가 기본값 레퍼런스를 인자로 받는다면 orElseGet()은 내부 객체가 null일때 기본값을 반환할 객체를 인자로 받는다.
+
+
+
+-T orElseThrow(Supplier<U>)
+
+내부 객체가 null이면 인자로 전달받은 예외를 발생시킨다.
+
+
+
+# 잘못된 코드 
+
+Optional<Integer> integer = Optional.empty();
+
+if(integer.isPresent()){
+   // ...
+}
+
+// ...
+
+기존의 == null 체크와 다를게없는코드이다. 가장 주의하고 지양해야할 패턴이다.
+
+
+# orElse() / orElseGet()
+
+
+Optional<Object> objectOptional = Optional.empty();
+
+Object object1 = objectOptional.orElse(new Object());
+Object object2 = objectOptional.orElseGet(() -> new Object());
+Object object3 = objectOptional.orElseGet(Object::new);
+
+
+3개가 모두 같은 표현이다. 
+2번째와 3번째는 람다를 메서드 레퍼런스로 바꾼것.
+orElse() 는 값을 짖어할때 사용하고, orElseGet() 은 레퍼런스를 지정할때 
+사용하는것이 좋은것같다.
+
+좀더 유용한것은 orElseGet() 이라는것이다.
+
+
+orElse(new Object()); 
+구문은 실제 내부 객체가 null이든 아니든 object객체를 생성하게된다. 
+일단 생성후 래퍼런스를 전달하고 null 판단후 생성한 객체를 사용할지 판단한다는것.
+
+orElseGet(); 
+구문은 객체를 생성하는 행위를 하는 메서드를 전달한다. orElseGet(); 내부에서는
+내부 객체가null일경우에만 해당 메서드를 실행하기때문에 null이 아니면 객체를
+생성하지않는다. 
+
+
+기본형 Optional 
+
+Stream은 Auto Boxing, Auto Unboxing비용을 줄이기위해, 그리고 좀 더 기본형에 특화된 API 제공을 위해 기본형 스트림을 제공한다. IntStream, DoubleStream이 대표적인데 Optional도 기본형 Optional을 제공한다.
+OptionalInt, OptionalDouble, OptionalLong이 있으며 사용법은 크게 다르지 않다.
+
+OptionalInt optionalInt1 = OptionalInt.empty();
+OptionalDouble optionalDouble1 = OptionalDouble.empty();
+OptionalLong optionalLong1 = OptionalLong.empty();
+
+
