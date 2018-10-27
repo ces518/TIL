@@ -1,0 +1,18 @@
+List 반복시엔 forEach를 사용하자
+
+
+List<T>의 구현체는 대표적으로 ArrayList<T>, LinkedList<T>가 있을텐데 이 구현체에 따라서 get() 메서드의 시간복잡도가 극명하게 달라질 수 있다는 것이다.
+
+LinkedList의 경우 인자로 전달된 인덱스의 요소를 가져오기위해서는 항상 첫 노드에서부터 찾아 들어가야하기때문에 get()의 시간복잡도는 O(n)이다. for문과 결합되면 2중 반복문으로 돌아서 O(n^2)이 되는것이다. 
+
+
+
+static <T> void method01(List<T> list){
+    for(int i = 0; i < list.size(); i++){
+        T t = list.get(i);
+        // 인덱스를 사용하는 추가코드...
+    }
+}
+
+
+LinkedList는 get()메서드 내부에 이미 반복문이 있기때문에 의도치않게 2중반복이 되는것이다.
