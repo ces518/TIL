@@ -1,0 +1,50 @@
+JDK 1.8 에서의 HashMap 변경점
+
+
+<HashMap 이해하기>
+
+Java에서 HashMap을 어떻게 구현하나면, 일단 내부에서 배열을 사용하고 있다.
+
+
+ Java 8 이전
+ Java 8
+ transient Entry[] table;
+ transient Node<K,V>[] table;
+
+
+
+보통 초기 capacity 를 지정해 주지 않기 때문에, 기본값인 16으로 capacity 로 배열이 생성이 된다.
+
+=============================================================
+ public V put(K key, V value) {
+ 387           if (key == null)
+ 388               return putForNullKey(value);
+ 389           int hash = hash(key.hashCode()); // key의 해쉬값으로 다시 해쉬값을 얻는다. 
+ 390           int i = indexFor(hash, table.length); // 실제 배열 index를 얻는다. 
+                     // 이미 존재하는 값이 있는지 체크하고 있으면, 기존것에 변경을 한다. 
+ 391           for (Entry<K,V> e = table[i]; e != null; e = e.next) { 
+ 392               Object k;
+ 393               if (e.hash == hash && ((k = e.key) == key || key.equals(k))) {
+ 394                   V oldValue = e.value;
+ 395                   e.value = value;
+ 396                   e.recordAccess(this);
+ 397                   return oldValue;
+ 398               }
+ 399           }
+ 400   
+                     // 완전히 새로운 것이라면, 실제로 데이터를 넣는다.
+ 401           modCount++;
+ 402           addEntry(hash, key, value, i); 
+ 403           return null;
+ 404       }
+=============================================================
+그리고, 만약 lnked list 가 Map으로 바뀌게 될 때,, 걔들이 tree로 구성이 되기 위해서 각 노드들이 ordering 이 되야 할텐데,.
+즉, ordering 을 한다는것은, 객체를 서로 비교한다는건데
+그때 해당 객체가 comparable interface를 구현하지 않았을 경우, 아래의 함수를 호출해서, 객체 비교를 실행하게 된다.
+연산이 더 많기 때문에, 성능이 떨어진다고 한다. 
+
+
+정리하자면,
+Java 8 부터는 Red-black tree를 사용해서 최악의 lookup도 O(log N)이 걸린다. 
+Java 8 에서 어떤 객체를 HashMap에 넣으려고 한다면, 그 객체가 comparable 을 구현하게 하자.
+
