@@ -1,0 +1,10 @@
+# Filter 와 Interceptor의 차이 
+
+1. Filter 와 Interceptor는 실행시점이다르다.
+(Filter는 DisPatcherServlet (스프링컨테이너) 이전에 실행.
+Interceptor는 DisPatcherServlet 이후 에 실행된다.)
+
+2. Filter는 WebApplication (Web.xml) 에 등록을하고,
+Interceptor는 Spring Context에 등록한다.
+
+
