@@ -6,3 +6,7 @@ IoC / DI 프레임워크.
 대부분 사용가능하다.
 
 - 오픈소스 프로젝트이다.
+
+
+-ContextLoaderListener 가 스프링 IoC 컨테이너를 사용할수도있도록sevlertContext 에 등록해주는 역할을한다.
+
