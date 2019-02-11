@@ -1,0 +1,61 @@
+<%@ taglib prefix="sec" 	uri="http://www.springframework.org/security/tags" %>
+
+
+
+<form>
+
+<sec:csrfInput />
+
+</form>
+
+
+
+Ajax 를 이용하려면
+
+<html>
+
+<head>
+
+          <sec:csrfMetaTags/>
+
+</head>
+
+</html>
+
+
+
+global js 파일을 하나 만드셔서 ajax submit 시
+
+/*
+
+ *  Cross Site Request Forgery (CSRF)
+
+ *  protected CSRF for ajax Jquery
+
+ */
+
+
+
+(function($) {
+
+
+
+	var token = $("meta[name='_csrf']").attr("content");
+
+	var header = $("meta[name='_csrf_header']").attr("content");
+
+	$.ajaxSetup({
+
+           beforeSend: function(xhr) {
+
+        	xhr.setRequestHeader(header, token);
+
+          }
+
+    });
+
+
+
+})(jQuery);
+
+이렇게 사용하시면 ajax도 문제 없이 csrf 를 이용할 수 있습니다. 참고하세요~
