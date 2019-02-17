@@ -14,3 +14,10 @@
 - /june 으로 매핑하면 /june.* 의 확장자 패턴 매핑을 자동으로 설정해준다.
 - ps . 확장자패턴은 최근에는 걷어내는 추세이다.. 다양한 타입의 데이터를 제공해야한다면 , contentType에 싣는것을 가장 먼저 고려해볼것.
 - 차선책으로는 파라메터에 싣는것을 권장한다.
+```
+    @GetMapping("/uri/{name:[a-z]}")
+    @ResponseBody
+    public String helloUri(@PathVariable String name){
+        return "hello " + name;
+    }
+```
