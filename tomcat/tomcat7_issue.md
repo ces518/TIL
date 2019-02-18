@@ -4,6 +4,7 @@
 - pom.xml에 el-api를 3.0으로 의존성을 추가하더라도 
 - Tomcat이 Runtime시에 가로채 톰캣의 el-api를 사용해버린다..
 - Tomcat Version 8 이상에선 el-api 3.0 이므로 version up 을 해보자..
+>Spring Boot 사용시 hibernate Validator가 자동적으로 의존성으로 들어오기 때문에 발생하는 경우도 있다.
 ```
 Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: Invocation of init method failed; nested exception is javax.persistence.PersistenceException: [PersistenceUnit: default] Unable to build Hibernate SessionFactory; nested exception is org.hibernate.cfg.beanvalidation.IntegrationException: Error activating Bean Validation integration
 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1762)
