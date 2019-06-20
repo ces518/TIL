@@ -1,0 +1,65 @@
+# 반복문
+
+javacscript 반복문은 4가지가 존재한다
+- for, forEach, for of, for in
+
+```javascript
+const array = ['A', 'B', 'C', 'D'];
+const length = array.length;
+
+// for
+for (let i = 0; i < length; i++) {
+  console.log(array[i]);
+}
+
+// forEach
+array.forEach((i) => {
+  console.log(array[i]);
+});
+
+// for of
+for (let i of array) {
+  console.log(array[i]);
+}
+
+// for in 
+for (let i in array) {
+  console.log(array[i]);
+}
+
+출력:
+// for
+A
+B
+C
+D
+
+// forEach
+undefined
+undefined
+undefined
+undefined
+
+// for of
+undefined
+undefined
+undefined
+undefined
+
+// for in
+A
+B
+C
+D
+```
+
+- forEachd와 for of 가 undefined인 이유는
+  - 반복변수인 i 가 인덱스가아닌 실 값을 갖고있기때문
+
+- forEach
+  - forEach의 콜백함수의 매개변수는 첫번째는 해당 반복번째의 실 값
+  - 두번째는 인덱스
+  - 세번째는 배열이다.
+  - [].forEach((v, index, array) => { ... });
+   
+
