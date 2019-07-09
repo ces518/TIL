@@ -88,7 +88,4 @@ public class HelloController {
     @GetMapping("/sample")
     public String sample () {
         // /WEB-INF/sample.jsp
-        return "sample";
-    }
-}
-```
+        return "sample
