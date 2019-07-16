@@ -40,6 +40,7 @@
         - 첫번째 인자로 maxAge를 받고, 두번째 인자로 TimeUnit, 시간의 단위를 받는다.
         - 아래의 설정에선 캐시설정을 10분으로 지정한것이다.
     - 해당 캐시 설정을 한다면, 기본적으로 캐시관련된 Header가 응답헤더에 추가가된다.
+    - fileSystem 기준 경로로 설정도 가능하다.
 ```java
 @Override
 public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -135,7 +136,15 @@ MockHttpServletResponse:
 
 - Spring Boot가 기본으로 제공하는 ResouceHandler에 대한 캐시설정도 가능하다
 - application.properties 에서 제어가 가능하다.
-
+- Spring 4.1 이상
+    - ResourceChain: 캐시 사용 유무
+    - Transformer와 Resolver를 추가할 수 있다.
+    - ResourceResolver 요청에 해당하는 리소스를 찾는 전략
+        - 캐싱, 인코딩 (gzip) WebJar ...
+            - Spring Boot를 사용한다면 기본적으로 제공하기때문에 직접 설정할 일이 없음. 
+    - ResourceTransformer
+        - 응답으로 보낼 리소르를 수정하는 전략
+        - 캐싱, CSS 링크, HTML5 , Meta ... 
 
 
 #### 정리
