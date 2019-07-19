@@ -1,23 +1,20 @@
-java.lang.String 클래스 내의 활용가능한 메서드의 확장자원 
+# StringUtils
+- java.lang.String 클래스 내의 활용가능한 메서드의 확장자원 
+- http://commons.apache.org
+- Lang > commons-lang-2.6-bin.zip 다운로드
 
-http://commons.apache.org
-
-Lang > commons-lang-2.6-bin.zip 다운로드
-
-StringUtils 사용가능
-
-StringUtils 만으로 거의 대부분의 문자열 처리를 수행가능하다.
-파라미터 값으로 null을 주더라도 절대 NullPointerException 을 발생시키지않는다.
+- StringUtils 만으로 거의 대부분의 문자열 처리를 수행가능하다.
+- 파라미터 값으로 null을 주더라도 절대 NullPointerException 을 발생시키지않는다.
 
 
-API
-= http://commons.apache.org/proper/commons-lang/javadocs/api-release/index.html
+- API
+    - http://commons.apache.org/proper/commons-lang/javadocs/api-release/index.html
 
 
-예제
+- 예제
 
-* StringUtilsTest.java */
-
+- * StringUtilsTest.java 
+```java
 package com.chocolleto.board.user;
 
 import org.apache.commons.lang.StringUtils;
@@ -117,3 +114,4 @@ public class StringUtilsTest {
     }
 
 }
+```
