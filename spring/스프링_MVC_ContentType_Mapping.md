@@ -96,7 +96,8 @@ public class MvcController {
 }
 ```
 
-- Test
+- 테스트
+
 ```java
 @Test
 public void helloTest () throws Exception {
@@ -107,9 +108,10 @@ public void helloTest () throws Exception {
 }
 ```
 
-- 결과
+- 테스트 결과
     - 415 UnSupportedMediaType 응답
     - 해당 컨텐츠타입을 지원하지않음. 
+    
 ```java
 MockHttpServletRequest:
       HTTP Method = GET
@@ -149,6 +151,8 @@ MockHttpServletResponse:
 ```
 
 - 일반적으로 web에서 요청을보낼경우 text/html 로 요청을 보내게됨.
+
+
 - ContentType 을 application/json 으로 테스트진행
 
 ```java
@@ -163,8 +167,10 @@ public void helloTest () throws Exception {
 ```
 
 
-- 결과
+
+- 테스트 결과
     - 200 응답
+    
 ```java
 MockHttpServletRequest:
       HTTP Method = GET
@@ -205,10 +211,12 @@ MockHttpServletResponse:
 ```
 
 - 특정한 타입의 응답을 만드는 핸들러
-    - @RequestMapping(produces="application/json")
-    - accpet Header로 필터링
+    - @RequestMapping(produces="application/json") 을 활용
+    - accpet Header로 필터링 한다
+
 
 - TEXT/PLANE 의 응답만 처리하는 핸들러 코드 작성
+
 ```java
 @Controller
 public class MvcController {
@@ -225,7 +233,8 @@ public class MvcController {
 ```
 
 - 테스트
-    - application/json 응답을 받도록 요청
+    - application/json 응답을 받도록 요청 테스트
+    
 ```java
 @Test
 public void helloTest () throws Exception {
@@ -238,8 +247,9 @@ public void helloTest () throws Exception {
 }
 ```
 
-- 결과
+- 테스트 결과
     - 406 NotSupported 응답
+    
 ```java
 MockHttpServletRequest:
       HTTP Method = GET
@@ -278,6 +288,7 @@ MockHttpServletResponse:
           Cookies = []
 ```
 
+
 #### 애매한점
 - accept Header가 정의되지 않은경우, 모든 응답을 받는다는 의미이기때문에 에러가 발생하지 않는다.
 
@@ -292,7 +303,7 @@ public void helloTest () throws Exception {
 }
 ```
 
-- 결과
+- 테스트 결과
 ```java
 MockHttpServletRequest:
       HTTP Method = GET
