@@ -153,3 +153,9 @@ public Event hello (@Valid @ModelAttribute Event event, BindingResult result) {
     return event;
 }
 ```
+
+#### 정리
+- 요청매개변수가 많다면 @ModelAttribtue를 활용하여 컴포짓오브젝트 (복합객체) 로 받아올 수있다.
+- 바인딩이 불가능한 요청이 존재할경우, 400Error, BindingException이 발생한다.
+- Valid, Validated를 활용하여 유효성 검증이 가능하다.
+- BindinResult객체로 바인딩 에러, 검증에러에 대한 핸들링이 가능하다 
