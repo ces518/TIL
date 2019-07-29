@@ -4,7 +4,8 @@
     - Ignore-default-model-on-redirect 옵션을 사용해서 활성화 할 수 있음.
     - Model에 존재하는 모든 Primitive Type DATA들을 추가하지않고, 원하는 데이터만 명시적으로 추가하고 싶다면 RedirectAttributes를 사용한다.
 
-- RedirectAttributes
+- RedirectAttributes   
+    - Spring 3.1 이상 제공 
     - Redirect시 원하는 값들을 전달하고 싶다면 RedirectAttributes를 사용해서 추가할 수 있다.
     - addAttribute로 담긴 primitive type data는 QueryParameter로 전달이된다.
     - URI 로 전달되기 때문에 문자열로 변환이 가능해야한다.
