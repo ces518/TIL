@@ -1,6 +1,7 @@
 # Spring Handler Method - @RedirectAttributes
 - Redirect시 Model에 존재하는 Primitive Type데이터는 자동으로 URI QueryParameter로 추가된다.
     - 스프링부트 에서는 이 기능이 기본적으로 비활성화 되어있다.
+    - RequestMappingHandlerAdapter 설정에 setIgnoreDefaultModelOnRedirect = true 로 되어있음.
     - Ignore-default-model-on-redirect 옵션을 사용해서 활성화 할 수 있음.
     - Model에 존재하는 모든 Primitive Type DATA들을 추가하지않고, 원하는 데이터만 명시적으로 추가하고 싶다면 RedirectAttributes를 사용한다.
 
