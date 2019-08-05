@@ -1,4 +1,4 @@
-# REST API - Event API 구현 201 응답
+# REST API - Event 생성 API 구현 201 응답
 - JSON 응답으로 201 이 오는지 테스트를 진행
 
 - @RestController
