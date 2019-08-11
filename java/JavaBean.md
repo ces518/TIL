@@ -1,0 +1,12 @@
+#### Java Bean 이란 ?
+- JavaBean Spec 에 따라 작성된 자바 클래스를 의미한다.
+- 1. 반드시 클래스는 패키지화 해야한다.
+- 2. 멤버변수는 Property라 칭한다.
+- 3. 클래스는 필요에 따라 직렬화 할 수 있어야한다.
+- 4. Property의 접근제어자는 Private 이다.
+- 5. Property마다 별도의 get/set 메서드가 존재해야한다.
+- 6. get/set 메서드는 public이어야한다.
+- 7. Property에 접근할때 반드싱 method 를 통하여 접근해야한다.
+- 8. Property는 반드시 읽기/쓰기가 가능해야 하며 읽기 전용ㅇ니 경우 get Method만 정의할 수 있다.
+- 9. get Method는 파라메터가 존재하지 않아야하며, set Method는 반드시 둘 이상의 파라메터가 존재해야한다.
+- 10. Property가 Boolean Type이라면 get 대신 is 를 사용할 수 있다.
