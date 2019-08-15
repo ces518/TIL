@@ -1,4 +1,4 @@
-# REST API - Spring - REST DOCS_요청__문서화
+# REST API - Spring - REST DOCS_요청_문서화
 #### REST Docs 자동설정
     - @AutoConfigureRestDocs
     - Spring Boot를 사용한다면 별다른 설정 없이 @AutoConfigureRestDocs 애노테이션만 사용하면 Rest Docs를 사용할 수 있다.
