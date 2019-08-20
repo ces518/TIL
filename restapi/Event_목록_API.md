@@ -1,4 +1,4 @@
-# REST API - Spring - REST DOCS Event list API
+# REST API - Event list API
 - 이벤트 목록 조회 API 구현
 
 #### 필요한것
