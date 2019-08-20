@@ -1,4 +1,4 @@
-# REST API - Spring - REST DOCS Event View API
+# REST API - Event View API
 - 이벤트 상세 조회 API 구현
 - 조회하는 이벤트가 존재할 경우 이벤트 리소스 확인
     - self
