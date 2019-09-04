@@ -1,6 +1,6 @@
 # Redis 란 ?
-    - Remote Dictionay Server 의 약자
-    - Redis 는 Key-Value 쌍의 비 정형 데이터를 저장하고 관리하기 위한 비관계형 데이터 베이스
+- Remote Dictionay Server 의 약자
+- Redis 는 Key-Value 쌍의 비 정형 데이터를 저장하고 관리하기 위한 비관계형 데이터 베이스
 
 ##### Redis 의 동작 방식
 - Disk 저장 방식이 아닌 메모리 저장 방식
