@@ -1,6 +1,8 @@
 # Spring Security - ArcheTecher_Filter FilterChainProxy
 - Spring Securty 가 제공하는 Filter와 FilterChainProxy
 
+![FilterChainProxy](./images/FilterChainProxy.png)
+
 #### Spring Security가 제공하는 Filter들
 - 1. WebAsyncManagerIntergrationFilter
 - 2. `SecurityContextPersistenceFilter`
