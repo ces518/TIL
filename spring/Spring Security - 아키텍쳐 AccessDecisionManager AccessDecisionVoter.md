@@ -8,7 +8,7 @@
 - 인터페이스 구현체는 3가지를 기본으로 제공한다.
     - Voter라는 개념을 가지고 있다.
     - Voter는 의사결정을 내리는데 사용 하며 여러개의 Voter를 가질 수 있다.
-    - **AffirmativeBased**: 여러 Voter중에 하나라도 허용되면 허용된다. (기본 전략)
+    - **AffirmativeBased**: 여러 Voter중에 하나라도 허용하면 허용된다. (기본 전략)
     - ConsensusBased: 다수결
     - UnanimousBased: 만장일치
 
