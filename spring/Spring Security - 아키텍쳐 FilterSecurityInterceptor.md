@@ -4,7 +4,7 @@
 
 #### FilterSecurityInterceptor 
 
-![FilterChainProxy](./images/FilterChainProxy.png)
+![FilterChainProxy_arch](./images/FilterChainProxy_arch.png)
 
 - FilterChainProxy가 호출하는 Filter중 하나이다.
 - 대부분의 경우에 가장 마지막에 사용된다.
