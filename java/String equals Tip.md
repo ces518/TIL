@@ -1,12 +1,53 @@
 # String 비교 "상수".equals(객체), 객체.equals("상수")
+- 자바에서 문자열을 비교할때 논란이 있는 부분이다.
+- "상수".equals() 냐, 변수.equals("상수") 냐의 문제다.
 
+#### 변수를 먼저 사용했을 경우
+- 다음은 변수를 먼저 사용했을때의 코드이다.
+```java
+String str = null;
 
-/**
- * 모든 HTML 태그를 제거하고 반환한다.
- * 
- * @param html
- * @throws Exception  
- */
-public String removeTag(String html) throws Exception {
-	return html.replaceAll("<(/)?([a-zA-Z]*)(\\s[a-zA-Z]*=[^>]*)?(\\s)*(/)?>", "")
+if (str.equals("HELLO")) {
+
 }
+```
+
+- str이라는 변수의 equals메서드를 사용해 "HELLO" 상수와 비교연산을 진행한다.
+- 만약 str변수에 null이 들어온다면 null에 대해 equals 메서드를 호출했기때문에 NullPointerException 이 발생하게 된다.
+- 이를 사전에 방지하기 위해 Null 체크 로직이 필수적으로 들어가야한다.
+변경된 코드는 다음과 같다.
+```java
+String str = null;
+
+if (str != null && str.equals("HELLO")) {
+
+}
+```
+
+#### 상수를 먼저 사용했을 경우
+- 다음은 상수를 먼저 사용했을때의 코드이다.
+```java
+String str = null;
+
+if ("HELLO".equals(str) {
+
+}
+```
+
+- 이번에는 "HELLO" 라는 문자열 상수의 equals메서드를 사용해 str변수와 비교연산을 진행한다.
+- str변수에 null이 들어오더라도, equals메서드는 "HELLO" 상수 (String 객체) 이기 때문에 NullPointerException 이 발생하지 않는다.
+- 이전 코드에서의 문제인 Null 체크 로직이 사라지게 되는것이다.
+
+
+#### 변수냐 상수냐
+- 상수를 먼저 사용했을경우에는 NullPointerException 이 발생하지 않아 반복적인 Null 체크 로직이 사라지게된다.
+- 하지만 이는 항상 정답이 아니다.
+- Null을 숨기는 코드이기때문에 만약 해당 변수에 null이 들어왔을때 비지니스에 영향을 미쳐 버그를 발생시키는 코드라면 이는 문제가 될것이다.
+	- 예외가 발생하지않아 정상적으로 돌아가는 코드처럼 보이지만 치명적인 버그를 발생시키는 경우
+- 변수를 먼저 사용했다면 NullPointerException 이 발생하여 비지니스에서 버그가 발생하는 일은 없을것이다.
+
+
+#### 결론
+- 상수냐 변수냐는 상황에 따라 적절히 사용하는 것이 중요하다.
+- 만약 null이 들어와도 비지니스에 영향을 미치지않을 경우 상수를 먼저 사용하는케이스가 좋을것이고 null이 비지니스에 영향을 미치는경우엔 변수를 먼저 사용하는것이 좋다고 생각한다.
+- 뭐가 옳다 그르다를 떠나 상황에 따라 적절히 사용할줄 아는것이 가장 중요하다.
