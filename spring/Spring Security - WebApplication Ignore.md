@@ -35,7 +35,15 @@ Spring Security FilterChain을 거친뒤 루트페이지에 대한 응답을 받
 ![Ignore_withSpringBoot](./images/Ignore_withSpringBoot.png)
 
 
+#### HttpSecurity
+- WebSecurity설정을 하지않고, HttpSecurity설정에 정적 리소스들에 대한 ignore 설정을 해두면, SpringSecurity FilterChain을 거치게 된다.
+- 결과는 동일하지만, SpringSecurity FilterChain을 거치면서 AnoymousAuthentication이 생성되고, 익명 사용자들이 접근가능한 리소스가 되는것이다.
+- 불필요한 서버 자원이 낭비되는것이다.
+
+![Ignore_HttpSecurity](./images/Ignore_HttpSecurity.png)
+
 #### 정리
 - favicon과 같은 static resource들은 Spring Security FilterChain을 적용하고 싶지 않다면 WebSecurity를 커스터마이징을 해주어야한다.
 - WebSecurity를 커스터마이징 하는 방법은 WebSecurityConfigurerAdapter클래스를 상속받은 설정클래스에서 configurer method를 오버라이딩 하는것이 편리하다.
 - WebSecurity를 커스터마이징할때 SpringBoot를 사용중이라면 좀 더 편리한 설정이 가능해진다.
+- 정적 리소스라면, HttpSecurity보다 WebSecurity에 ignore 설정을 하는것이 좀 더 효율적이고 추천하는 방법이다.
