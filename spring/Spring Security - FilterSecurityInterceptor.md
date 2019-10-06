@@ -1,7 +1,7 @@
 # Spring Security - FilterSecurityInterceptor
 
 #### FilterSecurityInterceptor
-- Sring Security 에서 가장 마지막에 존재하는 필터
+- Spring Security 에서 가장 마지막에 존재하는 필터
 - 아키텍쳐를 살펴볼때 이미 디버깅을 통해 디테일하게 살펴보았다.
 - AccessDecisionManager등을 사용해서 인증/인가 처리를 하는 필터이다.
 - SpringSecurityFilterChain의 15개의 필터 중에서 Http Resource Security 처리를 담당하는 필터이다.
