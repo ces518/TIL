@@ -1,6 +1,6 @@
 # 상속
 
-
+```javascript
 function Car(name,speed){
     this.name = name;
     this.speed = speed;
@@ -22,6 +22,7 @@ FireCar.prototype.constructor = FireCar;
 FireCar.prototype.splash = function(){
     console.log('Water = ' + this.water + 'L');
 }
+```
 
 > FireCar 는 Car를 상속한다.
 Car.apply(this,arguments); 는 Car의 this들을 그대로 받으라는 의미이다.
