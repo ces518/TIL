@@ -23,7 +23,7 @@ public class MethodSecurity {
 - 기본값은 false
 
 2.prePostEnabled
-- @PreAuthoried, @PostAuthoried 애노테이션을 사용하여 인가 처리를 하고 싶을때 사용하는 옵션이다.
+- @PreAuthorize, @PostAuthorize 애노테이션을 사용하여 인가 처리를 하고 싶을때 사용하는 옵션이다.
 - 기본값은 false
 
 3.jsr250Enabled
@@ -42,16 +42,16 @@ public void dashboard () {
         ...
 }
 ```
-##### @PreAuthorized, @PostAuthorized
+##### @PreAuthorize, @PostAuthorize
 - 특정 메서드 호출 전, 후 이전에 권한을 확인한다.
 - SpEL을 지원한다.
 - 스프링에서 지원하는 애노테이션이다.
-- PostAuthorized는 해당 메서드의 리턴값을 **returnObject** 로 참조하여 SpEL을 통해 인가 처리를 할 수 있다.
+- PostAuthorize는 해당 메서드의 리턴값을 **returnObject** 로 참조하여 SpEL을 통해 인가 처리를 할 수 있다.
 
 ```java
-@PreAuthorized("hasRole('USER')")
-@PostAuthorized("hasRole('USER')")
-@PostAuthorized("returnObject.username == authntication.principal.nickName")
+@PreAuthorize("hasRole('USER')")
+@PostAuthorize("hasRole('USER')")
+@PostAuthorize("returnObject.username == authntication.principal.nickName")
 public void dashboard () {
     ...
 }
