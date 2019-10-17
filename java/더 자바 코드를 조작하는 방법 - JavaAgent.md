@@ -106,3 +106,8 @@ MANIFEST 헤더정보에 PremainClass, Redefine, Retransform과 같은 정보가
 `실행결과`
 
 ![JavaagentResult](./images/JavaagentResult.png)
+
+
+
+#### 정리
+- javaagent방식과 기존 방식과의 차이점은 기존 방식은 .class 파일을 바이트코드 조작을 통해 변경하는 방식이지만, javaagent방식은 클래스로더가 로드하는 시점에 변경해버리는 방식이다. 따라서 .class파일에 영향을 주지 않게 된다.
