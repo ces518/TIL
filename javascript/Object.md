@@ -1,7 +1,6 @@
 # Object
-
 - Object 객체의 생성자는 window객체에 저장되어있다.
-모든 객체가 Object 객체로부터 상속받기 때문에 모든 객체는 Object객체의 메서드들을 사용할 수 있다.
+- 모든 객체가 Object 객체로부터 상속받기 때문에 모든 객체는 Object객체의 메서드들을 사용할 수 있다.
 
 
 # Method 
@@ -36,7 +35,7 @@
 숫자 계산시 내부적으로 호출된다.
 
 8. Object.create(prototype,속성)
-
+```javascript
 var obj = {}; // Object.create(Object.prototype); 과 같다.
 var obj2 = Object.crate(null,{
     a: {
@@ -45,6 +44,7 @@ var obj2 = Object.crate(null,{
         value: 5,
     }
 });
+```
 - 객체를 생성하는 방법중 하나이며 속성들은 writable,configurable,enumerable,get,set,value 의 옵션이있다.
 
 9. Object.definedProperties(객체,속성들), Object.definedProperty(객체,속성,설명)
@@ -55,7 +55,7 @@ configurable : 속성의 설명 변경 가능유무
 value : 속성의 값
 get : value를 get 
 set : value를 set
-
+```javascript
 var obj = {};
 Object.defineProperties(obj, {
   a: {
@@ -88,7 +88,7 @@ obj.b; // 그대로 'name'
 Object.defineProperty(obj, 'b', {
   value: 5
 }); // Uncaught TypeError: Cannot redefine property: b
-
+```
 
 10. Object.getOwnPropertyDescriptor(객체,속성);
 
@@ -114,14 +114,16 @@ Object.preventExtensions : 속성 추가 불가 , 그외 설정 가능
 - 객체가 freeze , sealed , preventExtension 상태인지 알려준다.
 
 14. typeof 
-
+```javascript
 var a = 1;
 typeof a; // number
-
+```
 - 배열과 null도 object로 표현된다. 
 배열구분시 Array.isArray , null 구분시 따로 처리해야한다.
 
 15. delete 
+```javascript
 var obj = {a:'test'};
 delete obj.a;
+```
 - 객체 내 속성을 제거한다. 성공여부 boolean값 반환 
