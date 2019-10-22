@@ -8,6 +8,7 @@
 - 클로저를 말할땐  '스코프,컨텍스트,비공개 변수와 함수의 관계' 를 
 항상 같이말해주어야한다.
 
+```javascript
 var makeClosure = function() {
   var name = 'zero';
   return function () {
@@ -16,4 +17,5 @@ var makeClosure = function() {
 };
 var closure = makeClosure(); // function () { console.log(name); }
 closure(); // 'zero';
+```
 
