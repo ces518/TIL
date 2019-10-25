@@ -32,11 +32,11 @@ screen, location, history, document 등이 있다.
 - 새창을 연다, 팝업의 형태로 열수도있고, 새탭으로도 열수있다.
 첫번째 인자로 주소, 두번째인자로 새탭 or 현재탭에 열지 설정할수있으며 
 세번째 인자로 각종 설정을 전달할수있다. 
-
+```javascript
 open('https://zerocho.herokuapp.com'); // 새 탭
 open('https://zerocho.herokuapp.com', '_self'); // 현재 탭
 open('', '', 'width=200,height=200'); // 가로세로 200px의 팝업창
-
+```
 - 변수.document.wrtie 로 새창의 내용을 변경도 할 수 있다.
 
 팝업창에서 부모창으로 접근이 가능하다. 
@@ -51,7 +51,7 @@ opener 객체 활용
 
 
 # window.setTimeout(함수,밀리세컨), window.setInterval(함수,밀리세컨);
-
+```javascript
 setTimeout(function() {
   alert('1초 뒤');
 }, 1000);
@@ -59,24 +59,24 @@ setTimeout(function() {
 setInterval(function() {
   console.log('1초마다');
 });
-
+```
 
 - 프로그래밍시 몇 초 뒤 실행되어야할때 사용한다.
     setTimeout 은 지정한 시간뒤 1회 실행되고
     setInterval 은 지정한 시간마다 반복된다.
 
-
+```javascript
 var timeout = setTimeout(function() {}, 1000);
 clearTimeout(timeout);
-
+```
 - 실행중 중간에 멈춰야 하는경우, 먼저변수에 지정해둔다음 
 그변수를 이용해서 중지할수있다.
 
 
 # window.getConputedStyle(태그);
-
+```javascript
 console.log(getComputedStyle(document.getElementById('app-root')));
-
+```
 - 현재적용된 css 속성 값을 알수있다.
 
 
@@ -102,13 +102,13 @@ navigator.vendor; // "Google Inc"
 
 
 3. location
-
+```javascript
 location.host; // "www.naver.com"
 location.hostname; // "www.naver.com"
 location.protocol; // "https:"
 location.href; // "https://www.naver.com/..."
 location.pathname; // "/../.../....."
-
+```
 
 - location 객체는 주소에 대한 정보를 알려준다. (protocol, host, hostname, pathname, href, port, search, hash)
 location.reload() 로 새로고침도 가능하다. 
