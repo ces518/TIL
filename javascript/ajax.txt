@@ -1,3 +1,4 @@
+```javascript   
    $.ajax({
         url : requestUrl,
         type : 'DELETE',
@@ -38,7 +39,7 @@
             $('.wrap-loading').addClass('display-none');
         }
     });
-
+```
 
 
 *async // true , false
