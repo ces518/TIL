@@ -1,18 +1,18 @@
-Builder Pattern 
+# Builder Pattern 
 
-=============================
+```java
 Member customer = Member.build()
     .name("홍길동")
     .age(30)
     .build();
-=============================
+```
 
 
 생성자 인자가 많을시 Builder패턴을 고려.
 
 
 
-=============================
+```java
 // Effective Java의 Builder Pattern
 public class NutritionFacts {
     private final int servingSize;
@@ -68,12 +68,14 @@ public class NutritionFacts {
         carbohydrate = builder.carbohydrate;
     }
 }
-===================================
+
 
 NutritionFacts facts = new NewtiritionFacts.builder()
 	.calotires(100)
 	.sodium(35)
 	.build();
+```
+
 
 최초호출시 NutirionFacts에 기본값을 세팅함
 return this를통해 체이닝이 가능하다.
