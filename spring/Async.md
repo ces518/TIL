@@ -1,4 +1,4 @@
-@Async
+# @Async
 
 spring 에서 제공하는 비동기 지원 어노테이션
 
@@ -13,13 +13,14 @@ SimpleAsyncTaskExecutor 가 비동기 처리스레드로 구동된다.
 
 이 방법은 스레드 관리가 이뤄지지않음.
 
-# Async Config Class (Thread pool 을 활용한 관리방법 )
+### Async Config Class (Thread pool 을 활용한 관리방법 )
 
 Application 클래스의 @EnableAsync을 제거
 
 Application 클래스에 @EnableAutoConfiguration(혹은 @SpringBootApplication) 설정이 되어있다면
 런타임시 @Configuration가 설정된 SpringAsyncConfig 클래스의 threadPoolTaskExecutor bean 정보를 읽어들임.
 
+```java
 @Configuration
 @EnableAsync
 public class SpringAsyncConfig {
@@ -37,14 +38,14 @@ public class SpringAsyncConfig {
 
 }
 
-  @Async("threadPoolTaskExecutor")
-    public void method1() throws Exception {
-        // do something
-    }
+@Async("threadPoolTaskExecutor")
+public void method1() throws Exception {
+    // do something
+}
 
-    어노테이션에 스레드풀의 명을 달아주면 해당 스레드풀로 관리됨.
+어노테이션에 스레드풀의 명을 달아주면 해당 스레드풀로 관리됨.
 
-
+```
 
 # 장점
 
@@ -78,8 +79,8 @@ Handler를 이용해서 exception에 대한 처리 방법을 알려드립니다.
 WAS 프로세스가 종료되는 과정에서 threadPoolTaskExecutor bean을 종료해야하는데 그 방법을 약속하지 않았고 결국 종료에 실패해서 발생하는 메시지 입니다. 이 상황에서는 memory leak과는 큰 상관없고 결국 JVM의 heap memory가 OS에게 반환되면서 threadPoolTaskExecutor bean이 차지하던 memory도 당연히 반환됩니다.
 
 다만 WAS 종료시마다 경고 메시지가 뜨게 되고 이러한 불필요한 경고, 에러 메시지가 많이 발생하는 시스템은 운영자가 정작 중요한 경고, 에러 메시지를 놓치기 쉽기 때문에 메시지가 발생하지 않도록 처리하는 것이 좋습니다.
-
-   public class HandlingExecutor implements AsyncTaskExecutor {
+```java
+public class HandlingExecutor implements AsyncTaskExecutor {
         private AsyncTaskExecutor executor;
 
         public HandlingExecutor(AsyncTaskExecutor executor) {
@@ -146,4 +147,4 @@ WAS 프로세스가 종료되는 과정에서 threadPoolTaskExecutor bean을 종
     }
 
 }
-
+```
