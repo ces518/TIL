@@ -41,6 +41,7 @@ public class File {
 
 // FileDetail
 @Entity
+@IdClass(FileDetailId.class)
 @Getter @Setter
 public class FileDetail {
     @Id
