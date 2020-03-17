@@ -28,6 +28,8 @@ public Page<MemberTeamDto> searchPageComplexOptimization(MemberSearchCondition s
                     ageGoe(searchCondition.getAgeGoe()),
                     ageLoe(searchCondition.getAgeLoe())
             )
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
             .fetch();
 
     JPAQuery<Member> countQuery = queryFactory
