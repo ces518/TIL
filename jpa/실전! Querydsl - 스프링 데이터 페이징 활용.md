@@ -77,6 +77,8 @@ public Page<MemberTeamDto> searchPageComplex(MemberSearchCondition searchConditi
                     ageGoe(searchCondition.getAgeGoe()),
                     ageLoe(searchCondition.getAgeLoe())
             )
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
             .fetch();
 
     // count 쿼리에서 성능최적화를 할 수있다.
