@@ -56,6 +56,10 @@ public class MemberJpaRepository {
     }
 }
 ```
+- 순수 JPA를 사용하면 JPQL을 직접 다루기 때문에, 타입 세이프 하지않으며, 런타임시점에 오류가 발생한다.
+    - 휴먼 에러에 취약함 (오타)
+- 반면 Querydsl을 사용하면 자바코드를 이용하기 때문에 타입 세이프하고, IDE의 도움을 받을수 있으며 컴파일 시점에 오류가 발생한다.
+
 
 `동시성 문제`
 - JPAQueryFactory의 동시성 문제는 EntityManager에 의존하게 된다.
