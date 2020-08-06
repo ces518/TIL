@@ -2531,3 +2531,18 @@ HTTP/1.1 명세는 요청 본문은 있지만 Content-Length 헤더가 없다면
 - 하지만 메시지 무결성 검사를 위해 Content-MD5는 그다지 자주 전송되지 않는다.
 - HTTP 확장들은 IETF 초안으로 다른 요약 알고리즘들을 제안했다. 
 - Want-Digest 라는 새로운 헤더를 제안 했다.
+
+#### 15.4 미디어 타입과 차셋
+- Content-Type 헤더는 엔티티 본문의 MIME 타입을 기술한다.
+
+| 미디어 타입 | 설명 |
+|---|---|
+| text/html | HTML 문서 |
+| text/plain | 플레인 텍스트 |
+| image/* | 이미지 |
+| audio/x-wav | wav 음향 |
+| model/vrml | VRML 모델 |
+| application/vnd.ms-powerpoint | 파워 포인트 |
+| multipart/byteranges | 바이트 레인지 |
+| message/http | 완전한 HTTP 메시지 |
+
