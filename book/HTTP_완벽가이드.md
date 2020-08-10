@@ -2546,3 +2546,23 @@ HTTP/1.1 명세는 요청 본문은 있지만 Content-Length 헤더가 없다면
 | multipart/byteranges | 바이트 레인지 |
 | message/http | 완전한 HTTP 메시지 |
 
+#### 15.5 콘텐츠 인코딩
+
+##### 15.5.1 인코딩 과정
+1. 웹 서버가 원본 Content-Type과 Content-Length 헤더를 수반한 원본 응답 메시지를 생성한다.
+2. 콘텐츠 인코딩 서버가 인코딩된 메시지를 생성한뒤 Content-Encoding 헤더를 추가한다.
+3. 수신 측은 디코딩 하여 원본을 얻는다.
+
+##### 15.5.2 인코딩 유형
+- IANA 를 통해 표준화 된다.
+
+| 콘텐츠 인코딩 값 | 설명 |
+| --- | --- |
+| gzip | GNU zip 인코딩이 적용됨 |
+| compress | 유닉스 파일 압축프로그램이 실행됨 |
+| deflate | zlib 포맷으로 압축됨 |
+| identity | 어떤 인코딩도 수행되지 않았음을 의미, Content-Encoding 헤더가 없다면 이값으로 간주 |
+
+##### 15.5.3 Accept-Encoding 헤더
+- 클라이언트가 자신이 지원하는 인코딩 목록을 요청헤더를 통해 전달한다.
+- Accept-Encoding이 없다면, 모든 인코딩을 허용함으로 간주한다.
