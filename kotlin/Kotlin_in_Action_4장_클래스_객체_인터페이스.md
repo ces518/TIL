@@ -91,3 +91,292 @@ open class RichButton: Clickable {
 - 기본을 final 로 얻을수 있는 큰 이익은 다양한 경우에 스마트 캐스트가 가능하다는 점이다.
 - 때문에 대부분의 프로퍼티를 스마트 캐스트에 활용할 수 있으며 코드를 더 이해하기 쉽게 만든다.
 
+`추상 클래스`
+- 코틀린에서도 자바와 마찬가지로 abstract 키워드를 사용해 추상 클래스를 선언할 수 있다.
+- 하지만 인스턴스화 할 수는 없다.
+- 추상 멤버는 항상 열려 있기 때문에 추상 멤버 앞에는 open 변경자를 명시할 필요가 없다.
+
+```kotlin
+/**
+ * 추상 클래스는 기본적으로 open 이기 떄문에 명시할 필요가 없다.
+ * 비 추상함수는 기본적으로 파이널 이지만 원한다면 open 으로 오버라이드 할 수 있다.
+ */
+abstract class Animated {
+    abstract fun animate()
+
+    open fun stopAnimating() {
+
+    }
+
+    fun animateTwice() {
+
+    }
+}
+```
+
+| 변경자 | --- | 설명 |
+|---|---|---|
+| final | 오버라이드 할 수없음 | 클래스 멤버의 기본 변경자 |
+| open | 오버라이드 가능 | 반드시 open 을 명시해야 오버라이드 가능 |
+| abstract | 반드시 오버라이드 해야함 | 추상 클래스 멤버에게만 붙일 수 있음. 추상 멤버는 구현이 있으면 안됨 |
+| override | 상위 클래스나 상위 인스턴스 멤버를 오버라이드 중 | 오버라이드 하는 멤버는 기본적으로 open, 금지시 final 명시 필요 |
+
+ 
+#### 가시성 변경자
+- 가시성 변경자는 코드 기반에 있는 선언에 대한 클래스 외부 접근을 제어한다.
+- 코틀린 가시성 변경자는 자바와 비슷하다.
+- 기본 가시성은 자바와 다르게 아무 변경자도 없는 경우 **public** 이다.
+- 자바 기본 가시성인 패키지 전용은 코틀린에 존재하지 않는다.
+- 코틀린은 패키지를 네임스페이스 관리 용도로만 사용한다.
+- 패키지 전용 가시성은 **internal** 이라는 가시성 변경자를 대안으로 제시한다.
+- 또한 코틀린은 최상위 선언에 private 을 허용한다.
+    - 클래스, 함수, 프로퍼티 등이 포함
+    - 해당 선언이 들어있는 파일 내부에서만 사용할 수 있다.
+    
+| 변경자 | 클래스 멤버 | 최상위 선언 |
+|---|---|---|
+| public (기본) | 모든 곳에서 볼 수 있음 | 모든 곳에서 볼 수 있음 |
+| internal | 같은 모듈 내에서만 볼 수 있음 | 같은 모듈 내에서만 볼 수 있음 |
+| protected | 하위 클래스 안에서만 볼 수 있음 | 최상위 선언에 적용 불가 |
+| private | 같은 클래스 안에서만 볼 수 있음 | 같은 파일 안에서만 볼 수 있음 |
+
+> 코틀린에서 protected 멤버는 오직 어떤 클래스나 해당 클래스를 상속한 클래스 내에서만 보인다.
+> 그 클래스를 확장한 함수는 private, protected 멤버에 접근할 수 없다.
+
+`코틀린 가시성 변경자와 자바`
+- 코틀린의 public, protected, private 변경자는 컴파일된 자바 바이트코드 내에서도 그대로 유지된다.
+- private 클래스는 패키지-전용 클래스로 컴파일한다.
+- internal 변경자는 적절한 가시성이 없다.
+- 이는 public으로 컴파일되어, 자바에서는 접근이 가능한 상태가 된다.
+- 기술적으로는 internal 멤버의 이름을 보기 힘들기 바꾼다.
+    - 기술적으로는 사용할 수는 있지만, 내부 메소드 오버라이딩 방지 및 internal 클래스를 외부 모듈에서 사용하는것을 막기 위함
+    
+#### 내부 클래스와 중첩된 클래스
+- 코틀린의 중첩 클래스는 명시적으로 요청하지 않는 한 바깥 클래스의 인스턴스에 대한 접근 권한이 없다.
+
+```kotlin
+import java.io.Serializable
+
+/**
+ * 코틀린의 중첩 클래스에 아무런 변경자가 없다면, 자바의 static 중첩클래스와 동일하다.
+ * 내부 클래스로 변경해서 바깥쪽 클래스에 대한 참조를 포함하고 싶다면 inner 변경자를 붙여야 한다.
+ * 내부 클래스에서 바깥 클래스에 참조하려면 this@<외부클래스명> 형태로 사용해야한다.
+ */
+interface State: Serializable
+interface View {
+    fun getCurrentState(): State
+    fun restoreState(state: State) {}
+}
+
+class Button: View {
+    override fun getCurrentState(): State = ButtonState()
+    override fun restoreState(state: State) {
+
+    }
+
+    class ButtonState: State {
+
+    }
+}
+
+class Outer{
+    inner class Inner {
+        fun getOuterReference(): Outer = this@Outer
+    }
+}
+```
+
+#### 봉인된 클래스 - 계층 정의시 계층 확장 제한
+```kotlin
+interface Expr
+class Num(val value: Int) : Expr
+class Sum(val left: Expr, val right: Expr) : Expr
+
+fun evalKoltinUseWhen(e: Expr): Int =
+    when (e) {
+        is Num -> e.value
+        is Sum -> eval(e.right) + eval(e.right)
+        else -> throw IllegalArgumentException("Unknown Expression")
+    }
+
+```
+
+- 2장에서 선보인 예제를 살펴보면 문제점이 있다.
+- when 을 사용해 타입값을 검사할때 반드시 디폴트 분기인 else 를 강제한다.
+- 또한 하위 클래스를 추가하더라도 when 이 모든 경우를 처리하는지 알 수 없다.
+- 이에 대한 해법은 **sealed** 클래스이다.
+- 상위 클래스에 sealed 변경자를 사용하면 이를 상속한 하위 클래스는 반드시 상위 클래스 안에 중첩시켜야 한다.
+
+```kotlin
+/**
+ * Sealed 클래스를 사용하면 이를 상속받는 클래스는 반드시 상위 클래스의 내부에 존재해야 한다.
+ * sealed 클래스는 자동으로 open 이다.
+ * sealed 클래스의 when 분기문에서 디폴트 분기를 사용하지 않으면, 새롭게 추가된 하위클래스에 대한 처리가 없을경우 컴파일러가 알려준다.
+ */
+sealed class Expr {
+    class Num(val value: Int): Expr()
+    class Sum(val left: Expr, val right: Expr): Expr()
+}
+
+fun eval(e: Expr): Int =
+    when (e) {
+        is Expr.Num -> e.value
+        is Expr.Sum -> eval(e.right) + eval(e.left)
+    }
+```
+
+#### 뻔하지 않은 생성자와 프로퍼티를 갖는 클래스 선언
+- 코틀린은 주 생성자와 부 생성자를 구분한다.
+- 또한 초기화 블록을 통해 초기화 로직을 추가할 수 있다.
+
+#### 클래스 초기화 - 주 생성자와 초기화 블록
+- 클래스의 모든 선언은 중괄호 사이에 들어간다.
+- 클래스 명 뒤에 오는 괄호로 쌓인 코드를 **주 생성자 (primary constructor)** 라고 부른다.
+- 주 생성자는 생성자 파라미터를 지정하고, 그에 의해 초기화되는 프로퍼티를 정의하는 목적으로 쓰인다. 
+
+```kotlin
+/**
+ * 클래스 명 뒤에오는 () 괄호로 둘러쌓인 코드를 주 생성자 라고 한다.
+ *
+ */
+class SimpleUser(val nickname: String)
+
+/**
+ * 주 생성자를 풀어서 쓰면 다음과 같다.
+ */
+class User(_nickname: String) { // 파라메터가 1개만 있는 주 생성자
+    val nickname: String
+
+    init { // 초기화 블록
+        nickname = _nickname
+    }
+}
+
+/**
+* 초기화 블록이 없는 선언
+*/
+class User(_nickname: String) {
+    val nickname = _nickname
+}
+
+```
+
+> 위 세가지 모두 클래스를 선언하는 방법중 하나이지만 첫번째 방법이 가장 간결하다.
+
+- constructor 키워드는 주 생성자 혹은 부생성자 정의 시작시 사용한다.
+- init 키워드는 초기화 블록을 시작한다, 초기화 블록은 인스턴스화 될때 실행될 초기화 코드가 들어가며, 주 생성자와 함께 사용된다.
+    - 주 생성자는 제한적이기 떄문에 초기화 블록이 필요하다.
+    - 필요시 클래스 내에 여러 초기화 블록 선언이 가능하다.
+    
+> 프로퍼티 초기화식, 초기화 블록 내에서만 주 생성자의 파라메터를 참조할 수 있다.
+
+- 함수 파라메터와 동일하게 디폴트값 정의가 가능하다.
+```kotlin
+class User(val nickname: String,
+           val isSubscribed: Boolean = true)
+```
+
+- 클래스 인스턴스 생성시 new 키워드 없이 생성자를 직접 호출
+```kotlin
+val june = User("June")
+```
+
+> 모든 생성자 파라메터에 디폴트 값을 지정하면 컴파일러가 자동으로 파라메터가 없는 생성자를 만들며, 디폴트값을 사용해 클래스를 초기화 한다.
+
+- 상위 클래스가 있다면 주 생성자에서 상위 클래스의 생성자를 호출해야 할 필요가 있다.
+- 상위 클래스 초기화시 상위 클래스 이름 뒤에 괄호를 써 생성자 인자를 넘긴다.
+
+```kotlin
+/**
+ * 상위 클래스가 존재한다면, 하위 클래스 생성시 해당 상위 클래스 초기화가 필요하다.
+ * 상위 클래스를 초기화 하려면 상위 클래스명 뒤에 괄호를 써 생성자 인자를 넘겨야한다.
+ */
+open class BaseUser(val nickname: String)
+
+class TwitterUser(nickname: String): BaseUser(nickname)
+```
+
+> 클래스 정의시 생성자를 정의하지 않는다면, 파라메터가 없는 디폴트 생성자를 만들어준다.
+
+- 클래스를 상속받는 하위 클래스는 반드시 상위 클래스의 생성자를 호출해야 한다.
+- 이 규칙때문에 반드시 괄호가 들어가며, 인터페이스는 생성자가 없기 때문에 인터페이스의 구현체는 괄호가 존재하지 않는다.
+
+#### 부생성자 - 상위 클래스를 다른 방식으로 초기화
+- 코틀린에서는 생성자가 여럿 있는 경우가 자바보다 훨씬 적다.
+- 자바에서 오버로드한 생성자가 필요한 상황 중 상당수는 코틀린의 디폴트 파라메터 값과 이름이 있는 인자 문법을 사용해 해결한다.
+
+> 디폴트 값을 제공하기 위해 부 생성자를 만들지 말라. 파라메터의 디폴트 값을 생성자 시그니처에 명시하라.
+
+- super() 키워드를 통해 상위 클래스의 생성자를 홏풀한다.
+- 또한 this() 키워드를 사용해 자신의 다른 생성자를 호출할 수 있다.
+```kotlin
+import java.util.jar.Attributes
+import javax.naming.Context
+
+open class View {
+    constructor(ctx: Context) {
+        //
+    }
+
+    constructor(ctx:Context, attr: Attributes) {
+        //
+    }
+}
+
+/**
+ * super 키워드를 통해 상위 클래스의 생성자를 호출하는 부생성자들
+ *
+ */
+class MyButton: View {
+    constructor(ctx: Context): super(ctx) {
+        // ...
+    }
+
+    constructor(ctx: Context, attr: Attributes): super(ctx, attr) {
+        // ...
+    }
+}
+```
+
+> 클래스에 주 생성자가 없다면, 모든 부 생성자는 반드시 상위 클래스를 초기화 하거나, 다른 생성자에게 생성을 위임해야 한다.
+
+- 부 생성자가 필요한 이유는 자바 상호 운용성 때문이다.
+    - 또는 인스턴스 생성시 마다 생성방법이 여럿 존재할때 
+
+#### 인터페이스에 선언된 프로퍼티 구현
+- 코틀린은 인터페이스에 추상 프로퍼티 선언이 가능하다.
+- 추상 프로퍼티 뿐 아니라 게터와 세터가 있는 프로퍼티를 선언할 수 있다.
+    - 하지만 이를 뒷받침 하는 필드를 참조할 수 없다.
+- 아래는 3가지 방법의 프로퍼티 구현 방법이다.
+```kotlin
+interface AbstractUser {
+    val nickname: String
+}
+
+/**
+ * 주생성자에 존재하는 Property 구현
+ */
+class PrivateUser(override val nickname: String): AbstractUser
+
+/**
+ * 커스텀 Getter 를 통한 Property 구현
+ */
+class SubscribingUser(val email: String): AbstractUser {
+    override val nickname: String
+        get () = email.substringBefore('@') // 커스텀 Getter
+}
+
+/**
+ * Property 초기화식을 통한 구현
+ */
+class FacebookUser(val accountId: Int): AbstractUser {
+    override val nickname = getFacebookName(accountId) // 프로퍼티 초기화식
+}
+
+fun getFacebookName(accountId: Int): String {
+    return "Hello $accountId"
+}
+```
+
+#### Getter, Setter 에서 뒷받침 하는 필드 접근
+- 어떤 값을 저장하되, 그 값을 변경하거나 읽을 때 마다 정해진 로직을 수행하는 프로퍼티를 생성하는 방법
