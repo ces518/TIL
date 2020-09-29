@@ -380,3 +380,115 @@ fun getFacebookName(accountId: Int): String {
 
 #### Getter, Setter 에서 뒷받침 하는 필드 접근
 - 어떤 값을 저장하되, 그 값을 변경하거나 읽을 때 마다 정해진 로직을 수행하는 프로퍼티를 생성하는 방법
+- 접근자 본문에서 **field** 라는 식별자를 통해 뒷받침하는 필드에 접근할 수 있다.
+- getter 는 읽기전용이며, setter는 읽기/쓰기 모두 가능하다.
+- 변경 가능 프로퍼티의 게터와 세터중 한쪽만 정의해도 된다.
+- 
+```kotlin
+class ClazzUser(val name: String) {
+    var address: String = "unspecified"
+        set(value: String) {
+            print("""
+                Address was change for $name:
+                "$field" -> "$value".""".trimIndent()) // 뒷받침하는 필드 읽기
+            field = value // 뒷받침하는 필드 변경
+        }
+}
+
+fun main(args: Array<String>) {
+    val user = ClazzUser("Ncucu")
+    user.address = "Suwon"
+    // Address was change for Ncucu:
+    // "unspecified" -> "Suwon".
+}
+```
+
+> 프로퍼티를 사용하는 입장에서는 뒷받침하는 필드의 유무는 상관이 없다.
+> 컴파일러는 field 를 사용하는 프로퍼티는 뒷받침하는 필드를 생성해준다.
+> 프로퍼티가 val인 경우 게터에 field가 없어야하고, var 인경우 게터 세터 모두 field 가 없어야 한다.
+
+#### 접근자의 가시성 변경
+- 접근자의 가시성은 기본적으로 프로퍼티 가시성과 동일하다.
+- 필요시 get, set 앞에 가시성 변경자를 추가하여 접근자의 가시성을 변경할 수 있다.
+```kotlin
+/**
+ * setter 의 접근자를 private 으로 지정해 해당 인스턴스 외부에서는 해당값을 변경할수 없다.
+ */
+class LengthCounter {
+    var counter: Int = 0
+        private set
+
+    fun addWord(word: String) {
+        counter += word.length
+    }
+
+}
+
+
+fun main(args: Array<String>) {
+    val lengthCounter = LengthCounter()
+    lengthCounter.addWord("Hello")
+    println(lengthCounter.counter)
+    // 4
+}
+```
+
+- lateinit 변경자를 널이 될 수 없는 프로퍼티에 지정하면 프로퍼티를 생성자 호출 이후에 초기화 한다.
+- 요청이 들어오면 초기화되는 지연 초기화 프로퍼티는 일반적인 위임 프로퍼티의 일종이다.
+- 자바 프레임워크와 호환성을 위해 @JvmField 같은 애노테이션을 지원한다.
+- 이는 접근자가 없는 public 필드를 노출시켜준다.
+- const 변경자를 사용하면 애노테이션을 더 편리하게 다룰 수 있고, 원시 타입 혹은 String 값을 애노테이션 인자로 사용할 수 있다.
+
+#### 컴파일러가 생성한 메서드 - 데이터 클래스와 클래스 위임
+- 자바에서는 equals, hashCode, toString 등의 메소드를 기계적으로 구현해야 한다.
+- 코틀린은 이런 기계적으로 생성한느 작업을 하지 않아도 되게끔 지원한다.
+
+#### 모든 클래스가 정의해야하는 메소드
+- 코틀린에서도 toString, equals, hashCode 등을 오버라이드 할 수 있다.
+- 코틀린 에서는 이런 메소드 구현들을 자동으로 생성해 줄 수 있다.
+
+`동등성 연산에서 == 를 사용한다.`
+- 코틀린 에서는 == 연산자가 내부적으로 equals를 호출해서 객체를 비교한다.
+- 참조 비교를 위해서는 === 연산자를 사용해야하며, 이는 자바의 == 연산자와 동일하게 동작한다.
+
+```kotlin
+/**
+ * toString 오버라이드
+ */
+class ClientToString(val name: String, val postalCode: Int) {
+    override fun toString(): String {
+        return "Client(name='$name', postalCode=$postalCode)"
+    }
+}
+
+/**
+ * equals 오버라이딩
+ */
+class ClientEquals(val name: String, val postalCode: Int) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ClientEquals
+
+        if (name != other.name) return false
+        if (postalCode != other.postalCode) return false
+
+        return true
+    }
+}
+
+/**
+ * HashCode 오버라이딩
+ */
+class ClientHashCode(val name: String, val postalCode: Int) {
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + postalCode
+        return result
+    }
+}
+```
+
+- 자바에서는 equals 오버라이드시 반드시 hashCode도 오버라이드 해야한다.
+- JVM 언어에서는 equals() 가 true 를 반환하는 두 객체는 반드시 같은 hashCode() 를 반환해야 한다.
