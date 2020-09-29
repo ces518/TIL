@@ -492,3 +492,97 @@ class ClientHashCode(val name: String, val postalCode: Int) {
 
 - 자바에서는 equals 오버라이드시 반드시 hashCode도 오버라이드 해야한다.
 - JVM 언어에서는 equals() 가 true 를 반환하는 두 객체는 반드시 같은 hashCode() 를 반환해야 한다.
+
+#### 데이터 클래스 - 모든 클래스가 정의해야하는 메소드 자동생성
+- 어떤 클래스가 데이터를 저장하는 역할만 수행한다면, toString, equals, hashCode 를 반드시 오버라이드 해야한다.
+- 코틀린에서는 data 변경자만 클래스 앞에 붙이면 이런 메소드들을 자동으로 생성해준다.
+- 이를 데이터 클래스 라고한다.
+
+```kotlin
+/**
+ * data class 로 정의함으로써 아래 클래스는 오버라이드된 toString, equals, hashCode 메소드가 생성되어 있다.
+ * equals 와 hashCode는 주 생성자에 나열된 프로퍼티 들을 고려해 생성된다.
+ */
+data class Client(val name: String, val postalCode: Int)
+```
+
+#### 데이터 클래스와 불변성 - copy() 메소드
+- 데이터 클래스의 프로퍼티가 val 일 필요는 없지만, 불변 클래스로 만들기를 권장한다.
+- HashMap등 컨테이너에 데이터 클래스 객체를 담는 경우 불변성이 필수적이다.
+- 데이터 클래스 인스턴스를 불변 객체로 더 쉽게 활용할 수 있게 copy 메소드를 제공한다.
+- 이는 객체르 복사하면서 일부 프로퍼티를 바꿀 수 있다.
+
+```kotlin
+/**
+ * data class 로 정의함으로써 아래 클래스는 오버라이드된 toString, equals, hashCode 메소드가 생성되어 있다.
+ * equals 와 hashCode는 주 생성자에 나열된 프로퍼티 들을 고려해 생성된다.
+ */
+data class Client(val name: String, val postalCode: Int)
+
+fun main(args: Array<String>) {
+    val client = Client("Hello", 10)
+    val client2 = client.copy(name = "Hello2", postalCode = 11)
+
+    println("client = $client")
+    println("client2 = $client2")
+}
+```
+
+#### 클래스 위임 - by 키워드 사용
+- 대규모 객체지향 시슽메 설계시 시스템의 취약점은 대부분 구현 상속에 의해 발생하낟.
+- 하위클래스가 상위 클래스 메소드의 일부를 오버라이드 하면 하위 클래스는 상위 클래스의 세부 구현 사항에 의존하게 된다.
+- 코틀린은 기본적으로 클래스를 final 로 하고 open 변경자로 열어둔 클래스만 확장이 가능하다.
+- 상속을 하용하지 않는 클래스에 새로운 동작이 필요한경우 데코레이터 패턴을 사용한다.
+- 데코레이터의 단점은 위임을 위한 준비 코드가 필요한다는 것이다.
+- 이런 위임을 언어가 제공하는 일급 시민 기능으로 지원한다는 것이 코틀린의 장점이다.
+
+```kotlin
+/**
+ * 직접 구현해야하는 위임코드를 일급시민으로 언어 차원에서 제공하는 by 를 통해 매우 간단하게 구현이 가능하다.
+ */
+class DelegationgCollection<T>(
+    innerList: Collection<T> = ArrayList<T>()
+): Collection<T> by innerList {}
+```
+
+#### object 키워드 - 클래스 선언과 인스턴스 생성
+- 코틀린에서 object 키워드를 다양한 상황에서 사용하지만 모든경우 클래스 정의와 동시에 인스턴스를 생성한다.
+- 객체 선언 (object declaration) 은 싱글턴을 정의하는 방법중 하나
+- 동반 객체 (companion object) 는 인스턴스 메소드는 아니지만 특정 클래스와 관련된 메소드와 팩토리 메소드를 담을 때 쓰인다.
+- 객체 식은 자바의 익명 내부 클래스 대신 쓰인다.
+
+#### 객체 선언 - 싱글턴을 쉽게 만들기
+- 종종 싱글턴 객체가 필요한 경우가 있다.
+- 자바는 보통 생성자를 private 으로 제한하고 싱글턴 패턴을 직접 구현한다.
+- 코틀린은 객체 선언 기능을 통해 싱글턴을 언어레벨에서 지원한다.
+- 객체 선언이란 클래스 선언과 해당 클래스에 속한 단일 인스턴스 선언을 합친 선언이다.
+- 생성자는 객체 선언에 쓸 수 없다.
+- 싱글턴 객체는 선언문에 있는 위치에서 즉시 만들어진다.
+```kotlin
+/**
+ * object 키워드를 통해 객체선언을 할 수 있다.
+ * 코틀린은 object 키워드를 이용해 언어레벨에서 싱글턴을 지원한다.
+ */
+class Person
+object Paroll {
+    val allEmployees = arrayListOf<Person>()
+
+    fun calcuateSalary() {
+        for (person in allEmployees) {
+            //...
+        }
+    }
+}
+
+fun main(args: Array<String>) {
+    Paroll.calcuateSalary()
+    Paroll.allEmployees.add(Person())
+}
+
+```
+
+- 클래스 내부에서도 객체를 선언할 수 있다.
+- 코틀린 의 객체선언은 컴파일 될 경우 인스턴스 필드의 이름은 INSTANCE 이다.
+- <ObjectName>.INSTANCE 형태로 접근하면 된다.
+> 구현 내부에 다른 상태가 필요하지 않은 인터페이스 ex) Comparator 등을 구현할 때는 객체 선언 방식이 좋다.
+
