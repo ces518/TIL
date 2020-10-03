@@ -586,3 +586,203 @@ fun main(args: Array<String>) {
 - <ObjectName>.INSTANCE 형태로 접근하면 된다.
 > 구현 내부에 다른 상태가 필요하지 않은 인터페이스 ex) Comparator 등을 구현할 때는 객체 선언 방식이 좋다.
 
+#### 동반 객체 - 팩토리 메소드와 정적 멤버
+- 코틀린 클래스 내에는 정적 멤버가 없다.
+- 자바 static 키워드를 지원하지 않는대신 패키지 수준의 최상위 함수 (자바 정적 메소드 역할) 와 객체 선언 (정적 필드 역할 등) 을 활용한다.
+
+> 대부분의 경우 최상위 함수를 사용하는 것을 권장한다.
+ 
+- 팩토리 메소드 처럼 클래스 내부 정보에 접근해야 하는 함수가 필요할 경우 중첩된 객체 선언 멤버함수로 정의해야 한다.
+- 클래스 내에 정의된 객체 중 하나에 companion 이라는 특별한 키워드를 사용하면 그 클래스의 **동반 객체**로 만들수 있다.
+
+`동반 객체의 특징`
+- 동반 객체의 프로퍼티나 메소드에 접근시 동반 객체가 정의된 클래스명을 사용한다.
+- 동반 객체는 자신을 둘러싼 클래스의 모든 private 멤버에 접근이 가능하다.
+- 오직 하나만 존재할 수 있다.
+
+```kotlin
+/**
+ * 클래스 내부에 정의된 객체 중 하나에 companion 키워드를 사용하면 해당 객체는 동반 객체가 된다.
+ * 동반객체를 사용할떄는 동반객체를 가지고 있는 클래스를 사용하듯이 사용하면된다.
+ * 동반객체는 오직 하나만 지정될 수 있다.
+ */
+class A {
+    companion object {
+        fun bar() {
+            println("Companion Object called")
+        }
+    }
+}
+
+fun main(args: Array<String>) {
+    A.bar()
+    // Companion Object called
+}
+```
+
+`동반 객체를 활용한 팩토리 메소드`
+```kotlin
+/**
+ * 기존의 경우 일반 사용자와 소셜 유저를 생성하는 2개의 부 생성자가 필요했다.
+ * 이를 동반객체를 이용하여 리팩토링
+ */
+class BasicUser {
+    val nickname: String
+
+    constructor(email: String) {
+        nickname = email.substringBefore("@")
+    }
+
+    constructor(socialId: Int) {
+        nickname = getSocialName(socialId)
+    }
+}
+
+fun getSocialName(socialId: Int): String = "Hello ~ $socialId"
+
+
+/**
+ * 2개의 부생성자가 필요했던 부분을 동반객체를 활용해 팩토리메소드 형태로 리팩토링
+ */
+class BasicUserCompanionObject private constructor(val nickname: String) {
+    companion object {
+        fun newSimpleUser(email: String) = BasicUserCompanionObject(email.substringBefore("@"))
+        fun newSocialUser(socialId: Int) = BasicUserCompanionObject(getSocialName(socialId))
+    }
+}
+
+fun main(args: Array<String>) {
+    // 기존의 방식
+    BasicUser("ncucu.me@kakaocommerce.com")
+    BasicUser(1)
+
+    // 팩토리 메소드 사용
+    BasicUserCompanionObject.newSimpleUser("ncucu.me@kakaocommerce.com")
+    BasicUserCompanionObject.newSocialUser(1)
+}
+```
+
+#### 동반 객체 - 일반 객체처럼 사용
+- 동반 객체는 클래스 내에 정의된 일반 객체이다.
+- 동반 객체에 이름을 붙이거나, 인터페이스 상속, 확장 함수와 프로퍼티 정의 등이 가능하다.
+
+`동반 객체에 이름 붙이기`
+- 동반 객체에는 이름을 지정할 수 있다.
+- 지정한 이름을 사용하여 동일하게 호출이 가능하다.
+```kotlin
+/**
+ * 동반객체에 이름을 지정할경우 해당 이름을 사용하여 호출, 혹은 기존방식대로 호출이 가능하다.
+ */
+class SimplePerson(val name: String) {
+    companion object Loader {
+        fun fromName(name: String): SimplePerson = SimplePerson(name)
+    }
+}
+
+fun main(args: Array<String>) {
+    SimplePerson.fromName("Hello")
+    SimplePerson.Loader.fromName("Hello2")
+}
+```
+
+`동반 객체에서 인터페이스 구현`
+- 다른 객체 선언과 동일하게 인터페이스 구현이 가능하다.
+
+```kotlin
+/**
+ * 동반 객체에서 인터페이스 구현이 가능하다.
+ */
+interface UserFactory<T> {
+    fun create(name: String): T
+}
+
+class MyUser(val name: String) {
+    companion object: UserFactory<MyUser> {
+        override fun create(name: String): MyUser = MyUser(name)
+    }
+}
+
+fun main(args: Array<String>) {
+    MyUser.create("ncucu")
+}
+```
+
+`동반 객체의 확장 함수`
+- 동반 객체도 일반 객체처럼 확장함수 정의가 가능하다.
+
+```kotlin
+/**
+ * 동반 객체에 대해 확장 함수 정의도 가능하다.
+ */
+class SimpleA {
+    companion object {
+
+    }
+}
+
+fun SimpleA.Companion.hello() = println("Hello")
+
+fun main(args: Array<String>) {
+    SimpleA.hello()
+}
+```
+
+#### 코틀린 동반객체와 자바 정적 멤버
+- 코틀린의 동반객체에 이름을 지정하지 않았다면, Companion 이라는 이름으로 접근이 가능하다.
+    - <RootClass>.Companion
+- 이름을 지정했다면 Companion 대신 해당 이름이 쓰이게 된다.
+- @JvmStatic 애노테이션을 사용하면 코틀린 클래스의 멤버를 정적 멤버로 만들수 있다.
+- 또한 정적 필드가 필요할 경우 @JvmField 애노테이션을 프로퍼티 앞에 사용하여 만들 수 있다.
+
+> 이는 모두 자바 상호운용성을 위해 존재하는 것들이다. 
+
+#### 객체식 - 무명 내부 클래스를 다른 방식으로 작성
+- 익명 객체를 정의할 때도 object 키워드를 사용한다.
+- 익명 객체는 자바의 익명 내부 클래스를 대신한다.
+
+```kotlin
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
+
+/**
+ * 무명 객체는 자바의 익명 내부클래스에 대응한다.
+ * 객체 선언과 달리 무명 객체는 싱글턴이 아니다.
+ */
+window.addMouseListener {
+    object: MouseAdapter() {
+        override fun mouseClicked(e: MouseEvent?) {
+            super.mouseClicked(e)
+        }
+
+        override fun mouseEntered(e: MouseEvent?) {
+            super.mouseEntered(e)
+        }
+    }
+}
+```
+
+`SAM`
+- 추상 메소드가 하나만있는 인터페이스 (Single Abstract Method) 라는 뜻
+- 함수형 인터페이스라고도 한다.
+- 자바 람다를 SAM 인터페이스를 구현하는 무명 클래스 대신 사용할 수 있다.
+
+> 자바와 달리 final 이 아닌 변수도 사용할 수 있다.
+
+#### 정리
+- 코틀린의 인터페이스는 자바 인터페이스와 비슷하다.
+    - 디폴트 구현을 포험하고 프로퍼티를 포함한다.
+- 모든 코틀린의 선언은 public final 이다.
+- open 키워드를 사용하면 상속과 오버라이딩이 가능해진다.
+- internal 선언은 같은 모듈 내에서만 볼 수 있다.
+- 중첩 클래스는 기본적으로 내부 클래스가 아니다.
+    - inner 키워드를 사용해야지만, 외부 클래스에 대한 참조를 가질 수 있다.
+- sealed 클래스를 상속하는 클래스를 정의하려면, 반드시 부모 클래스정의 내에 존재해야한다.
+- 초기화 블록과 부 생성자를 통해 인스턴스를 더 유연하게 초기화할 수 있다.
+- field 식별자를 통해 프로퍼티 접근자 (게터, 세터) 내에서 프로퍼티 데이터 저장시 쓰이는 뒷받침하는 필드를 참조 가능하다.
+- 데이터 클래스를 사용하면 컴파일러가 필수 메소드들을 자동으로 생성해 준다.
+- 클래스 위임을 사용하면 위임 패턴을 구현할 때 필요한 수많은 준비코드를 줄일 수 있다.
+- 객체 선언을 사용하면 코틀린스럽게 싱글턴 클래스 정의가 가능하다.
+- 동반 객체는 자바의 정적 메소드와 필드 정의를 대신한다.
+- 동반 객체도 다른 객체와 마찬가지로 인터페이스를 구현할 수 있다. 외부에서 동반객체에 대한 확장함수와 프로퍼티 정의가 가능하다.
+- 코틀린의 객체식은 자바의 익명 내부 클래스를 대신한다.
+    - final변수를 참조하는등 자바보다 많은 기능을 제공한다.
