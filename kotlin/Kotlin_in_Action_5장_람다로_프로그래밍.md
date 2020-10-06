@@ -324,3 +324,75 @@ fun main(args: Array<String>) {
     books.flatten()
 }
 ```
+
+#### 지연 계산 (lazy) 컬렉션 연산
+- map 이나 filter 같은 컬렉션 함수는 결과 컬렉션을 즉시 생성한다.
+- 컬렉션 함수를 연 하면 매 단계마다 중간 결과를 새 컬렉션에 임시로 담는다. (중간 처리과정이 필요하기 때문에 매번 메모리를 소비함)
+- **시퀀스 (sequence)** 를 사용하면 중간 임시컬렉션을 사용하지 않고 컬렉션 연산을 연쇄한다.
+    - 코틀린 지연연산 시퀀스는 Sequence 인터페이스에서 시작한다.
+    - 이는 단지 한번에 하나씩 열거 될 수 있는 원소의 시퀀스를 표현한다.
+    - 인터페이스 내에 존재하는 iterator 라는 메소드를 통해 시퀀스로부터 원소값을 얻는다.
+- asSequence() 확장함수를 호출하면 어떤 컬렉션이든 시퀀스로 변환이 가능하다.
+- toList() 등으로 변환을 해주거나 최종 시퀀스의 원소를 하나씩 이터레이션 해야지만 계산을 실행한다.
+```kotlin
+/**
+ * asSequence 를 이용한 지연 연산을 사용하면 컬렉션 매 연산마다 중간 컬렉션이 생성되지 않는다.
+ */
+fun main(args: Array<String>) {
+    val people = listOf(SamplePerson("ncucu", 27), SamplePerson("ncucume", 27))
+    // 아래 코드는 연쇄 호출이 2개의 리스트를 만든다.(map의 결과, filter의 결과)
+    people.map(SamplePerson::name).filter { it.startsWith("A") }
+
+    // 아래 코드는 1개의 리스트만을 만든다.
+    people.asSequence()
+            .map(SamplePerson::name)
+            .filter { it.startsWith("A") }
+            .toList()
+}
+```
+
+> 큰 컬렉션에 대해 연산을 연산시킬경우 시퀀스를 사용할것을 권장한다.
+
+#### 시퀀스 연산 실행 - 중간 연선과 최종 연산
+- 시퀀스 연산은 중간 (intermediate) 연산과 최종 (terminal) 연산으로 나뉜다.
+- 중간 연산은 다른 시퀀스를 반환하며, 연산을 연쇄할 수 있다.
+- 최종 연산은 결과를 반환한다.
+
+```kotlin
+        [        중간 연산        ][ 최종연산 ]
+sequence.map { ... }.filter { ... }.toList()
+```
+
+- 위의 코드에 경우 컬렉션이라면 모든 원소에 대해 map 을 한 후 filter 를 수행하지만
+- 지연 연산의 경우 첫번째 원소에 대해 map, filter 까지 수행한후 다음 원소에 대한 처리를 시작한다. 
+
+#### 자바 스트림과 코틀린 시퀀스
+- 자바8 스트림은 시퀀스와 개념이 같다.
+- 자바 8을 채택하면 코틀린 컬레션과 시퀀스에서 제공하지 않는 병렬 스트림 연산 기능을 사용할 수 있다.
+
+#### 시퀀스 만들기
+- asSequence() 외에도 시퀀스를 만드는 방법은 generateSequence 함수를 사용한다.
+- 이는 이전의 원소를 인자로 받아 다음 원소를 계산하는 함수이다.
+
+```kotlin
+/**
+ * generateSequence 를 사용하면 이전의 원소를 인자로 받아 다음 원소를 계산한다.
+ */
+fun main(args: Array<String>) {
+    val naturalNumbers = generateSequence(0) {  it + 1 }
+    val numbersTo100 = naturalNumbers.takeWhile { it <= 100 }
+    println(numbersTo100.sum()) // 결과는 5050
+}
+```
+
+> 시퀀스를 사용하는 일반적인 사례는 객체의 조상으로 이루어진 시퀀스를 만드는 것이다.
+> 어떤 파일의 상위 디렉터리를 뒤지면서 숨김 속성을 가진 디렉터리를 검사하는 등의 경우에 사용한다.
+```kotlin
+fun File.isInsideHiddenDirectory() =
+    generateSequence(this) { it.parentFile }.any { it.isHidden }
+
+val file = File("/Users/svtk/.HiddenDir/a.txt")
+file.isInsideHiddenDirectory() // true
+```
+
+- https://thdev.tech/kotlin/2020/10/06/kotlin_effective_05/
