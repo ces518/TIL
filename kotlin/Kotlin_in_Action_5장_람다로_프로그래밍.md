@@ -395,4 +395,162 @@ val file = File("/Users/svtk/.HiddenDir/a.txt")
 file.isInsideHiddenDirectory() // true
 ```
 
+#### 자바 함수형 인터페이스 활용
+- 코틀린 라이브러리와 람다를 사용하는건 좋지만, 대부분 API는 자바 API 일것이다.
+- 코틀린 람다를 자바 API에 사용해도 아무 문제가 없다.
+- 코틀린은 함수형 인터페이스를 인자로 받는 자바 메소드 호출시 람다를 넘길수 있게 해준다.
+
+> 코틀린에는 함수타입이 존재하기 때문에, 함수를 인자로 받을경우 함수 타입을 사용해야 한다.
+> 코틀린 함수 사용시에는 코틀린 람다를 함수형 인터페이스로 변환해주지 않는다.
+
+#### 자바 메소드에 람다를 인자로 전달
+- 함수형 인터페이스를 받는 자바 메소드에 코틀린 람다를 전달할 수 있다.
+- 람다와 무명 객체 사이에는 차이가 있다.
+- 객체를 명시적으로 선언하는 경우 메소드 호출마다 새로운 객체가 생성된다.
+- 람다는 정의가 들어있는 함수의 변수에 접근하지 않는 람다에 대응하는 무명객체 메소드 호출시마다 반복 사용한다.
+```kotlin
+/**
+ * 함수형 인터페이스를 인자로 받는 자바 메소드에 코틀린 람다를 전달할 수 있음.
+ */
+fun main(args: Array<String>) {
+    // 람다를 사용.
+    val t = Thread { println("hello") }
+    t.start()
+
+    // 무명객체를 명시적으로 선언
+    val t2 = Thread(object : Runnable {
+        override fun run() {
+            println("hello")
+        }
+    })
+    t2.start()
+}
+```
+
+> 람다가 변수를 포획하면 무명 클래스 내에 포획한 변수를 저장하기 위한 필드가 생기고, 매 호출시마다 무명클래스의 인스턴스를 새로 만든다.
+> 하지만 포획하는 변수가 없는 람다라면 인스턴스가 단 하나만 생긴다.
+
+- 컬렉션을 확장한 메소드에 람다를 넘기는 경우 코틀린은 자바메소드를 코틀린에서 호출할 때 쓰는 방식을 사용하지 않는다.
+- 코틀린 inline 으로 표시된 함수에게 람다를 넘기면 아무런 무명클래스도 생성되지 않는다.
+- 대부분의 코틀린 확장 함수들은 inline이 붙어있다.
+
+> 대부분의 자바 함수형 인터페이스 <=> 람다 변환은 자동으로 이루어진다.
+
+#### SAM 생성자 - 람다를 함수형 인터페이스로 명시적으로 변경
+- SAM 생성자는 람다를 함수형 인터페이스의 인스턴스로 변환할 수 있게 컴파일러가 자동으로 생성한 함수이다.
+- 컴파일러가 자동으로 변환하지 못하는 경우 SAM 생자를 사용할 수 있다.
+
+```kotlin
+/**
+ * SAM 생성자 사용
+ * 함수형 인터페이스의 인스턴스를 반환하는 메소드가 있다면
+ * 람다를 직접 반환할 수 없고, 반환하고 싶은 람다를 SAM 생성자로 감싸야 한다.
+ */
+fun createAllDoneRunnable(): Runnable {
+    return Runnable { println("All done!") }
+}
+
+fun main(args: Array<String>) {
+    createAllDoneRunnable().run()
+}
+```
+
+- SAM 생성자의 이름은 사용하려는 함수형 인터페이스의 이름과 같다.
+- SAM 생성자는 함수형 인터페이스의 메소드 본문에 사용할 람다만 인자로 받아 함수형 인터페이스를 구현하는 클래스의 인스턴스를 반환한다.
+
+> 오버로딩한 메소드 중 어떤 타입의 메소드를 선택해 람다를 변환해 넘겨줘야할지 모호한 경우 명시적으로 SAM 생성자를 적용하면 컴파일 오류를 
+> 피할 수 있다.
+
+#### 람다와 this
+- 람다는 무명 객체와 달리 인스턴스 자신을 가리키는 **this** 가 없다.
+- 컴파일러 입장에서 람다는 그저 코드블록 일 뿐이다.
+- 람다 내에서 this 는 람다를 두러싼 클래스의 인스턴스를 가리킨다.
+
+#### 수신 객체 지정 람다 - with 와 apply
+- 코틀린 람다의 기능은 수신 객체를 명시하지 않고, 람다의 본문 안에서 다른 객체의 메소드를 호출할 수 있다.
+- 이를 수신 객체 지정 람다 (lambda with receiver) 라고 부른다.
+
+#### with 함수
+- 첫번째 인자로 수신객체를 지정하고, 두번째 인자로 람다를 받는다.
+    - 마지막 인자가 람다 이기 때문에() 괄호 밖으로 빼낼수 있다.
+```kotlin
+/**
+ * with는 수신객체를 지정한 람다이다.
+ * 첫번째 인자로 받은 객체를 두번째 인자로 받은 람다의 수신객체로 만든다.
+ */
+fun alphabet(): String {
+    val result = StringBuilder()
+    for (letter in 'A'..'Z') {
+        result.append(letter)
+    }
+    result.append("\n Now I Know the alphabet!")
+    return result.toString()
+}
+
+fun alphabetWith(): String {
+    val stringBuilder = StringBuilder()
+
+    return with(stringBuilder) {
+        for (letter in 'A'..'Z') {
+            append(letter)
+        }
+        append("\n Now I Know the alphabet!")
+        return toString()
+    }
+}
+
+fun alphabetWithRefactoring(): String = with(StringBuilder()) {
+    for (letter in 'A'..'Z') {
+        append(letter) // this.append() 로 스트링빌더 객체를 호출한다. this는 생략할 수 있다.
+    }
+    append("\n Now I Know the alphabet!")
+    toString()
+}
+
+fun main(args: Array<String>) {
+    println(alphabet())
+    println(alphabetWith())
+    println(alphabetWithRefactoring())
+}
+```
+
+#### 수신 객체 지정 람다와 확장 함수 비교
+- 확장 함수 내에서 this는 그 함수가 확장하는 타입의 인스턴스를 가리킨다.
+- 수신 객체 멤버 호출시 this 를 생략 할 수 있다.
+- 어떤 의미에서는 확장 함수를 수신 객체 지정 함수라고 할 수도 있다.
+
+#### apply 함수
+- apply 함수는 with 와 같다.
+- 유일한 차이는 apply는 항상 자신에게 전달된 객체 (수신된 객체)를 반환한다는 점이다.
+
+```kotlin
+import java.lang.StringBuilder
+
+/**
+ * With 와 거의 동일하며 항상 자신에게 전달된 객체를 반환한다는 점이 다르다.
+ */
+fun alphabetApply() = StringBuilder().apply {
+    for (letter in 'A'..'Z') {
+        append(letter)
+    }
+    append("\n Now I Knopw the alphabet!")
+}.toString()
+
+fun main(args: Array<String>) {
+    println(alphabetApply())
+}
+```
+
+#### 정리
+- 람다를 사용하면 코드 조각을 다른 함수 인자로 넘길수 있다.
+- 람다가 함수의 인자인 경우 괄호 밖으로 람다를 뺄 수 있고, 람다의 인자가 하나인 경우 it 라는 디폴트 명으로 참조가 가능하다.
+- 람다 안에 있는 코드는 그 람다 외부 함수의 변수를 읽고 쓸 수 있다.
+- 메소드, 생성자, 프로퍼티 명 앞에 :: 를 붙이면 멤버 참조가 가능하다.
+- filter, map, all, any 등 함수를 활용하면 컬렉션에 대한 대부분의 연산을 직접 원소를 이터레이션 하지 않고 수행할 수 있다.
+- 시퀀스를 사용하면 중간 결과를 담는 컬렉션을 생성하지 않는다.
+- 함수형 인터페이스를 인자로 받는 자바 함수 호출시 람다를 사용 할 수 있다.
+- 수신 객체 지정 람다를 사용하면 람다내에 미리 정해둔 수신 객체의 메소드를 직접 호출할 수 있다.
+- 표준 라이브러리의 with 함수를 사용하면 어떤 객체에 대한 참조를 반복해서 객체 메소드 호출이 가능하다.
+- apply를 사용하면 어떤 객체라도 빌더 스타일의 API를 사용해 생성하고 초기화할 수 있다.
+
 - https://thdev.tech/kotlin/2020/10/06/kotlin_effective_05/
