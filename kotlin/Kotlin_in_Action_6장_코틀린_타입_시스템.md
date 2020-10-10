@@ -307,3 +307,114 @@ data class HelloPerson(val name: String,
     }
 }
 ```
+
+#### 숫자 변환
+- 코틀린과 자바의 가장 큰 차이점 중 하나는 숫자를 변환하는 방식이다.
+- 코틀린은 다른 타입의 숫자로 자동 변환하지 않는다.
+- 결과 타입이 허용하는 범위가 원래 타입 범위보다 넓은 경우에도 자동 변환을 하지 않는다.
+- 직접 변환 메소드를 호출해야 한다. 
+```kotlin
+/**
+ * 코틀린은 숫자 자동변환을 지원하지 않는다.
+ * 직접 변환함수를 호출 해주어야 한다.
+ */
+fun main(args: Array<String>) {
+    // 컴파일 에러, 자동 변환 하지 않음
+    val i = 1
+    val l: Long = i
+
+    // 직접 변환 함수를 호출 해주어야 한다.
+    val i2 = 1
+    val l2: Long = i2.toLong()
+}
+```
+
+> 코틀린은 Boolean 을 제외한 모든 원시 타입에 대한 변환 함수를 제공한다.
+
+#### Any, Any?: 최상위 타입
+- 자바에서 Object 가 최상위 타입이듯, 코틀린에서는 Any 타입이 모든 널이 될 수 없는 타입의 조상이다.
+- 자바에서는 원시타입 대신 래퍼클래스만 Object 를 조상으로 가지지만, 코틀린은 그렇지 않다.
+- 코틀린에서 원시타입 값을 Any 타입 변수에 대입하면 자동으로 값을 객체로 감싼다. 
+
+```kotlin
+/**
+ * 자바에서 Object 가 최상위 클래스인것 처럼 코틀린에서는 Any가 최상위 클래스이다.
+ * 차이점 이라면 원시타입의 조상도 Any 라는 것이다.
+ */
+fun main(args: Array<String>) {
+    val answer: Any = 42
+}
+```
+> 코틀린 Any 타입을 사용하면 자바 Object 타입으로 컴파일 된다.
+
+#### Unit 타입 - 코틀린의 Void
+- Unit 타입은 자바의 void 와 같은 기능을 한다.
+- 반환 타입 선언 없이 정의한 함수와 같다.
+- 컴파일러가 묵시적으로 return Unit 을 넣어주기 때문에 명시적으로 반환하지 않아도 된다.
+```kotlin
+/**
+ * Unit 반환 타입은 반환 타입 선언 없이 정의한 함수와 동일하다.
+ */
+fun f(): Unit {
+    // ...
+}
+
+fun f2() {
+    // ...
+}
+```
+> 대부분의 경우 void 와 Unit 의 차이를 알기는 어렵다.
+> 코틀린 함수 반환 타입이 Unit 타입이고 제네릭 함수를 오버라이드 하지 않는다면, 자바 void 함수로 컴파일 된다.
+
+- 함수형 프로그래밍에서 전통적으로 **Unit 은 단 하나의 인스턴스만 갖는 타입을 의미**해 왔다.
+- 그 유일한 인스턴스 유무가 바로 자바 void 와 코틀린 Unit 을 구분하는 큰 차이이다.
+
+#### Nothing 타입: 이 함수는 결코 정상적으로 끝나지 않는다.
+- 코틀린에서 결코 성공적으로 값을 돌려주는 일이 없으므로 반환값 이라는 개념 자체가 의미없는 함수가 일부 존재한다.
+- 테스트 라이브러리 의 fail 같은 함수들은 반환 값 없이 예외를 던져 테스트 실패시킨다.
+- 이런 함수를 호출하는 코드 분석시 함수가 정상적으로 끝나지 않는다는 사실을 알려주기 위해 Nothing 이라는 반환 타입이 있다.
+
+```kotlin
+import java.lang.IllegalStateException
+
+/**
+ * 정상적으로 끝나지 않는 함수의 경우 (테스트 프레임워크의 fail등..)
+ * Nothing 반환 타입을 명시해 줌으로써 정상적으로 끝나지 않음을 표시해주면 유용하다.
+ */
+fun fail(message: String): Nothing {
+    throw IllegalStateException(message)
+}
+```
+
+#### 널 가능성과 컬렉션
+- 컬렉션 안에 널 값을 넣을수 있는지 여부는 중요하다.
+- 타입 인자로 쓰인 타입에도 ? 를 붙이면 Nullable 해진다.
+
+```kotlin
+import java.io.BufferedReader
+import java.lang.NumberFormatException
+
+/**
+ * 널이 될수 있게 만들때는 주의 해야한다
+ * List<Int?> 는 내부 요소가 널이 될 수 있고
+ * List<Int>? 는 리스트 전체가 널이 될 수 있다.
+ */
+fun readNumbers(reader: BufferedReader): List<Int?> {
+    val result = ArrayList<Int?>()
+    // BufferedReader 를 코틀린에서 다루는 베스트한 방법
+    for (line in reader.lineSequence()) {
+//        try {
+//            val number = line.toInt()
+//            result.add(number)
+//        } catch (e: NumberFormatException) {
+//            result.add(null)
+//        }
+        // 코틀린 1.1 이후
+        val number = line.toIntOrNull()
+        result.add(number)
+    }
+    return result
+}
+```
+
+> List<Int?>? 는 리스트도 널이 될 수 있고, 리스트 내부 요소도 널이 될 수 있다.
