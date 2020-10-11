@@ -418,3 +418,179 @@ fun readNumbers(reader: BufferedReader): List<Int?> {
 ```
 
 > List<Int?>? 는 리스트도 널이 될 수 있고, 리스트 내부 요소도 널이 될 수 있다.
+
+#### 읽기 전용과 변경 가능한 컬렉션
+- 코틀린 컬렉션과 자바 컬렉션을 나누는 가장 중요한 특성 하나가 있다.
+- 코틀린의 컬렉션은 컬렉션 내부 데이터에 접근하는 인터페이스와 컬렉션 내부 데이터를 변경하는 인터페이스를 분리 했다는 점
+- 데이터 접근에 대한 인터페이스는 kotlin.collections.Collection
+    - 핵심 메소드는 size, iterator, contains
+- 데이터 수정에 대한 인터페이스는 kotlin.collections.MutableCollection
+    - Collection을 확장하면서 내용을 변경하는 메소드를 추가 제공한다.
+    - 핵심 메소드는 add, remove, clear
+
+> 가능하면 항상 읽기 전용 인터페이스를 사용하는 것을 규칙으로 삼을 것 (불변성 유지)
+
+- MutableCollection 을 인자로 받는 함수에 전달할 때는 원본의 변경을 막기 위해 컬렉션을 복사해야 할 수도 있다.
+    - 이는 방어적 복사 (defensive copy) 패턴 이라고 한다.
+   
+```kotlin
+/**
+ * Kotlin Collection 의 특징은 읽기전용과, 읽기/쓰기용 인터페이스를 분리 했다는 점이다.
+ * Collection 은 읽기전용, MutableCollection 은 쓰기가 가능한 컬렉션이다.
+ * 어떤 함수의 MutableCollection 인터페이스 인자를 보고 변경이 일어날수 있음을 짐작할 수 있다.
+ */
+fun <T> copyElements(source: Collection<T>,
+                     target: MutableCollection<T>) {
+    for (item in source) {
+        target.add(item)
+    }
+}
+
+fun main(args: Array<String>) {
+    val source: Collection<Int> = arrayListOf(3, 5, 7)
+    val target: MutableCollection<Int> = arrayListOf(1)
+    copyElements(source, target)
+}
+```
+
+> 읽기 전용 컬렉션은 항상 Thread-Safe 하지는 않다는 점을 명심해야 한다.
+> 읽기 전용 컬렉션 타입으로 받았지만 구현체는 읽기 전용이 아닐수 있다.
+> 해당 구현체를 멀티 스레드 환경에서 내용을 변경하는 일이 생긴다면 ConcurrentModificationException 이 발생할 수 있다.
+
+#### 코틀린 컬렉션과 자바
+- 모든 코틀린 컬렉션은 자바 컬렉션 인터페이스의 인스턴스 이다.
+- 코틀린과 자바를 오갈때 아무 변환도 필요 없다.
+- 코틀린은 모든 자바 컬렉션 인터페이스 마다 읽기 전용과 읽기/쓰기 용 인터페이스라는 두가지 표현을 제공한다.
+
+> 코틀린의 읽기 전용과 읽기/쓰기용 인터페이스의 기본 구조는 java.util 패키지에 있는 자바 컬렉션 인터페이스 구조를 그대로 옮겨 두었다.
+
+`코틀린 컬렉션`
+
+| 타입 | 읽기전용 | 읽기/쓰기 |
+|---|---|---|
+| List | listOf | mutableListOf, arrayListOf |
+| Set | setOf | mutableSetOf, hashSetOf, linkedSetOf, sortedSetOf |
+| Map | mapOf | mutableMapOf, hashMapOf, linkedMapOf, sortedMapOf |
+
+#### 컬렉션을 플랫폼 타입으로 다루기
+- 자바 코드에서 정의한 타입을 코틀린에서는 플랫폼 타입으로 처리한다.
+- 플랫폼 타입은 코틀린 쪽에서 널에 관련된 정보가 없다.
+- 이는 컬렉션도 동일하다.
+- 만약 컬렉션 타입이 메소드 시그니처에 포함된 자바 메소드를 오버라이드 할 경우 읽기 전용과 읽기/쓰기용 컬렉션 차이는 문제가 된다.
+- 플랫폼 타입에서 널 가능성을 다룰 때처럼 어떤 코틀린 컬렉션 타입으로 표현할지 결정해야 한다.
+    - 컬렉션이 nullable 한가 ?
+    - 컬렉션의 원소가 nullable 한가 ?
+    - 오버라이드하는 메소드가 컬렉션을 변경할 수 있는가 ?
+    
+> 코틀린에서 변경 불가능한 컬렉션으로 넘기더라도 자바에서는 변경할 수 있다는 점을 기억하라.
+
+#### 객체 배열과 원시타입의 배열
+- 코틀린 배열은 타입 파라미터를 받는 클래스 이다.
+- 원소 타입은 타입 파라미터에 의해 정해진다.
+
+`코틀린에서 배열을 만드는 방법`
+- arrayOf
+- arrayOfNulls
+    - 모든 원소가 null 이고 인자로 넘긴 값과 크기가 같은 배열 
+- Array 생성자
+    - 배열 크기와 람다를 인자로 받아 람다가 각 배열원소를 초기화 한다.
+    - arrayOf 를 쓰지 않고 각 원소가 널이 아닌 배열 만들경우 사용한다.
+    
+```kotlin
+/**
+ * 코틀린은 타입 파라미터를 받는 클래스이다.
+ * 원소의 타입은 타입 파라미터에 의해 결정된다.
+ */
+fun main(args: Array<String>) {
+    // 코틀린 배열 사용하기
+    for (i in args.indices) {
+        println("Argument $i is: ${args[i]}")
+    }
+
+    // 배열을 생성하는 방법
+
+    // 1. arrayOf
+    // 원소를 받아 배열을 생성
+    val arr1: Array<Int> = arrayOf(1, 2, 3, 4)
+
+    // 2. arrayOfNulls
+    // 파라메터 값 만큼 null 원소를 갖는 배열을 생성
+    val arr2: Array<Int?> = arrayOfNulls(4)
+
+    // 3. Array 생성자
+    // arrayOf를 사용하지 않고 널이 아닌 배열을 초기화할때 사용
+    // 사이즈 파라메터와, 원소 초기화 람다를 받는다.
+    val arr3: Array<Int> = Array(4) { 1 }
+}
+```
+
+`컬렉션을 배열로 변환`
+
+```kotlin
+/**
+ * 컬렉션을 배열로 변환
+ */
+fun main(args: Array<String>) {
+    val strings = listOf("a", "b", "c")
+    strings.toTypedArray()
+}
+```
+
+> 코틀린에서 배열을 인자로 받는 자바 함수를 호출하거나 vararg 파라메터를 받는 코틀린 함수를 호출하기 위해 배열을 만든다.
+
+- 코틀린에서 배열을 선언하면 해당 배열은 박싱된 배열이 된다
+    - Array<Int> = java.lang.Integer[]
+- 원시 타입의 배열을 표현하기 위해서는 코틀린에서 제공하는 원시배열을 사용해야한다.
+- IntArray, ByteArray, CharArray 등 원시타입 배열을 제공한다.
+
+`원시 타입 배열 만들기`
+- size 인자를 받아 각 원소를 해당 원시타입의 디폴트 값으로 초기화 한다.
+- 팩토리 함수는 여러 값을 가변 인자로 받아 그 값이 들어간 배열을 반환한다.
+- 일반 배열과 동일하게 사이즈와 람다를 받는 생성자를 사용한다.
+
+```kotlin
+/**
+ * 코틀린에서는 배열은 기본적으로 박싱된 타입 이기 때문에
+ * 원시타입 배열 생성방식을 제공한다.
+ */
+fun main(args: Array<String>) {
+    // 1. 생성자 사용
+    // 사이즈 만큼의 원시 타입의 원소를 갖는 배열을 생성하고 원시타입의 디폴트값으로 초기화한다.
+    val intArr1 = IntArray(5)
+
+    // 2. 팩토리 함수 사용
+    // 각 원소를 인자로 받는다.
+    val intArr2 = intArrayOf(1, 2, 3, 4)
+
+    // 3. 일반 배열과 동일한 방식의 생성자 사용
+    val intArr3 = IntArray(5) { 2 }
+}
+```
+
+> 박싱된 값이 들어간 컬렉션이나 배열이 있다면 toIntArray 와 같은 함수로 원시 배열로 변환할 수 있다.
+
+> 또한 코틀린 표준 라이브러리는 배열의 기본 연산에 더해 컬렉션에서 제공하는 모든 확장 함수를 배열에도 제공한다.
+
+```kotlin
+fun main(args: Array<String>) {
+    // * 코틀린 배열은 컬렉션과 동일하게 확장 함수를 제공한다.
+    args.forEachIndexed { index, e ->  println("Argument $index is $e") }
+}
+```
+
+#### 정리
+- 코틀린은 널이 될 수 있는 타입을 지원해서 NPE 를 컴파일 타임에 감지한다.
+- 안전한 호출 (?.) 엘비스 연산자 (?:) 널 아님 단언 (!!) let 함수 등을 사용하면 nullable 한 타입을 간결한 코드로 다룰수 있다.
+- as? 연산자를 사용하면 값을 다른 타입으로 변환하는 것과 불가능한 경우를 한번에 처리할 수 있다.
+- 자바에서 가져온 타입은 플랫폼 타입으로 취급된다. nullable, not-null 모두 취급할 수 있다.
+- 코틀린에서 원시 타입은 일반 클래스와 똑같이 생겼고, 동일하게 동작하지만 대부분 컴파일러는 원시타입으로 컴파일한다.
+- nullable 한 원시타입은 자바의 래퍼 클래스와 대응된다.
+- Any 타입은 자바의 Object 에 해당한다. Unit 은 자바의 void 와 비슷하다.
+- 함수가 정상적으로 끝나지 않는다면 Nothing 반환 타입을 지정해 명시하는것이 좋다.
+- 코틀린 컬렉션은 표준 자바 컬렉션 클래스를 사용한다. 하지만 읽기 전용과 읽기/쓰기용 으로 구별해 제공한다.
+- 자바 클래스를 코틀린에서 확장하거나 구현한다면 메소드 파라미터의 널가능성과 변경 가능성에 대해 고민해야 한다.
+- 코틀린 Array 클래스는 자바 배열로 컴파일 된다.
+- 원시 타입의 배열은 IntArray 처럼 제공한다.
+
+#### 참고하면 좋은 자료
+- https://medium.com/@limgyumin/코틀린-의-apply-with-let-also-run-은-언제-사용하는가-4a517292df29 
