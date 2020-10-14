@@ -121,3 +121,105 @@ fun main(args: Array<String>) {
 - ==, != 는 내부에서 인자가 널인지 검사하고 아닌 경우에만 equals 를 호출한다.
 
 > a == b 는 a?.equals(b) ?: (b == null) 로 컴파일 된다.
+
+#### 순서 연산자: compareTo
+- 자바에서 정렬, 최대값, 최솟값 등을 비교할 때 Comparable 인터페이스를 구현해야 한다.
+- compareTo 메소드는 한 객체와 다른 객체의 크기를 비교하여 정수값을 반환한다.
+- 코틀린도 같은 인터페이스를 지원하고 compareTo 메소드를 호출하는 관례를 지원한다.
+- 비교 연산자 (<, >, <=, >=) 는 compareTo 호출로 컴파일 된다.
+
+```kotlin
+class Person (
+        val firstName: String,
+        val lastName: String
+): Comparable<Person> {
+    override fun compareTo(other: Person): Int {
+        return compareValuesBy(this, other,
+                Person::lastName, Person::firstName)
+    }
+}
+```
+- 코틀린 표준 라이브러리인 compareValuesBy 함수를 이용해 compareTo 를 간결하게 정의했다.
+- 두 객체와 여러 비교 함수를 인자로 받는다.
+- 먼저 첫번째 비교 함수에서 두 객체를 비교하고, 두번째 비교 함수를 통해 두 객체를 비교한다.
+- 각 비교 함수는 람다 이거나, 프로퍼티, 메소드 참조 일 수 있다.
+
+> 처음에는 성능에 신경 쓰지 말고 이해하기 쉽고 간결하게 코드를 작성한 뒤 호출 빈도가 높아짐에 따라 추후 성능 이슈가 있다면 그때 개선하라.
+
+> 코틀린에서 구현한 Comparable 인터페이스는 자바 쪽의 정렬 메소드 등에서도 사용이 가능하다.
+
+#### 컬렉션과 범위에 대해 쓸 수 있는 관례
+- 컬렉션을 다룰 때 가장 많이 쓰는 연산은 인덱스를 사용해 원소를 읽거나 쓰는 연산과
+- 어떤 값이 컬렉션에 속해있는지 검사하는 연산이다.
+- 인덱스를 이용해 원소를 설정하거나 가져올경우 a[index] 형태로 식을 사용할 수 있는데 이를 **인덱스 연산자** 라고 한다.
+- in 연산자는 원소가 컬렉션 이나 범위에 속하는지 검사 혹은 이터레이션할 때 사용한다.
+
+#### 인덱스로 원소에 접근 get, set
+- 코틀린에서 대괄호를 이용해 배열이나 맵의 원소에 접근할 수 있다.
+- 이를 인덱스 연산자라고 하며, 이를 이용해서 Read 행위는 get 메소드로 변환되고, Write 행위는 set 으로 변환된다.
+- Map, MutableMap 인터페이스에는 이미 두 메소드가 존재한다.
+
+```kotlin
+import java.lang.IndexOutOfBoundsException
+
+data class MutablePoint(var x: Int, var y: Int);
+
+operator fun MutablePoint.get(index: Int): Int =
+    when (index) {
+        0 -> x
+        1 -> y
+        else ->
+            throw IndexOutOfBoundsException("Invalid coordinate $index")
+    }
+
+operator fun MutablePoint.set(index: Int, value: Int) =
+    when (index) {
+        0 -> x = value
+        1 -> y = value
+        else ->
+            throw IndexOutOfBoundsException("Invalid coordinate $index")
+    }
+
+fun main(args: Array<String>) {
+    val p1 = MutablePoint(0, 1)
+    println(p1[0]) // 0 으로 접근하면 x 를
+    println(p1[1]) // 1로 접근하면 y 를 반환한다.
+
+    p1[0] = 10
+    p1[1] = 20
+
+    println(p1)
+}
+```
+
+> get, set 관례 모두 구현이 가능하다.
+
+#### in 관례
+- 컬렉션이 지원하는 다른 연산자는 in 연산자가 있다.
+- 객체가 컬렉션에 들어 있는지 검사하고 이에 대응하는 함수는 contains 이다.
+- in 의 우항의 객체는 contains 메소드의 수신객체, 좌항은 메소드 인자로 전달된다.
+```kotlin
+/**
+ * contains 함수를 구현하면 in 관계를 사용할 수 있다.
+ * 어떤 객체가 컬렉션에 들어있는지 검사 할 수 있다.
+ */
+data class Rectangle(val upperLeft: Point, val lowerRight: Point)
+
+operator fun Rectangle.contains(p: Point): Boolean {
+    return p.x in upperLeft.x until lowerRight.x &&
+            p.y in upperLeft.y until lowerRight.y
+}
+
+fun main(args: Array<String>) {
+    val rect = Rectangle(Point(10, 20), Point(50, 50))
+    println(Point(20, 30) in rect)
+}
+```
+
+- 열린 범위는 끝 값을 포함하지 않는 범위이다.
+- 10..20 으로 범위를 만들면 10이상 20이하인 닫힌 범위가 생기는데
+- 10 until 20 으로 만들면 10이상 19이하인 열린 범위가 된다.
+
+#### rangeTo 관례
+- 범위를 만드려면 .. 구문을 사용 해야한다.
+- .. 연산자는 rangeTo 함수를 간략하게 표현하는 관례이다.
