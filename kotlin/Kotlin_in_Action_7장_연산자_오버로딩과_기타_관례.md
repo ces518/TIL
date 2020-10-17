@@ -456,10 +456,34 @@ class ObservablePerson(
 }
 ```
 
+#### 프로퍼티 값을 맵에 저장
+- 자신의 프로퍼티를 동적으로 정의 가능한 객체를 만들 때 위임 프로퍼티를 활용한다.
+- 그런 경우를 **확장 가능한 객체 (expando object)** 라고 한다.
+- by 키워드 뒤에 맵을 직접 넣으면 매우 쉽게 구현이 가능하다.
 
+```kotlin
+class Person {
+    private val _attributes = hashMapOf(String, String)()
+    
+    fun setAttribute(attrName: String, value: String) {
+        _attributes[attrName] = value
+    }
+    
+    val name: String by _attributes
+}
+```
 
+> 표준 라이브러리는 Map, MutableMap 에 대해 getValue, setValue 확장함수를 제공하기 때문에 위임 프로퍼티를 사용할 수 있다.
 
-
-
+#### 정리
+- 코틀린에서 정해진 함수의 이름을 오버로딩함으로서 연산자 관례를 사용할 수 있다.
+- 비교 연산자 (==) 은 equals, compareTo 메소드로 변환된다.
+- get, set, contains 함수를 정의하면 해당 인스턴스에 [], in 연산을 사용할 수 있다.
+- rangeTo, iterator 함수를 정의하면 범위를 만들거나, 컬렉션과 배열의 원소를 이터레이션할 수 있다.
+- 구조분해 선언을 통해 객체의 상태를 분해해서 한번에 여러 변수 초기화가 가능하다. 데이터 클래스에서는 이미 구현이 되어 있지만
+- 커스텀 클래스에서는 componentN 함수를 정의해야 한다.
+- 위임 프로퍼티를 통해 프로퍼티 값을 저장하거나 초기화하거나 읽거나 변경하는 로직을 재활용할 수 있다.
+- lazy() 함수를 통해 지연 초기화 프로퍼티를 쉽게 구현할 수 있다.
+- 맵을 위임 객체로 사용하는 위임 프로퍼티를 통해 다양한 속성을 제공하는 객체를 유연하게 다룰수 있다. 
 
 
