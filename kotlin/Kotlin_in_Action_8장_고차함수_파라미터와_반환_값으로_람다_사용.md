@@ -130,3 +130,95 @@ fun <T> Collection<T>.joinToStringWithNullableFunction(
 - 함수내에서 함수를 반환하는 경우는 적지만, 매우 유용하다.
 - 특정 조건에 따라 달라질수 있는 로직을 함수를 반환하는 함수를 정의하고
 - 해당 함수를 호출하는 구조를 가짐으로 깔끔한 코드 스타일로 가져갈 수 있다.
+
+```kotlin
+/**
+ * 함수에서 함수를 반환하는 경우는 많지 않지만
+ * 매우 유용하다.
+ *
+ * 특정 조건에 따라 로직이 분기되는 경우 함수를 반환하는 함수를 활용해서 깔끔한 코드 스타일로 가져갈 수 있다.
+ *
+ */
+enum class Delivery { STANDARD, EXPEDITED }
+
+class Order(val itemCount: Int)
+
+fun getShippingCostCaculator(
+        delivery: Delivery
+) : (Order) -> Double {
+
+    if (delivery == Delivery.EXPEDITED) {
+        return { order -> 6 + 2.1 * order.itemCount }
+    }
+    return { order -> 61.2 * order.itemCount }
+}
+
+fun main() {
+    val calculator = getShippingCostCaculator(Delivery.EXPEDITED)
+    println("Shipping costs ${calculator(Order(3))}")
+}
+```
+
+#### 람다를 활용한 중복 제거
+- 함수 타입과 람다 식은 재활용하기 좋은 코드를 만들기 좋다.
+- 다음은 웹사이트 방문 기록을 분석하는 예제 코드이다. 
+
+```kotlin
+data class SiteVisit(
+    val path: String,
+    val duration: Double,
+    val os: OS
+)
+
+enum class OS { WINDOWS, LINUX, MAC, IOS, ANDROID }
+
+val log = listOf(
+    SiteVisit("/", 34.0, OS.WINDOWS),
+    SiteVisit("/", 22.0, OS.MAC),
+    SiteVisit("/login", 12.0, OS.WINDOWS),
+    SiteVisit("/singup", 8.0, OS.IOS),
+    SiteVisit("/", 16.3, OS.ANDROID)
+)
+
+/**
+ * 사이트 방문 데이터 분석 V1
+ * 컬렉션 api 를 이용한 보편적인 방법
+ */
+fun processV1() {
+    val average = log
+            .filter { it.os == OS.WINDOWS }
+            .map(SiteVisit::duration)
+            .average()
+    println(average)
+}
+
+/**
+ * 사이트 방문 데이터 분석 V2
+ * 확장 함수를 이용해 중복을 제거
+ */
+fun processV2() {
+    fun List<SiteVisit>.averageDurationFor(os: OS) =
+            filter { it.os == os }.map(SiteVisit::duration).average()
+
+    println(log.averageDurationFor(OS.WINDOWS))
+    println(log.averageDurationFor(OS.MAC))
+}
+
+/**
+ * 사이트 방문 데이터 분석 V3
+ * 고차 함수를 이용한 중복 제거
+ * 중복 제거뿐이 아닌 필터 조건이 변경되어도 대응이 가능하다
+ */
+fun processV3() {
+    fun List<SiteVisit>.averageDurationFor(predicate: (SiteVisit) -> Boolean) =
+            filter(predicate).map(SiteVisit::duration).average()
+
+    println(log.averageDurationFor { it.os == OS.WINDOWS })
+    println(log.averageDurationFor { it.os == OS.MAC })
+    println(log.averageDurationFor { it.os in setOf(OS.ANDROID, OS.IOS) })
+    println(log.averageDurationFor { it.os == OS.IOS && it.path == "/signup" })
+}
+```
+
+> 코드 중복을 줄일 때 함수 타입은 매우 유용하다.
+> 코드의 일부분을 복사해 붙여넣고 싶은 경우가 있다면 해당 코드를 람다로 만들어 중복을 제거할 수 잇다.
