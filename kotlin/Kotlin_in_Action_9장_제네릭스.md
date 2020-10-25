@@ -96,3 +96,51 @@ class StringList: GenericList<String> {
  */
 fun <T : Number> List<T>.sum() : T = get(0)
 ```
+
+> 타입 파라미터 T 에 대한 상한을 징하고 나면, T 타입의 값을 상한 타입의 값으로 취급이 가능하다.
+> 상한 타입에 정의된 메소드를 T 타입 값에 대해 호출할 수 있다.
+
+- 타입 파라미터에 둘 이상의 제약을 걸 수도 있다.
+```kotlin
+import java.lang.Appendable
+
+/**
+ * 타입 파라미터의 여러개의 제약 조건을 걸수도 있다.
+ * 아래 예제 코드에서 T 는 CharSequence 이고, Appendable 을 구현하고 있어야 한다.
+ */
+fun <T> ensureTrailingPeriod(seq: T)
+    where T : CharSequence, T: Appendable {
+        if (!seq.endsWith('.')) {
+            seq.append('.')
+        }
+}
+```
+
+> 둘 이상의 타입 파라미터 제약 조건이 필요하다면, where 키워드를 사용해서 지정이 가능하다.
+
+#### 타입 파라미터를 널이 될 수 없는 타입으로 한정
+- 타입 파라미터 상한을 정하지 않은 타입 파라미터는 Any? 를 상한으로 지정한 것과 동일하다.
+
+```kotlin
+/**
+ * value는 널이 될 수 있기 대문에 안전한 호출을 사용해야 한다.
+ */
+class Process<T> {
+    fun process(value: T) {
+        value?.hashCode()
+    }
+}
+
+/**
+ * 항상 널이 될 수 없는 타입 파라미터 제약을 걸려면 상한에 Any 를 지정해야 한다.
+ */
+class ProcessNotNull<T : Any> {
+    fun process(value: T) {
+        value.hashCode()
+    }
+}
+```
+
+#### 실행시 제네릭스의 동작 - 소거된 타입 파라미터와 실체화된 타입 파라미터
+- JVM 의 제네릭스는 **타입 소거 (type erasure)** 를 사용하여 구현된다.
+    - 실행 시점에 제네릭 클래스의 인스턴스에 타입 인자 정보가 들어있지 않는다.
