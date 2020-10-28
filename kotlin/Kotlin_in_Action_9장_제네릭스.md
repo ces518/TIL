@@ -144,3 +144,101 @@ class ProcessNotNull<T : Any> {
 #### 실행시 제네릭스의 동작 - 소거된 타입 파라미터와 실체화된 타입 파라미터
 - JVM 의 제네릭스는 **타입 소거 (type erasure)** 를 사용하여 구현된다.
     - 실행 시점에 제네릭 클래스의 인스턴스에 타입 인자 정보가 들어있지 않는다.
+- 코틀린에서 함수를 inline 으로 선언하면, 실행 시점에 타입 인자가 지워지지 않는다.
+    - 코틀린 에서는 이를 **실체화 (reify)** 라고 부른다.
+
+#### 실행 시점의 제네릭 - 타입 검사와 캐스트
+- 코틀린 제네릭 타입 인자는 자바와 동일하게 런타임 시점에 사라진다.
+    - 제네릭 클래스 인스턴스가 인스턴스 생성시 사용한 타입 인자에 대한 정보를 유지하지 않는다는 의미이다.
+    - 컴파일 시점에는 다른 타입으로 인식하지만, 실행 시점에는 같은 타입의 객체로 취급될 수 있다는 의미이기도 하다.
+- 런타임 시점에 타입 인자 검사를 할 수 없기 때문에 런타임 시점에 List<String> 인지, List<Long> 인지 알 방법이 없다.
+
+> 코틀린 에서는 타입 인자를 명시하지 않고 제네릭을 사용할 수 없기 때문에 **스타 프로젝션 (star projection)** 을 사용한다.
+
+```kotlin
+/**
+ * 코틀린에서는 타입 인자를 명시하지 않고 제네릭을 사용할 수 없다.
+ * 인자를 알 수 없는 제네릭 타입을 표현할때 스타 프로젝션 (star projection) 을 사용한다.
+ * 자바의 List<?> 와 동일하다.
+ */
+fun main() {
+    val list: List<*>? = null
+}
+```
+
+- 타입 캐스팅은 기저 타입만 동일하다면, 제네릭 타입에 상관없이 캐스팅에 성공한다.
+    - 컴파일 타임에 경고를 주지만, 실행하는데는 문제가 없다.
+```kotlin
+import java.lang.IllegalArgumentException
+
+fun printSum(c: Collection<*>) {
+    val intList = c as? List<Int>
+            ?: throw IllegalArgumentException("List is expected")
+    println(intList.sum())
+}
+
+fun main() {
+    printSum(listOf(1, 2, 3))
+
+    // List 기저 타입이 아니기 때문에, IllegalArgumentException 발생
+    printSum(setOf(1, 2, 3))
+
+    // List 기저 타입이기 때문에 캐스팅에는 성공하지만, sum() 함수 호출시 ClassCastException 이 발생한다.
+    printSum(listOf("a", "b", "c"))
+}
+```
+> as 혹은 as? 를 사용해서 타입 캐스팅을 시도 할 때 주의점은 **기저 타입은 같지만, 타입 인자가 달라도 캐스팅에는 성공** 한다.
+
+#### 실체화한 타입 파라미터를 사용한 함수 선언
+- inline 으로 선언된 함수의 타입 파라미터는 실행 시점에 인라인 함수의 타입 인자를 알 수 있다.
+    - 인라인 함수는 컴파일 시점에 해당 함수를 호출한 식을 모두 함수 본문으로 바꾼다. (인라이닝)
+    
+```kotlin
+/**
+ * 함수를 inline 으로 선언하면, 타입 파라미터는 실행 시점에 사라지지 않는다.
+ * 이를 코틀린에서는 실체화 된다고 표현한다.
+ * inline 함수의 타입 파라미터에 reified 키워드를 사용하여, 실체화될 파라미터라고 알려준다.
+ */
+inline fun <reified T> isA(value: Any) = value is T
+
+fun main() {
+    println(isA<String>("abc"))
+    println(isA<String>(123))
+}
+```
+
+#### 인라인 함수에서만 실체화한 타입 인자를 사용할 수 있는 이유
+- 컴파일러는 안라인 함수의 본문을 구현한 바이트 코드를 해당 함수 호출 지점에 모두 삽입한다.
+- 실체화한 타입 인자를 사용해 정확한 타입 인자를 알 수 있기 때문이다.
+- 이는 타입 파라미터가 아닌, 구체적인 타입을 사용하기 때문에 실행 시점에 발생하는 타입 소거의 영향을 받지 않는다.
+> 자바에서는 reified 타입 파라미터를 사용하는 inline 함수를 호출할 수 없다.
+> 코틀린 인라인 함수를 자바에서는 일반 함수처럼 호출하기 때문이다.
+
+#### 실체화한 타입 파라미터로 클래스 참조 대신 사용
+- java.lang.Class 타입 인자를 파라미터로 받는 API를 코틀린에서 사용하기 위해 어댑터 를 구현하는 경우 실체화한 타입 파라미터를 자주 사용한다.
+- 대표적인 예로 JDK의 ServiceLoader 가 있다.
+
+```kotlin
+inline fun <reified T> loadService() = ServiceLoader.load(T::class.java)
+
+fun main() {
+    // 코틀린에서 Service::class.java 는 자바의 Service.class 와 완전히 동일한 역할을 하는 코드이다,
+    val serviceImpl = ServiceLoader.load(Service::class.java)
+
+    // 타입 파라미터 실체화를 이용한 간결한 호출함수 위의 코드와 동일한 역할을 한다.
+    val serviceImpl2 = loadService<Service>()
+}
+```
+
+#### 실체화한 타입 파라미터의 제약 조건
+- 다음과 같은 경우 실체화한 타입 파라미터를 사용할 수 있다.
+1. 타입 검사와 캐스팅
+2. 코틀린 리플렉션 API
+3. 코틀린 타입에 대응하는 java.lang.Class 얻기
+4. 다른 함수 호출시 타입 인자로 사용
+
+- 다음과 같은 경우는 사용할 수 없다.
+1. 타입 파라미터 클래스의 인스턴스 생성
+2. 타입 파라미터 클래스의 동반 객체 메소드 호출
+3. 실체화한 타입 파라미터를 요구하는 함수를 호출하며 실체화 하지 않은 타입 파라미터로 받은 타입을 타입 인자로 사용
+4. 클래스, 프로퍼티, 인라인 함수가 아닌 함수의 타입 파라미터를 reified 로 지정
