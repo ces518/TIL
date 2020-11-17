@@ -24,3 +24,10 @@
 | map.get("key") | map["key"] | get 메소드에 대한 관례 |
 | file.use({ f -> f.read() }) | file.use { it.read() } | 람다를 괄호 밖으로 빼내는 관례 |
 | sb.append("yes") | with (sb) { append("yes") } | 수신 객체 지정 람다 |
+
+#### 영역 특화 언어
+- DSL 이라는 개념은 오래된 개념이다.
+- 컴퓨터 발명 초기부터 **범용 프로그래밍 언어 (general-purpose programming language)** 와 특정 영역에 초점을 맞춘 특화 언어를 구분해 왔다.
+- 우리에게 가장 익숙한 DSL은 SQL 과 정규식이다.
+- 범용 프로그래밍 언어는 명령적 인데 반해 DSL은 범용 프로그래밍 언어와 달리 선언적 이라는 점이 중요하다.
+- 
