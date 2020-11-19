@@ -177,3 +177,38 @@ inline fun <T, R>with(receiver: T, block: T.() -> R): R = receiver.block()
 
 > apply 와 with 함수의 가장 큰 차이는 수신객체를 인자로 받느냐 , 수신객체를 반환하냐의 여부이다.
 
+#### invoke 관례 - 함수처럼 호출가능한 객체
+- 7장에서 살펴본 객체에 대해 인덱스 연산을 사용가능하게 하는 get 에 대해 살펴보았다.
+- foo[bar] 라는 식을 쓰면 foo.get(bar) 로 변환되는 관례이다.
+    - 이때 get 은 foo 클래스 내부 혹은 확장 함수로 정의되어야한다.
+- invoke 관례도 같은 역할을 한다.
+
+```kotlin
+/**
+ * invoke 함수 관례
+ */
+class Greeter(val greeting: String) {
+    operator fun invoke(name: String) {
+        println("$greeting, $name!")
+    }
+}
+
+fun main() {
+    val greeter = Greeter("Servus")
+    // 아래 코드는 greeter.invoke("Dmitry!") 로 컴파일 된다.
+    greeter("Dmitry!")
+}
+```
+
+#### invoke 관례와 함수형 타입
+- 일반적인 람다 호출방식이 실제로는 invoke 관례를 적용한 것임을 알았을 것이다.
+- 인라이닝을 하는 람다를 제외한 모든 람다에는 함수형 인터페이스를 구현하는 클래스로 컴파일 된다.
+- 각 인터페이스 내부에는 해당 invoke 메소드가 들어있다.
+- 람다를 함수처럼 호출할 경우 관례에 따라 invoke 메소드 호출로 변환된다.
+
+#### 정리
+- 내부 DSL 은 여러 메소드 호출로 구성된 구조를 더 쉽게 표현할수 있게 해주는 패턴
+- 수식 객체 지정람다는 람다 본문 내에서 메소드를 결정하는 방식을 재정의해서 여러 요소를 중첩시킬수 있는 구조를 만든다.
+- 수신 객체 지정람다를 파라미터로 받은 경우 해당 람다의 타입은 확장함수 타입이다.
+- 람다를 파라미터로 받아 사용하는 함수는 람다를 호출하며 람다에 수신객체를 제공한다.
+- invoke 관례를 사용하면 객체를 함수처럼 다룰 수 있다.
