@@ -192,3 +192,246 @@ protected DataAccessException translateException(String task, @Nullable String s
 }
 ```
 
+#### JdbcRepository 적용하기
+- 기존의 DesignTacoController 에 JdbcRepository 적용하면 다음과 같다.
+
+```java
+@Slf4j
+@Controller
+@RequestMapping("/design")
+@RequiredArgsConstructor
+public class DesignTacoController {
+  
+    private final IngredientRepository ingredientRepository;
+    
+    @GetMapping
+    public String showDesignForm(Model model) {
+      List<Ingredient> ingredients = new ArrayList<>();
+      ingredientRepository.findAll().forEach(ingredients::add);
+    
+      for (Ingredient.Type type : Ingredient.Type.values()) {
+        model.addAttribute(type.toString().toLowerCase(), ingredients.stream().filter(x -> x.getType() == type).collect(Collectors.toList()));
+      }
+    
+      model.addAttribute("taco", new Taco());
+    
+      return "design";
+    }
+    
+    // ...
+}
+```
+
+#### 스키마 정의하기
+- 스프링 부트는 **schema.sql** 이라는 파일이 애플리케이션 classpath 루트에 존재하면 애플리케이션이 실행될때 schema.sql 파일을 실행한다.
+- 또한 식자재 데이터를 미리 저장해야 하는데, 이 또한 data.sql 이라는 이름의 파일로 실행을 해준다.
+
+`schema.sql`
+```sql
+create table if not exists Ingredient (
+    id varchar(4) not null,
+    name varchar(25) not null,
+    type varchar(10) not null
+);
+
+create table if not exists Taco (
+    id identity,
+    name varchar(50) not null,
+    createdAt timestamp not null
+);
+
+create table if not exists Taco_Ingredients (
+    taco bigint not null,
+    ingredient varchar(4) not null
+);
+
+alter table Taco_Ingredients add foreign key (taco) references Taco(id);
+alter table Taco_Ingredients add foreign key (ingredient) references Ingredient(id);
+
+create table if not exists Taco_Order (
+    id identity,
+    deliveryName varchar(50) not null,
+    deliveryStreet varchar(50) not null,
+    deliveryCity varchar(50) not null,
+    deliveryState varchar(2) not null,
+    deliveryZip varchar(10) not null,
+    ccNumber varchar(16) not null,
+    ccExpiration varchar(5) not null,
+    ccCVV varchar(3) not null,
+    placedAt timestamp not null
+);
+
+create table if not exists Taco_Order_Tacos (
+    tacoOrder bigint not null,
+    taco bigint not null
+);
+
+alter table Taco_Order_Tacos add foreign key (tacoOrder) references Taco_Order(id);
+alter table Taco_Order_Tacos add foreign key (taco) references Taco(id);
+```
+
+`data.sql`
+```sql
+delete from Taco_Order_Tacos;
+delete from Taco_Ingredients;
+delete from Taco;
+delete from Taco_Order;
+
+delete from Ingredient;
+
+insert into Ingredient (id, name, type) values ('FLTO', 'Flour Tortilla', 'WRAP');
+insert into Ingredient (id, name, type) values ('COTO', 'Corn Tortilla', 'WRAP');
+insert into Ingredient (id, name, type) values ('GRBF', 'Ground Beef', 'PROTEIN');
+insert into Ingredient (id, name, type) values ('CARN', 'Carnitas', 'PROTEIN');
+insert into Ingredient (id, name, type) values ('TMTO', 'Diced Tomatoes', 'VEGGIES');
+insert into Ingredient (id, name, type) values ('LETC', 'Lettuce', 'VEGGIES');
+insert into Ingredient (id, name, type) values ('CHED', 'Cheddar', 'CHEESE');
+insert into Ingredient (id, name, type) values ('JACK', 'Monterrey Jack', 'CHEESE');
+insert into Ingredient (id, name, type) values ('SLSA', 'Salsa', 'SAUCE');
+insert into Ingredient (id, name, type) values ('SRCR', 'Sour Cream', 'SAUCE');
+```
+
+#### JdbcTemplate 을 사용한 데이터 저장
+- JdbcTemplate 을 사용하여 데이터를 저장하는 방법은 두 가지 방법이 있다.
+1. JdbcTemplate.update() 메소드
+2. SimpleJdbcInsert 클래스 사용
+
+- 1번의 경우 JdbcIngredientRepository 를 구현하면서 사용했지만, 이는 간단한 케이스의 경우 문제가 없지만 처리가 복잡해질수록 코드가 난잡해질 수 있다.
+- TacoRepository 와 OrderRepository 를 구현하며 비교해 보자.
+
+#### TacoRepository
+- TacoRepository 는 Taco 객체를 받아 이를 저장하는 일을 수행한다.
+
+`TacoRepository`
+```java
+public interface TacoRepository {
+    Taco save(Taco design);
+}
+```
+
+`JdbcTacoRepository`
+```java
+@Repository
+@RequiredArgsConstructor
+public class JdbcTacoRepository implements TacoRepository {
+
+    private final JdbcTemplate jdbc;
+
+    @Override
+    public Taco save(Taco taco) {
+        long tacoId = saveTacoInfo(taco);
+        taco.setId(tacoId);
+        for (Ingredient ingredient : taco.getIngredients()) {
+            saveIngredientToTaco(ingredient, tacoId);
+        }
+        return taco;
+    }
+
+    private long saveTacoInfo(Taco taco) {
+        taco.setCreatedAt(new Date());
+        PreparedStatementCreator psc = new PreparedStatementCreatorFactory(
+                "insert into Taco (name, createdAt) values (?, ?)",
+                Types.VARCHAR, Types.TIMESTAMP
+        ).newPreparedStatementCreator(
+                List.of(taco.getName(), new Timestamp(taco.getCreatedAt().getTime()))
+        );
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbc.update(psc, keyHolder);
+        return keyHolder.getKey().longValue();
+    }
+
+    private void saveIngredientToTaco(Ingredient ingredient, long tacoId) {
+        jdbc.update("insert into Taco_Ingredients (taco, ingredient) values (?, ?)", tacoId, ingredient.getId());
+    }
+}
+```
+- TacoRepository 는 jdbcTemplate 의 update 메소드를 사용해, persist 를 수행한다.
+- 특이점이라면, Taco 데이터를 Insert 후 생성되는 Key 값을 반환하기 위해 코드 레벨에서 KeyHolder 객체를 사용했다는 점이다.
+
+#### OrderRepository
+- OrderRepository 도 마찬가지로 Order 객체를 받아 저장하는 일을 수행한다.
+
+`OrderRepository`
+```java
+public interface OrderRepository {
+    Order save(Order order);
+}
+```
+
+`JdbcOrderRepository`
+```java
+@Repository
+public class JdbcOrderRepository implements OrderRepository {
+    private final SimpleJdbcInsert orderInserter;
+    private final SimpleJdbcInsert orderTacoInserter;
+    private final ObjectMapper objectMapper;
+
+    public JdbcOrderRepository(JdbcTemplate jdbc, ObjectMapper objectMapper) {
+        this.orderInserter = new SimpleJdbcInsert(jdbc)
+                .withTableName("Taco_Order")
+                .usingColumns("id");
+        this.orderTacoInserter = new SimpleJdbcInsert(jdbc)
+                .withTableName("Taco_Order_Tacos");
+        this.objectMapper = objectMapper;
+    }
+
+    @Override
+    public Order save(Order order) {
+        order.setPlacedAt(new Date());
+        long orderId = saveOrderDetails(order);
+        order.setId(orderId);
+        List<Taco> tacos = order.getTacos();
+
+        for (Taco taco : tacos) {
+            saveTacoToOrder(taco, orderId);
+        }
+
+        return order;
+    }
+
+    private long saveOrderDetails(Order order) {
+        @SuppressWarnings("unchecked")
+        Map<String, Object> values = objectMapper.convertValue(order, Map.class);
+        values.put("placedAt", order.getPlacedAt());
+
+        return orderInserter.executeAndReturnKey(values)
+                .longValue();
+    }
+
+    private void saveTacoToOrder(Taco taco, long orderId) {
+        Map<String, Object> values = Map.of("taco", orderId, "taco", taco.getId());
+        orderTacoInserter.executeAndReturnKey(values);
+    }
+}
+```
+- OrderRepository 는 SimpleJdbcInsert 객체를 사용해 persist 를 수행한다.
+- TacoRepository 와 비교했을때 차이는, KeyHolder 객체를 **직접 사용하지 않았다** 는 점이다.
+- 핵심은 ? -> executeInsertAndReturnKeyInternal 메소드
+  - 내부에서 KeyHolder 객체를 사용해 키를 반환해 준다.
+
+```java
+private Number executeInsertAndReturnKeyInternal(List<?> values) {
+    KeyHolder kh = this.executeInsertAndReturnKeyHolderInternal(values);
+    if (kh.getKey() != null) {
+        return kh.getKey();
+    } else {
+        throw new DataIntegrityViolationException("Unable to retrieve the generated key for the insert: " + this.getInsertString());
+    }
+}
+```
+
+#### TacoRepository 와 OrderRepository 비교
+- 두 구현을 비교해 보았을때, Persist 처리를 하는 코드는 OrderRepository 가 좀 더 간결하다.
+- 간단한 경우 JdbcTemplate 을 직접 사용해도 되지만, 처리가 복잡해 질수록 SimpleJdbcInsert 객체를 사용하는 것을 권장한다.
+
+### Spring data JPA 를 사용하기
+- Spring data 프로젝트는 여러 하위 프로젝트로 구성되는 프로젝트 이다.
+- 대부분의 하위 프로젝트는 다양한 데이터베이스 유형을 사용한 데이터 퍼시스턴스에 중점을 둔다.
+- 대표적인 하위 프로젝트는 다음과 같다.
+  - Spring data JPA
+  - Spring data MongoDB
+  - Spring data Neo4
+  - Spring data Redis
+  - Spring data Cassandra
+
+
