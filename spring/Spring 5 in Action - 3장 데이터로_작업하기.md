@@ -433,5 +433,161 @@ private Number executeInsertAndReturnKeyInternal(List<?> values) {
   - Spring data Neo4
   - Spring data Redis
   - Spring data Cassandra
+  
+- spring data jpa 를 사용하기 위해 spring-boot-starter-jpa 의존성을 추가해야 한다.
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-jpa</artifactId>
+</dependency>
+```
+- 또한 jpa 를 사용하기 위해서는 기존 도메인 객체에 사전작업이 필요하다.
 
+`Ingredient`
+```java
+@Data
+@RequiredArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
+@Entity
+public class Ingredient {
 
+    @Id
+    private final String id;
+    private final String name;
+
+    @Enumerated(EnumType.STRING)
+    private final Type type;
+
+    public enum Type {
+        WRAP, PROTEIN, VEGGIES, CHEESE, SAUCE
+    }
+}
+```
+- @Entity 애노테이션은, JPA 가 관리해야하는 엔티티 클래스임을 선언한다.
+  - 쉽게 생각하면, ORM 의 O 대상을 선언하는 것과 동일 
+  - 그렇다면 R 은 어떻게 선언해야 하는건가 ?..
+  - **@Table** 애노테이션을 사용해서 특정 엔티티 클래스와 특정 테이블을 매핑 할 수 있는데, 이를 생략할 경우 기본적으로 엔티티 클래스명을 테이블 명으로 식별한다.
+  - 엔티티 클래스명과 테이블명이 **일치하지 않을 경우** , @Table 애노테이션을 사용해서 매핑정보를 선언해주도록 하자.
+- @Id 애노테이션은, 해당 필드가, 엔티티 클래스의 **식별자** 임을 선언한다.
+  - 엔티티 클래스는 반드시 식별자가 존재해야 하며, 이는 매핑되는 테이블의 PK 와 매핑된다.
+  - 이 식별자를 직접 생성해줄것인지, 혹은 생성 전략을 사용할것인지는 **@GeneratedValue** 애노테이션 과 관련이 있는데
+  - 이를 생략할 경우, 식별자를 직접 생성해주어야 하며, 생략하지 않을 경우, 생성 전략에 따라 식별자가 생성된다.
+- @Enumerated 애노테이션은, EnumType 과 매핑하기 위해 사용한다.
+  - 기본적으로 생략을해도 동작을 하지만, 생략하지 않고, 선언을 한 이유는, Enum 타입의 값을 persist 하는 전략과 관련이 있다.
+  - 애노테이션을 생략 혹은 선언을 하였으나 전략을 지정하지 않은경우, 기본전략으로 EnumType.ORDINAL 을 사용한다.
+  - 이는 실제 데이터가 persist 될때 Enum 의 순서값 (0, 1, 2..) 를 사용하게 되는데 이는 매우 위험한 방법이다.
+  - 만약 모종의 사유로 Enum 의 순서가 변경되거나, 중간에 새로운 값이 추가 될 경우 0, 1, 3, 2 방식이 아닌, 새로 갱신된 기준으로 다시 채번하기 때문에
+  - 데이터 불일치 문제가 발생 한다.
+  - 따라서 반드시 **EnumType.STRING** 전략을 사용해야 한다. (이는 순서가 아닌, Enum 의 이름을 persist 한다.)
+
+- https://www.popit.kr/하이버네이트는-어떻게-자동-키-생성-전략을-결정하/
+- https://jojoldu.tistory.com/295
+
+`Taco`
+```java
+@Data
+@Entity
+public class Taco {
+
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+    private Date createdAt;
+
+    @NotNull
+    @Size(min = 5, message = "Name must be at least 5 characters long")
+    private String name;
+
+    @ManyToMany
+    @Size(min = 1, message = "You must choose at least 1 ingredient")
+    private List<Ingredient> ingredients;
+
+    @PrePersist
+    void createdAt() {
+        this.createdAt = new Date();
+    }
+}
+```
+- @ManyToMany 애노테이션은 연관관계 매핑정보를 제공하기 위한 애노테이션이다.
+  - 이름에서도 알수 있듯이 다대다 매핑을 하기위해 사용되며, 실무에서는 사용하는것은 **지양** 해야 한다.
+  - 다대다 매핑 전략을 사용할경우, 다대다 매핑정보를 저장하기위한, 관계테이블 (a.k.a 중간 테이블) 을 생성하는데
+  - 이는 구현체가 생성한 테이블을 그대로 사용할수 밖에 없다, 비즈니스를 위한 컬럼을 추가하는 등 작업이 불가능하다.
+  - 실무에서 다대다 매핑 보다는, 다대일 / 일대다 , 일대다 / 다대일 매핑 으로 변경하여, 관계테이블을 사용하지 않고 엔티티 클래스로 직접 정의해서 사용할 것을 권장한다.
+  - 이를 **엔티티로 승격** 이라고 표현한다.
+- @PrePersist 애노테이션은, 엔티티가 persist 되기 전, 수행되어야 하는 처리가 있다면, 해당 메소드 위에 선언하여 처리할 수 있다.
+
+#### JPA Repository 선언
+- Spring data JPA 를 사용하면, JDBC 버전에서 우리가 직접 구현했던 메소드들을 자동으로 구현해준다.
+- 기존에 구현했던 Repository 들을 JpaRepository 로 변경해보자.
+
+`IngredientJpaRepository`
+```java
+public interface IngredientJpaRepository extends CrudRepository<Ingredient, String> {
+}
+```
+
+`TacoJpaRepository`
+```java
+public interface TacoJpaRepository extends CrudRepository<Taco, Long> {
+}
+```
+
+`OrderJpaRepository`
+```java
+public interface OrderJpaRepository extends CrudRepository<Order, Long> {
+}
+```
+- JDBC Repository 에서 구현했던 메소드들이, 선언부분 조차 사라졌다... 이는 **CrudRepository** 와 관련이 있다.
+- CrudRepository 인터페이스를 살펴보면, 반복적으로 사용되는 여러 메소드들이 이미 선언되어 있고, 이 메소드들의 구현은 JPA 가 처리해 준다.
+- 또 눈여겨 봐야할 점은 @Repository 애노테이션이 사라졌다는 점이다.
+- CrudRepository 의 구현체인 SimpleJpaRepository 가 이미 @Repository 애노테이션을 가지고 있기 때문에, 선언하지 않아도 빈으로 등록된다.
+
+`CrudRepository`
+```java
+@NoRepositoryBean
+public interface CrudRepository<T, ID> extends Repository<T, ID> {
+    <S extends T> S save(S var1);
+
+    <S extends T> Iterable<S> saveAll(Iterable<S> var1);
+
+    Optional<T> findById(ID var1);
+
+    boolean existsById(ID var1);
+
+    Iterable<T> findAll();
+
+    Iterable<T> findAllById(Iterable<ID> var1);
+
+    long count();
+
+    void deleteById(ID var1);
+
+    void delete(T var1);
+
+    void deleteAll(Iterable<? extends T> var1);
+
+    void deleteAll();
+}
+```
+
+> 최근에는 CrudRepository 보단, 좀 더 기능이 확장된 **JpaRepository** 를 사용한다.
+
+#### JPA Repository 활용
+- Spring data JPA 를 사용하면, 기본제공 메소드외에도 필요한 특정 쿼리도 손쉽게 만들 수 있다.
+- 메소드 명 기반으로 생성할 수 있으며, 이를 **NamedQuery** 라고 한다.
+- 메소드 명을 기반으로 생성하는 것은 특정 규칙이 있다.
+- find, read, get 은 하나 이상의 개체를 읽는 동의어 규칙이다.
+- 특정 개체의 수를 쿼리하고 싶다면 count 를 사용할 수 있다.
+- 예를 들어, Order 엔티티의 DeliveryZip 을 기반으로 조회하고 싶다면 다음과 같이 NamedQuery 를 정의할 수 있다.
+
+```java
+List<Order> findByDeliveryZip(String deliveryZip);
+```
+
+- https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#reference
+
+### 정리
+- 스프링의 JdbcTemplate 은 JDBC 작업을 손쉽게 할수 있도록 도와준다.
+- 데이터 추가를 쉽게 하고 싶다면, SimpleJdbcInsert 를 사용하자.
+- Spring data JPA 를 사용하면, 인터페이스를 작성하듯이 persistence 작업을 쉽게 할 수 있다.
+- JPA 를 사용하려면 반드시 **공부** 하고 쓰자
