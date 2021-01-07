@@ -315,3 +315,237 @@ public class DesignTacoApiController {
     }
 }
 ```
+
+### Spring data REST
+- 스프링 데이터 는 인터페이스를 기반으로 리포지토리 구현체를 자동으로 생성해준다.
+- 이뿐만이 아닌 애플리케이션의 API 를 정의하는데 도움을 주는 기능도 제공한다.
+- Spring data REST 는 스프링 데이터가 생성하는 리포지토리의 REST API 를 자동으로 생성한다.
+- Spring data REST 를 사용하기 위해 아래 의존성을 추가해주자.
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-rest</artifactId>
+</dependency>
+```
+
+- 의존성만 추가해 주면 REST API 구현이 끝난다.
+- Spring data REST 가 생성해주는 REST 엔드 포인트는 우리가 직접 구현한것 만큼 좋다.
+- 이를 사용하려면 @RestController 를 통해 직접 구현해주었던 엔드포인트를 제거해 주어야한다.
+  - Spring data REST 가 구현해주는 엔드포인트가 우선순위가 더 높다.
+- 자동으로 구현된 식자재 api 를 조회해보면 다음과 같이 우리가 구현한 방식과 유사하게 응답을 받을 수 있다.  
+
+```json
+{
+  "_embedded": {
+    "ingredients": [
+      {
+        "name": "Flour Tortilla",
+        "type": "WRAP",
+        "_links": {
+          "self": {
+            "href": "http://localhost:8080/api/ingredients/FLTO"
+          },
+          "ingredient": {
+            "href": "http://localhost:8080/api/ingredients/FLTO"
+          }
+        }
+      },
+      {
+        "name": "Corn Tortilla",
+        "type": "WRAP",
+        "_links": {
+          "self": {
+            "href": "http://localhost:8080/api/ingredients/COTO"
+          },
+          "ingredient": {
+            "href": "http://localhost:8080/api/ingredients/COTO"
+          }
+        }
+      },
+      {
+        "name": "Ground Beef",
+        "type": "PROTEIN",
+        "_links": {
+          "self": {
+            "href": "http://localhost:8080/api/ingredients/GRBF"
+          },
+          "ingredient": {
+            "href": "http://localhost:8080/api/ingredients/GRBF"
+          }
+        }
+      },
+      {
+        "name": "Carnitas",
+        "type": "PROTEIN",
+        "_links": {
+          "self": {
+            "href": "http://localhost:8080/api/ingredients/CARN"
+          },
+          "ingredient": {
+            "href": "http://localhost:8080/api/ingredients/CARN"
+          }
+        }
+      },
+      {
+        "name": "Diced Tomatoes",
+        "type": "VEGGIES",
+        "_links": {
+          "self": {
+            "href": "http://localhost:8080/api/ingredients/TMTO"
+          },
+          "ingredient": {
+            "href": "http://localhost:8080/api/ingredients/TMTO"
+          }
+        }
+      },
+      {
+        "name": "Lettuce",
+        "type": "VEGGIES",
+        "_links": {
+          "self": {
+            "href": "http://localhost:8080/api/ingredients/LETC"
+          },
+          "ingredient": {
+            "href": "http://localhost:8080/api/ingredients/LETC"
+          }
+        }
+      },
+      {
+        "name": "Cheddar",
+        "type": "CHEESE",
+        "_links": {
+          "self": {
+            "href": "http://localhost:8080/api/ingredients/CHED"
+          },
+          "ingredient": {
+            "href": "http://localhost:8080/api/ingredients/CHED"
+          }
+        }
+      },
+      {
+        "name": "Monterrey Jack",
+        "type": "CHEESE",
+        "_links": {
+          "self": {
+            "href": "http://localhost:8080/api/ingredients/JACK"
+          },
+          "ingredient": {
+            "href": "http://localhost:8080/api/ingredients/JACK"
+          }
+        }
+      },
+      {
+        "name": "Salsa",
+        "type": "SAUCE",
+        "_links": {
+          "self": {
+            "href": "http://localhost:8080/api/ingredients/SLSA"
+          },
+          "ingredient": {
+            "href": "http://localhost:8080/api/ingredients/SLSA"
+          }
+        }
+      },
+      {
+        "name": "Sour Cream",
+        "type": "SAUCE",
+        "_links": {
+          "self": {
+            "href": "http://localhost:8080/api/ingredients/SRCR"
+          },
+          "ingredient": {
+            "href": "http://localhost:8080/api/ingredients/SRCR"
+          }
+        }
+      }
+    ]
+  },
+  "_links": {
+    "self": {
+      "href": "http://localhost:8080/api/ingredients"
+    },
+    "profile": {
+      "href": "http://localhost:8080/api/profile/ingredients"
+    }
+  }
+}
+```
+> spring data rest 가 생성한 엔드포인트의 base-path 를 지정하려면 spring.data.rest.base-path 속성을 지정해 주면 된다.
+> 그렇다면 모든 경로에 base-path 가 적용된 엔드포인트가 생성된다.
+
+#### 주의점
+- 자동 생성된 API 를 테스트하던 도중 /api/tacos 라고 요청을 하면 404 응답을 받는다.
+- 이유 ? -> Spring data REST 는 tacos 라는 엔드포인트도 제공하는데, 이를 노출하는 방법이 문제가 된다.
+  - Ingredients : /ingredients
+  - Order : /orders
+  - User : /users
+  - Taco : ???
+- Taco 의 엔드포인트는 tacos 가 아닌 tacoes 와 같이 복수형으로 지정을 하기 때문에 404 응답을 받은것.. /api/tacoes 로 요청하면 정상적인 응답을 받을 수 있다.
+- 하지만 Taco 만 tacos 가 아닌 tacoes 가 된다면 문제가 될 수도 있다.
+- 이런 복수형 관련 문제를 해결하기 위해 Spring data REST 에서는 **@RestResource** 라는 애노테이션을 제공한다.
+- 아래와 같이 RestResource 를 적용하면 우리가 원하던 대로 /api/tacos 를 엔드포인트로 사용할 수 있다.
+
+```java
+@Data
+@Entity
+@RestResource(rel = "tacos", path = "tacos") // spring-data-rest 의 relation 네임을 설정함.. tacoes -> tacos 로 변경
+public class Taco {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+    private Date createdAt;
+
+    @NotNull
+    @Size(min = 5, message = "Name must be at least 5 characters long")
+    private String name;
+
+    @ManyToMany
+    @Size(min = 1, message = "You must choose at least 1 ingredient")
+    private List<Ingredient> ingredients;
+
+    @PrePersist
+    void createdAt() {
+        this.createdAt = new Date();
+    }
+}
+```
+  
+#### 커스텀 엔드포인트 추가하기
+- Spring data REST 가 제공하는 엔드포인트 외에도 우리가 직접 작업한 엔드포인트를 추가하고 싶은 경우가 있다.
+- @RestController 를 사용한 클래스를 구현하여 API 엔드 포인트에 추가할 수 있지만, 두가지 문제가 있다.
+
+1. @RestController 를 사용하여 구현할 수는 있지만, Spring data REST 의 base-path 는 적용되지 않는다.
+2. Spring data REST 의 응답에서 제공하는 하이퍼링스에 자동으로 포함되지 않는다.
+
+- 위 두가지 문제를 해결하기 위해 스프링 데이터 REST 는 **@RepositoryRestController** 애노테이션을 제공한다.
+- @RepositoryRestController 를 사용한 구현체는 첫번재 문제를 해결해 준다.
+- 두번째 문제를 해결하기 위해서는 또 다른 방법이 필요하다.
+
+#### 커스텀 하이퍼링크를 엔드포인트에 추가하기
+- 두번째 문제를 해결하기 위해서는 **RepresentationModelProcessor** 를 구현해야 한다.
+- 이는 API 를 통해 리소스가 반환되기 전 리소스를 조작하는 인터페이스 이다.
+- 주의할 점은 우리가 이전에 구현했던 **TacoModel** 클래스 타입을 반환하면 동작하지 않는다. 
+  - 이유 ? -> TacoModel 은 우리 직접구현할때만 동작을 한다. Spring-data-REST 는 **Spring-data** 라는 점에 유의 해야한다. Entity 기반으로 동작함!!
+
+```java
+@Component
+public class TacoModelProcessor implements RepresentationModelProcessor<CollectionModel<Taco>> {
+
+    @Override
+    public CollectionModel<Taco> process(CollectionModel<Taco> model) {
+        return model.add(
+                linkTo(methodOn(RecentTacosController.class).recentTacos()).withRel("recent").expand(model)
+        );
+    }
+}
+```
+
+## 정리
+- REST 엔드 포인트는 Spring MVC 와 동일한 모델을 따르는 컨트롤러로 생성할 수 있다.
+- @ResponseBody 혹은 ResponseEntity 를 사용하면 메소드의 반환값을 응답 본문으로 사용한다.
+- @RestController 애노테이션을 사용하면 모든 메소드에 @ResponseBody 를 사용한 것과 동일하다.
+- Spring HATEOAS 는 리소스의 하이퍼링크를 쉽게 추가할수 있게 해준다.
+- Spring data REST 는 Spring data Repository 를 기반으로 REST API 를 자동 생성 해준다.
