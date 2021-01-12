@@ -44,9 +44,20 @@ JMS는 자바 플랫폼, 엔터프라이즈 에디션에 포함되어 있으며,
 
 > 한줄 요약 -> **JMS (Java Message Service)** 란, 자바 메시징의 표준이다.
 - https://docs.oracle.com/cd/E19435-01/819-2222/concepts.html
+- AWS 에서 Amazon MQ 라는 형태로 Apache ActiveMQ 를 지원한다.
 
 #### JMS 설정
 - JMS 를 사용하기 위해서는 JMS 클라이언트를 클래스패스에 추가해 주어야 한다.
--  
+- JMS 구현체는 대표적으로 ActiveMQ를 사용한다. 최근에는 Artemis(차세대 ActiveMQ) 를 사용함 
+  
+`ActvieMQ 아키텍쳐`
+
+![ActiveMQ](./images/ActiveMQ.png)
+
+- 메시지를 **생산** 하는 Producer, **전달** 하는 Broker, **소비** 하는 Consumer 모델로 이루어져 있다.
+- ActiveMQ 는 Queue 방식과 Pub/Sub 방식을 지원한다. 
+- **Queue** 방식은 Consumer 들에게 하나의 메시지를 RoundRobin 방식으로 하나의 Consumer 에게 처리하도록 보내는 방식
+- **Pub/Sub** 방식은 Topic 에 관심이 있는 모든 Consumer 에게 메시지가 전달된다.
+
 - spring-boot-starter-activemq, spring-boot-starter-artemis
 
