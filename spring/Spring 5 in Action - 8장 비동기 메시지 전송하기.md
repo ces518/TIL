@@ -249,7 +249,215 @@ spring:
 #### JmsTemplate 을 사용해 메시지 수신하기
 - 메시지를 수신하는 방식은 크게 두가지
 - **풀 모델 (pull model)** 은 메시지를 요청하고, 도착할 때 까지 대기한다.
-- 
+- **푸시 모델 (push model)** 은 메시지가 수신가능하게 되면 우리 코드로 자동전달 한다.
+- JmsTemplate 은 모든 메소드가 **풀 모델** 이다.
 
+> 메시지를 요청하면 수신가능할때 까지 대기한다.
+> 푸시 모델을 사용하기 위해서는 **메시지 리스너** 를 정의 해야한다.
 
+`OrderReceiver`
+```java
+public interface OrderReceiver {
+    Order receiveOrder();
+}
+```
 
+`JmsOrderReceiver`
+```java
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class JmsOrderReceiver implements OrderReceiver {
+    private final JmsTemplate jmsTemplate;
+    private final MessageConverter converter;
+    private final Destination orderQueue;
+
+    @Override
+    public Order receiveOrder() {
+        // 메시지 속성 및 헤더를 살펴볼때 유용하다.
+        Message message = jmsTemplate.receive(orderQueue);
+        try {
+            // 응답 바디만 필요한경우 사용
+            jmsTemplate.receiveAndConvert(orderQueue);
+            return (Order) converter.fromMessage(message);
+        } catch (JMSException e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
+}
+```
+- 메시지의 속성 및 헤더 정보가 필요하다면 receive 메소드를, 응답 바디만 필요한경우 receiveAndConvert 메소드를 사용하면 된다.
+
+#### JmsMessageListener
+- **@JmsListener** 애노테이션을 사용하면 메시지 리스너를 지정할 수 있다.
+
+`OrderJmsListener`
+```java
+@Component
+public class OrderJmsListener {
+
+    // 특정 요청에 대한 Listener 등록
+    @JmsListener(destination = "tacocloud.order.queue")
+    public void receiveOrder(Order order) {
+        // doSomething
+    }
+}
+```
+- 메시지 리스너는 중단없이 다수의 메시지를 처리할 수 있지만, 현재 애플리케이션 성능 및 비즈니스에 따라 적절히 선택하는것이 중요하다.
+
+### RabbitMQ 와 AMQP
+
+`AMQP`
+
+![AMQP](./images/AMQP.png)
+
+- Advanced Message Queueing Protocol 의 약자라고 MQ 오픈 소스에 기반한 표준 프로토콜
+- AMQP 자체는 프로토콜을 의미하며 대표적으로 RabbitMQ 를 많이 사용한다.
+- AMQP 의 라우팅 모델은 세가지 요소로 구성되어 있다.
+  - **Exchange**
+    - Publisher 로 부터 수신한 메시지를 큐 혹은 exchange 로 분배하는 **라우터** 기능을 한다.
+    - 각각의 큐나 exchange 들은 Binding 을 사용해 exchange 에 바인딩 되어 있다.
+    - exchange 는 binding 에 따라 수신한 메시지들을 적절한 큐 혹은 exchange 로 라우팅 한다.
+    - Binding 과 메시지를 매칭하기 위한 라우팅 알고리즘을 **Exchange Type** 이라고 한다.
+    - 하나의 브로커는 여러개의 ExchangeType 을 가질 수 있다.
+  - **Queue*8
+    - 일반적인 큐이며, consumer 에게 메시지를 전달하는 역할을 한다.
+    - 큐는 관심 있는 메시지 타입을 지정한 Binding 통해 exchange 에 bind 된다.
+  - **Binding*8
+    - exchange 와 큐와의 관계를 정의한 라우팅 테이블
+    - 하나의 큐가 여러개의 Exchange 에 bind 될 수 있으며, 하나의 Exchange 가 여러개의 큐에 bind 될 수 있다.
+  - **Routing Key**
+    - Publisher 에서 송신한 메시지 헤더에 포함되는 가상 주소
+    - Exchange 는 이것을 이용해서 어떤 큐로 메시지를 라우팅 할지 결정한다.
+    - 이를 사용하지 않아도 되지만, AMQP 표준 exchange type (라우팅 알고리즘) 은 라우팅키를 이용하도록 되어 있다.
+  - Standard Exchange Type
+    - http://egloos.zum.com/killins/v/3025514
+  
+#### RabbitMQ 설정
+- RabbitMQ 를 사용하려면 다음과 같이 spring-boot-starter-amqp 를 의존성으로 추가해 주어야한다.
+- 의존성을 추가하면 JMS 와 마찬가지로 RabbitTemplate 을 포함한 자동설정이 된다. 
+
+`pom.xml`
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-amqp</artifactId>
+</dependency>
+```
+
+#### RabbitTemplate
+- Spring 에서 RabbitMQ 를 지원하는 핵심 클래스이다.
+- JmsTemplate 과 유사한 메소드들을 제공하지만, RabbitMQ 동작 방식에 따라 미세한 차이가 있다.
+- JmsTemplate 은 지정한 큐 또는 토픽에만 메시지를 전송했다면, RabbitTemplate 은 exchange 와 Routing Key 로 메시지를 전송한다.
+
+`RabbitTemplate`
+```java
+public class RabbitTemplate extends RabbitAccessor implements BeanFactoryAware, RabbitOperations, MessageListener, ListenerContainerAware, Listener, BeanNameAware, DisposableBean {
+  private final StandardEvaluationContext evaluationContext = new StandardEvaluationContext();
+  /// ....
+}
+```
+- RabbitTemplate 을 살펴보면 Jms 와는 다르게 StandardEvaluationContext 를 내부적으로 가지고 있다.
+  - 이말은 즉슨, SpEL 을 지원한다.
+  - SpEL 에서 지원하는 기능들..
+  - 
+`RabbitMQOrderMessageService`
+```java
+@Service
+@RequiredArgsConstructor
+public class RabbitMQOrderMessageService implements OrderMessagingService {
+    private final RabbitTemplate rabbitTemplate;
+
+    @Override
+    public void sendOrder(Order order) {
+        // RabbitMQ 도 JMS 와 동일하게 MessageConverter 를 사용해서 변환을 시도한다.
+        // 기본 적으로 SimpleMessageConverter 를 사용하며, Jackson2JsonMessageConverter 등을 제공한다.
+        MessageConverter converter = rabbitTemplate.getMessageConverter();
+        MessageProperties props = new MessageProperties();
+        // Header 설정도 가능하다.
+        props.setHeader("X_ORDER_SOURCE", "WEB");
+        Message message = converter.toMessage(order, props);
+        rabbitTemplate.send("tacocloud.order", message);
+        rabbitTemplate.convertAndSend("tacocloud.order", order);
+
+        // convertAndSend 사용시 header 설정은 MessagePostProcessor 에서 해야한다.
+        rabbitTemplate.convertAndSend("tacocloud.order.queue", order, message1 -> {
+            message1.getMessageProperties().setHeader("X_ORDER_SOURCE", "WEB");
+            return message1;
+        });
+    }
+}
+```
+- RabbitMQ 로 JMS 와 마찬가지로 MessageConverter 를 사용해서 변환을 시도하며, 기본적으로 SimpleMessageConverter 를 사용한다.
+  - Jackson2JsonMessageConverter 등을 제공함..
+
+#### RabbitMQ 메시지 수신하기
+- JMS 와 마찬가지로 RabbitTemplate 을 사용한 방법과 메시지 리스너를 등록하는 방법을 제공 한다.
+- RabbitTemplate 은 큐로 부터 메시지를 가져오는 **풀 모델** 기반 이고, RabbitListener 는 **푸시 모델** 기반 이다.
+
+`RabbitOrderListener`
+```java
+@Component
+@RequiredArgsConstructor
+public class RabbitOrderReceiver {
+    private final RabbitTemplate rabbitTemplate;
+    private final MessageConverter messageConverter;
+
+    // 메시지 수신은 Jms와 동일하게 풀, 푸시 방식이 존재함
+    // rabbitTemplate 을 사용하는것은 pull 방식
+    public Order receiveOrder() {
+        // rabbitTemplate 을 사용한 수신
+        Message message = rabbitTemplate.receive("tacocloud.order", 30000); // 타임아웃 지정도 가능하다.
+        Order order = message != null ? (Order) messageConverter.fromMessage(message) : null;
+
+        // receiveAndConvert 를 사용
+        return rabbitTemplate.receiveAndConvert("tacocloud.order", new ParameterizedTypeReference<>(){});
+    }
+}
+```
+
+`RabbitListener`
+```java
+@Component
+public class OrderRabbitListener {
+
+    // @JmsListener 와 거의 동일하게 동작한다.
+    @RabbitListener(queues = "tacocloud.order.queue")
+    public void receiveOrder(Order order) {
+        // doSomething
+    }
+}
+```
+- RabbitListener 또한 @JmsListener 와 거의 동일하게 동작한다.
+- **RabbitListenerBeanPostProcessor** 에 대해 잠깐 얘기볼껀데...
+
+`RabbitListenerBeanPostProcessor`
+```java
+public class RabbitListenerAnnotationBeanPostProcessor implements BeanPostProcessor, Ordered, BeanFactoryAware, BeanClassLoaderAware, EnvironmentAware, SmartInitializingSingleton {
+  private BeanExpressionResolver resolver = new StandardBeanExpressionResolver();
+  // ...
+}
+```
+
+`StandardBeanExpressionResolver`
+```java
+public class StandardBeanExpressionResolver implements BeanExpressionResolver {
+  private ExpressionParser expressionParser;
+
+  public StandardBeanExpressionResolver() {
+    this.beanExpressionParserContext = new NamelessClass_1();
+    this.expressionParser = new SpelExpressionParser();
+  }
+  // ...
+}
+```
+
+- BeanExpressionResolver 를 사용중... -> StandardBeanExpressionResolver 를 사용하고... 내부적으로 SpelExpressionParser 를 사용한다.
+  - -> 그말은 ? 이놈도 SpEL 을 사용한다...
+  - 이놈도 StandardEvaluationContext 를 가지고 있네 ? StandardEvaluationContext 가 뭔데 ?
+- ExpressionParser 와 StandardEvaluationContext 의 차이 ?
+  - StandardEvaluationContext 는 생성비용은 크지만 Field 에 대해 캐싱되고 있기 때문에 파싱이 빠르다는 점...
+  - https://docs.spring.io/spring-framework/docs/3.0.0.M4/reference/html/ch06s03.html
+  - https://docs.spring.io/spring-framework/docs/4.3.10.RELEASE/spring-framework-reference/html/expressions.html
+  - 킹웃사이더님 의 레퍼런스 번역 -> https://blog.outsider.ne.kr/835
