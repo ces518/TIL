@@ -321,10 +321,10 @@ public class OrderJmsListener {
     - exchange 는 binding 에 따라 수신한 메시지들을 적절한 큐 혹은 exchange 로 라우팅 한다.
     - Binding 과 메시지를 매칭하기 위한 라우팅 알고리즘을 **Exchange Type** 이라고 한다.
     - 하나의 브로커는 여러개의 ExchangeType 을 가질 수 있다.
-  - **Queue*8
+  - **Queue**
     - 일반적인 큐이며, consumer 에게 메시지를 전달하는 역할을 한다.
     - 큐는 관심 있는 메시지 타입을 지정한 Binding 통해 exchange 에 bind 된다.
-  - **Binding*8
+  - **Binding**
     - exchange 와 큐와의 관계를 정의한 라우팅 테이블
     - 하나의 큐가 여러개의 Exchange 에 bind 될 수 있으며, 하나의 Exchange 가 여러개의 큐에 bind 될 수 있다.
   - **Routing Key**
@@ -333,7 +333,10 @@ public class OrderJmsListener {
     - 이를 사용하지 않아도 되지만, AMQP 표준 exchange type (라우팅 알고리즘) 은 라우팅키를 이용하도록 되어 있다.
   - Standard Exchange Type
     - http://egloos.zum.com/killins/v/3025514
-  
+
+![RabbitMQ](./images/RabbitMQ.png)
+- https://www.cloudamqp.com/blog/2019-12-12-when-to-use-rabbitmq-or-apache-kafka.html
+
 #### RabbitMQ 설정
 - RabbitMQ 를 사용하려면 다음과 같이 spring-boot-starter-amqp 를 의존성으로 추가해 주어야한다.
 - 의존성을 추가하면 JMS 와 마찬가지로 RabbitTemplate 을 포함한 자동설정이 된다. 
@@ -461,3 +464,65 @@ public class StandardBeanExpressionResolver implements BeanExpressionResolver {
   - https://docs.spring.io/spring-framework/docs/3.0.0.M4/reference/html/ch06s03.html
   - https://docs.spring.io/spring-framework/docs/4.3.10.RELEASE/spring-framework-reference/html/expressions.html
   - 킹웃사이더님 의 레퍼런스 번역 -> https://blog.outsider.ne.kr/835
+
+### 카프카
+- **카프카 (Kafka)** 는 분산형 스트리밍 플랫폼 (A distributed streaming platform) 이며, **Linked In** 에서 여러 구직 채용 정보들을 한곳에서 처리하기 위해 개발이 시작 되었다.
+- 대용량 실시간 로그처리에 특화 설계된 메시징 시스템이다.
+- 메시지를 영속화 (파일) 하기때문에 손실 우려가 적다.
+- 기존의 RabbitMQ, ActiveMQ 등은 메시지 브로커가 컨슈머에게 메시지를 PUSH 해주는 방식이었다면, 카프카는 컨슈머가 메시지 브로커로부터 직접 가져가는 PULL 방식을 채용한다.
+- 이로인해 컨슈머는 최적의 성능을 낼 수 있다.
+
+> 파일에 영속화 하는데 고성능을 낸다고 ? 이게 무슨소리
+> -> 일반적으로 하드디스크의 읽기 성능은 메모리에 비해 떨어지지만, 하드디스크의 **순차적 읽기** 는 메모리에 비해 크게 떨어지지 않는다.
+> 카프카의 **파일 시스템을 이용한 고성능 디자인** 에 의해 퍼포먼스를 내는것...
+
+- 파일 시스템을 이용한 고성능 디자인 ? 대체 어떻길래...
+  
+![fileSystemPerformance](./images/fileSystemPerformance.png)
+
+- 일반적으로 하드디스크는 메모리보다 수백-수천배 이상 느리다.
+- 하지만 특정 조건에서는 10배 느리거나 심지어는 빠를 수도 있다.
+- ACM Queue에 게재된 The [Pathologies of Big Data](https://queue.acm.org/detail.cfm?id=1563874) 라는 글에 따르면 하드디스크의 순차적 읽기 성능은 메모리에 대한 랜덤 읽기 성능보다 뛰어나며 메모리의 순차적 읽기 성능보다 7배 정도 느리다. (물론 하드디스크의 랜덤 읽기 성능은 메모리의 랜덤 읽기 성능보다 10만배나 느리다.)
+- 메모리에 캐시를 구현하지 않고 **OS 의 페이지 캐시** 에 이를 모두 위임한다.
+  - OS 캐시의 원리... -> DB 서버를 재부팅하면 퍼포먼스가 떨어진다..
+
+`Kafka 아키텍쳐`
+
+![kafka_architechure](./images/kafka_architechure.png)
+
+- 카프카는 pub/sub 모델을 기반으로 동작하며, 다른 MQ 와 마찬가지로 크게 producer, consumer, broker 로 구성된다.
+- Broker 는 **Topic** 을 기준으로 메시지를 관리한다.
+- 전달 받은 메시지를 Topic 별로 분류하여 적재해두면, 해당 Topic 을 구독하는 Consumer 들이 메시지를 가져가 처리하는 구조이다.
+
+#### Kafka In Depth
+
+`Topic 과 Partition`
+
+![kafka_partition](./images/kafka_partition.png)
+
+- Kafka 의 Topic 은 Partition 이라는 단위로 쪼개져 클러스터들의 각 서버로 분산되어 저장되며, 고 가용성을 위해 레플리카 설정을 할 경우
+- 각 서버들에게 Partition 단위로 복제 되고 Partition 단위로 fail over 가 수행된다.
+- 각 partition 은 0 부터 1씩 증가하는 offset 값을 메시지에 부여하며, partition 내에서 **고유식별 ID** 로 사용된다.
+- topic 내에서 메시지를 식별할 때는 partition 번호 + offset 값을 이용한다.
+
+#### 카프카 설정하기
+- 카프카는 아쉽게도 spring-boot-starter 가 존재하지 않지만, spring-kafka 의존성만 추가해 준다면 자동 설정을 해준다.
+
+`pom.xml`
+```xml
+<dependency>
+    <groupId>org.springframework.kafka</groupId>
+    <artifactId>spring-kafka</artifactId>
+</dependency>
+```
+
+## 정리
+- 애플리케이션 간에 비동기 메시지를 큐를 이용하 결합도를 낮추며 확장성을 높히는 구성이 가능하다.
+- Spring 은 JMS, RabbitMQ, Kafka 를 지원한다.
+- 모든 처리를 **동기적** 으로 할 필요는 없다.
+- 대용량 트래픽 서비스라면 MQ 는 선택이 아닌 필수가 아닐까 ?...
+
+## 참고
+- https://epicdevs.com/
+- http://kafka.apache.org/081/documentation.html
+- https://www.microsoft.com/en-us/research/people/srikanth/?from=http%3A%2F%2Fresearch.microsoft.com%2Fen-us%2Fum%2Fpeople%2Fsrikanth%2Fnetdb11%2Fnetdb11papers%2Fnetdb11-final12.pdf
