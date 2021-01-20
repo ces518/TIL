@@ -114,3 +114,12 @@ Mono.just("ncucu")
 
 > 여러 스트림을 하나의 결과로 모을때 Mono 를 사용하고, Mono 들을 합쳐 여러 개의 값을 처리할때 Flux 를 사용한다.
 > 위 둘은 Publisher 인터페이스의 구현체이다.
+
+#### Hot vs Cold
+- Hot 과 Cold 의 개념은 RxJava 에도 있는 개념이다.
+- **Cold** 는 Flux 혹은 Mono 를 subscribe 할때 마다 매번 독립적으로 새로 데이터를 생성해서 동작한다.
+    - 호출 이전에는 아무런 동작을 하지 않는다.
+- 기본적으로 Flux, Mono 는 Cold 로 동작한다.
+- **Hot** 은 구독여부에 상관없이 값을 생성한다.
+    - 데이터가 구독여부와 관계없이 생성되고 있다가, 이를 구독하는 구독자들이 생겨나면 모두 동일한 값을 전달받을 수 있다.
+- https://tech.kakao.com/2018/05/29/reactor-programming/
