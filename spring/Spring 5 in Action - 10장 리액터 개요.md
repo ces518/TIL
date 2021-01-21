@@ -123,3 +123,23 @@ Mono.just("ncucu")
 - **Hot** 은 구독여부에 상관없이 값을 생성한다.
     - 데이터가 구독여부와 관계없이 생성되고 있다가, 이를 구독하는 구독자들이 생겨나면 모두 동일한 값을 전달받을 수 있다.
 - https://tech.kakao.com/2018/05/29/reactor-programming/
+
+#### Flux 의 마블 다이어그램
+![flux_mable_diagram](./images/flux_mable_diagram.png)
+- https://taes-k.github.io/2020/08/12/spring-reactive-1/
+
+#### 리액티브 오퍼레이션
+- Flux 와 Mono 는 가장 핵심적인 구성요소 이다.
+- 이들이 제공하는 오퍼레이션 들은 두 타입을 함께 **결합** 하여 데이터가 전달될 수 있는 파이프라인을 생성한다.
+- 각 오퍼레이션들은 다음과 같이 분류될 수 있다.
+
+1. 생성 오퍼레이션
+2. 조합 오퍼레이션
+3. 변환 오퍼레이션
+4. 로직 오퍼레이션
+
+### 정리
+- 리액티브 프로그래밍은 데이터가 흘러가는 파이프라인을 생성한다.
+- Publisher, Subscriber, Subscription, Transformer 네가지 타입을 정의한다.
+- Flux, Mono 가 가장 핵심적인 구성요소
+
