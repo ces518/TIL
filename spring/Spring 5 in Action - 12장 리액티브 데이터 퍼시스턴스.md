@@ -170,3 +170,100 @@ public interface TacoRepository extends ReactiveCassandraRepository<Taco, UUID> 
   - UUID 타입을 써서 애플리케이션에서 생성해라...
   - timeBasedUUID 를 사용하면 시간 + 맥주소를 기반으로 생성된다..
   - 혹은 ID 테이블을 만들어 사용해라..
+
+`UserRepository`
+```java
+public interface UserRepository extends ReactiveCassandraRepository<User, UUID> {
+
+    // 카산드라는 where 절을 허용하지 않는다, allowfiltering 옵션을 주어 where 절을 허용해야한다.
+    @AllowFiltering
+    Mono<User> findByUsername(String username);
+}
+```
+- 카산드라에서는 일반적인 where 절을 허용하지 않는다.
+  - allowFiltering 옵션을 주어 where 절을 사용하도록 선언해주어야한다.
+- allow filtering 은 잠재적으로 쿼리 성능에 영향을 주지만 수행해야 한다는 것은 카산드라에게 알려준다.
+  - - 성능 저하가 되는 이유는 cluster 모두에 요청을 하기 때문에 성능에 제약을 걸린다는 얘기라 할 수 있다. 데이터 모델링을 잘 해야 한다.
+- 출처: https://knight76.tistory.com/entry/cassandra-in-query-지원
+
+### Reactive Mongo Repository
+- MongoDB 는 대중적으로 사용하는 NoSQL 데이터베이스이다.
+  - 대표적인 Document Database
+- BSON (Binary JSON) 으로 데이터를 저장하며, 다른 데이터베이스에 쿼리하는것과 거의 유사하게 사용할 수 있다.
+
+### 스프링 데이터 몽고 사용하기
+- 카산드라와 마찬가지로 두가지 의존성중에서 선택을 해야한다.
+- spring-boot-starter-data-mongodb, spring-boot-starter-mongodb-reactive
+
+`pom.xml`
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-mongodb</artifactId>
+</dependency>
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-mongodb-reactive</artifactId>
+</dependency>
+```
+
+- Flapdoodle 에서 제공하는 내장 몽고DB 를 사용하면 편리한 테스트 / 학습을 할 수 있다.
+- Flapdoodle 내장 데이터베이스는 H2 와 같이 인메모리에서 실행되는 몽고 DB 를 사용하는것과 같다.
+`pom.xml`
+```xml
+<dependency>
+    <groupId>de.flapdoodle.embed</groupId>
+    <artifactId>de.flapdoodle.embed.mongo</artifactId>
+</dependency>
+```
+
+### 몽고 DB 도메인 타입 매핑
+- Spring data MongoDB 에서 제공하는 다양한 애노테이션드리 있지만 이중 3개만이 대부분의 경우에 사용된다.
+
+`Book`
+```java
+@Data
+@Document(collection = "books") // 몽고 DB 의 문서와 매핑 @Entity, @Table 과 동일
+public class Book {
+
+    @Id // 문서의 ID 값, String 타입일 경우 Persist 될 때, 몽고 DB 가 ID 값을 자동을 지정해줌
+    private String id;
+    // @Field @Column 과 동일, 생략가능
+    private String title;
+    private String author;
+
+    // collection 타입은 카산드라와 유사하게 비정규화된 문서로 직접 저장한다.
+    // 사용자 정의타입을 만들 필요 없이 어떤 타입도 사용이 가능하다.
+    private List<String> etc;
+}
+```
+- @Document 애노테이션은 해당 타입을 몽고 DB 에 저장되는 문서와 매핑시킨다.
+  - collection 속성으로 지정한 문서와 매핑된다.
+- @Id
+  - 해당 필드를 문서의 ID 값으로 지정한다.
+  - String 타입으로 지정한 경우, Persist 될때 값이 null 이라면 몽고 DB 가 ID 값을 자동으로 지정해준다.
+  - 유의할 점은 Serializable 을 구현하고 있어야한다.
+- @Field
+  - @Column 과 동일하며 생략이 가능하다.
+- 유의할점은 컬렉션 타입은 카산드라와 유사하게 비정규화된 문서러 직접 저장한다.
+- 하지만 사용자 정의타입을 만들 필요없이 어떠한 타입도 사용이 가능하다는것이다.
+
+> 몽고 DB 는 카산드라와 다르게 도메인 타입 매핑이 심플하다.
+
+### 리액티브 몽고 리포지토리
+- 스프링 데이터 몽고는 스프링 데이터 JPA, 카산드라와 제공하는것과 유사한 지원을 제공한다.
+- ReactiveCrudRepository, ReactiveMongoRepository 중 하나를 선택해야 하며, 데이터 저장의 빈도가 높다면 ReactiveMongoRepository 를 선택하자.
+
+`BookRepository`
+```java
+public interface BookRepository extends ReactiveCrudRepository<Book, String> {
+
+    Flux<Book> findByOrderByAuthorDesc();
+}
+```
+
+## 정리
+- 스프링 데이터는 Cassandra, MongoDB, Couchbase, Redis의 리액티브 리퍼지토리를 지원한다.
+- 리액티브 리퍼지터리는 리액티브가 아닌 리퍼지터리와 동일한 프로그래밍 모델을 따르고 Flux, Mono 와 같은 리액티브 타입을 지원한다.
+- 리액티브 타입을 지원하지 않는 리퍼지토리도 리액티브 타입을 사용하도록 조정할 수 있으나, 블로킹구간이 존재한다.
