@@ -25,14 +25,67 @@
 
 > 마이크로서비스가 모든것에 대한 해답은 아니다.
 > 네트워크 지연과 같은 문제들이 발생할 수 있으며, 애플리케이션 규모에 맞게 선택해야 한다.
+> ps. 그 보수적인 킹공기관 (전자정부 표준 프레임워크) 도... 최근에 스프링 부트와 스프링 클라우드 기반 MSA 가이드가 나온 상황... 
+
+#### 서비스 메쉬 (Service Mesh)
+- **서비스 메쉬 (Service Mesh)** 란, API 를 사용해서, 마이크로서비스간 통신을 안전하고 빠르게 신뢰할 수 있게 만들기위해 설계된 인프라 계층
+- 구성요소는 Service Discovery, Load Balancing, Dynamic Request Routing, Circuit Breacking, Retry and Timeout, TLS, Distributed Tracing, Metric 수집, Access Control, A/B Testing 기능 등이 있다..
+- 서비스 메쉬는 왜 필요할까 ?
+  - MSA 환경에서 수십개 혹은 그 이상의 인스턴스들이 동작할수 있는데, 관리하기가 매우 힘들다..
+  - 인스턴스간의 통신은 결국 네트워크를 통해 이뤄질텐데 레이턴시, 신뢰성, 안전성을 보장할수 없는 문제..
+  - 애플리케이션 레벨에서 해결할 수도 있겠지만, 종속성이 강하여 확장성이 떨어진다.
+  - 마이크로서비스 운영시 인프라레벨에서 관리할수 있는 서비스 메쉬가 필요함
+  
+#### 잠깐, API Gateway 도 비슷한 역할을 해주지 않나 ?
+- API Gateway 는 MSA 외부에 위치해서 역할을 수행하지만, Service Mesh 는 경계 내부에 존재한다.
+- API Gateway 는 **중앙집중형** 아키텍쳐, **SPOF** 가 생길수 있으나, Service Mesh 는 **분산형** 아키텍쳐 이기때문에, SPOF 도 없고, 확장이 용이함
+- API Gateway 는 Gateway proxy pattern 을 사용한다.
+  - 호출자는, 구현내용을 알필요 없이 게이트웨이만 호출할줄 안다면, 게이트웨이가 이를 처리해주는 방식
+- Service Mesh 는 Sidecar proxy pattern 을 사용한다.
+  - 호출자는 공급자의 주소를 찾는 방법과 failover 처리와 관련된 내용도 들어가게 된다.
+  - 또한 이런 로직은 비즈니스로직에 존재하는것이 아닌 sidecar 형식으로 관리된다.
+
+#### 서비스 메쉬의 종류
+
+![ServiceMesh](./images/ServiceMesh.png)
+
+- 서비스 메쉬의 종류는 크게 3가지로 나눌수 있다.
+
+1. PasS (Platform as a Service) 의 일부로 서비스 코드에 포함되는 유형
+  - 프레임워크 기반의 프로그래밍 모델
+  - Microsoft Azure Service fabric, lagom, SENECA 등
+2. 라이브러리로 구현되어 API 호출을 통해 서비스 메쉬에 결합되는 유형
+  - 프레임워크 라이브러리를 사용하는 형태
+  - Spring Cloud, Netflix OSS(Ribbon/Hystrix/Eureka/Archaius), finagle 등
+3. Side car proxy 를 이용해 Service mesh 를 마이크로서비스에 주입하는 유형
+  - **서비스 메시와 무관하게 코드작성이 가능**
+  - Istio/Envoy, Consul, Linkerd 등
+
+#### Sidecar Pattern
+
+![SidecarPattern](./images/SidecarPattern.png)
+
+- SidecarPattern 은 각 서비스에 추가로 sidecar 컨테이너가 배포되는 형식
+- Sidecar 가 서비스에 들어오고 나가는 모든 트래픽을 처리하게 된다.
+- 서비스가 서비스를 직접호출하는 것이 아닌 proxy 를 통해 호출하게 되는것이 특징
+- 프록시 계층이 생김으로 인한 이점들을 누릴수 있다.
+  - 로깅, 모니터링, 보안, 트래픽제어 등..
+
+- https://waspro.tistory.com/434
+
+> 앞으로 살펴볼 Spring Cloud Netflix 도 이런 서비스 메쉬를 구현한 오픈소스..
 
 ### Spring Cloud 와 Netflix OSS
 - Spring Cloud Netflix 는 스프링 환경 및 기타 스프링 프로그래밍 모델에 대한 자동 구성 및 바인딩을 통해 스프링 부트 앱용 넷플릭스 OSS 통합을 제공한다.
+- Netflix OSS 는 Netflix 에서 MSA 로 전환을 하면서 사용한 방법들과 노하우들을 오픈소스 형식으로 공개함..
 - Netflix OSS 에서 제공하는 대표적인 모듈은 다음과 같다.
 1. **Service Discovery (Eureka)**
 2. Circuit Breaker (Hystrix)
 3. Intelligent Routing (Zuul)
 4. **Client Side Load Balancing (Ribbon)**
+
+> Netflix OSS 와 자주 비교되는 대상인 istio 도 있으니 참고...
+> https://bcho.tistory.com/1296
 
 ### 서비스 디스커버리 - Eureka
 
@@ -117,6 +170,9 @@ eureka:
   - false 로 지정시 유레카 서비스 시작시 레지스트리 정보를 로컬에 저장하지 않는다.
 - eureka.client.registerWithEureka
   - false 로 지정해 주었을때 자신을 유레카 서비스에 등록하지 않도록 설정한다.
+- eureka.server.enableSelfPreservation
+  - 자체 보존모드 옵션.. 책에서 설명하는것만으로는 이해가 힘듦
+  - https://subji.github.io/posts/2020/08/11/springcloudeurekaregistry
 - 그외 다양한 설정들
   - https://docs.spring.io/spring-cloud-netflix/docs/current/reference/html/appendix.html
 
@@ -395,3 +451,4 @@ public class OrderController {
 - https://joont92.github.io/spring/모델-바인딩과-검증/
 - https://sup2is.github.io/2020/04/07/spring-cloud-eureka-with-netfix-feign-client-example.html
 - https://www.samsungsds.com/kr/insights/msa_and_netflix.html
+- https://velog.io/@tedigom/MSA-제대로-이해하기-4Service-Mesh-f8k317qn1b
