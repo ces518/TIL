@@ -291,6 +291,12 @@ public class WebConfig {
     }
 }
 ```
+- 특이점은 @LoadBalanced 애노테이션을 사용했다는 점
+- Netflix OSS 중 Ribbon > 클라이언트 사이드 로드밸런스
+- Zuul, RestTemplate, FeignClient 는 Ribbon 이 내장되어 있다.
+- @LoadBalanced 애노테이션을 추가해 RestTemplate, WebClient 에 로드밸런싱 인터셉터 (LoadBalancerInterceptor)를 적용한다.
+- 라운드로빈, 응답 가중치 등 다양한 방식을 제공함..
+- 기본값은 라운드로빈(RoundRobinLoadBalancer) 방식을 사용한다.
 
 `BookClient`
 ```java
@@ -322,6 +328,7 @@ public class BookClient {
     }
 }
 ```
+- Client 호출 코드를 보면, bookservice 의 물리적인 위치를 명시하지 않고, 유레카 서버에 등록해둔 서비스명으로 조회한다.
 
 `BookFeignClient`
 ```java
@@ -335,6 +342,9 @@ public interface BookFeignClient {
     BookDto getBook(@PathVariable Long id);
 }
 ```
+- FeignClient 는 선언적인 방법으로 사용 가능한 클라이언트 방식
+- Spring MVC 의 다양한 애노테이션들을 공유해서 사용하지만 주의해서 사용해야함..
+  - 클라이언트 구현체별로 Context 별도 생성, 애노테이션 생략시 기본적으로 RequestBody 로 사용 등등...
 
 `BookController`
 ```java
@@ -376,6 +386,12 @@ public class OrderController {
 }
 ```
 
+## 정리
+- Spring Cloud Netflix 는 MSA 에 보다 손쉽게 접근할수 있도록 해주는 프로젝트
+- EurekaServer (서비스 디스커버리) 를 통해 손쉬운 확장/축소가 가능해진다.
+- Ribbon (클라이언트 사이드 로드밸런서) 을 통해 로드밸런싱 및 EurekaServer 에 등록된 서비스 명으로 서비스 인스턴스를 선택한다.
+
 ## 참고
+- https://joont92.github.io/spring/모델-바인딩과-검증/
 - https://sup2is.github.io/2020/04/07/spring-cloud-eureka-with-netfix-feign-client-example.html
 - https://www.samsungsds.com/kr/insights/msa_and_netflix.html
