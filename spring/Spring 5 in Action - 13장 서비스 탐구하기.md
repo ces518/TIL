@@ -124,7 +124,257 @@ eureka:
 > 각 유레카 서버가 서로 다른 유레카 서버에 자신을 등록하고 레지스트리 정보를 가져와야함
 
 ### 유레카 클라이언트 구성하기
+- 심플한 구성을 위해, spring-mvc, spring-data-jpa, h2 환경에서 각 서비스 모듈들을 구성한다.
+- 또한 유레카 클라이언트로 등록하기 위해 spring-cloud-starter-netflix-eureka-client 의존성을 추가주어야 한다.
 
+`pom.xml`
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+</dependency>
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-jpa</artifactId>
+</dependency>
+
+<dependency>
+    <groupId>com.h2database</groupId>
+    <artifactId>h2</artifactId>
+    <scope>runtime</scope>
+</dependency>
+```
+
+#### BookService
+- BookService 는 도서 목록 또는, 특정 도서에 대한 정보를 조회하는 매우 심플한 서비스이다.
+- BookService 의 구성요소는 다음과 같다.
+
+`Book`
+```java
+@Entity
+@Table(name = "books")
+public class Book {
+
+    @Id @GeneratedValue
+    private Long id;
+
+    private String title;
+
+    private String author;
+
+    private String description;
+
+    public Book() {
+    }
+
+    public Book(String title, String author, String description) {
+        this.title = title;
+        this.author = author;
+        this.description = description;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+}
+```
+- Book 엔티티는 식별자, 제목, 저자, 설명 으로 구성되어 있다.
+
+`BookController`
+```java
+@RestController
+@RequestMapping("/books")
+public class BookController {
+    private final BookRepository bookRepository;
+
+    public BookController(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
+    }
+
+    @GetMapping
+    public List<Book> getBooks() {
+        return bookRepository.findAll();
+    }
+
+    @GetMapping("{id}")
+    public Book getBook(@PathVariable("id") Book book) {
+        return book;
+    }
+}
+```
+- BookController 를 살펴보면 심플하게 구성되어 있는데, 다소 생소하게 보일수 있는 부분이 @PathVariable 로 엔티티를 직접 참조하는 부분
+  - JPA 를 열심히 공부했다면 알수있다...
+  - DomainClassConverter 기능을 사용함...
+  - Spring data Common 이 제공하는 기능중 하나
+  - **EntityConverter** 와 **IdConverter** 가 등록되어있으며 **WebDataBinder** 가 이를 참조하여 활용한다.
+
+`WebDataBinder`
+- AnnotationMethodHandlerAdapter 가 
+- @RequestParam, @PathVariable, @ModelAttribute 왜 같은 HTTP 요청을 변수에 바인딩하는 애노테이션을 만나면 WebDataBinder 를 사용함..
+
+`Spring Converters..`
+
+![Spring_Converters](./images/Spring_Converters.png)
+
+`DomainClassConverter`
+
+![Spring_DomainClassConverter](./images/Spring_DomainClassConverter.png)
+
+`Formatter 와 Converter 의 차이?`
+- Formatter 는 **문자열** 기반
+- 문자열을 다른 타입으로 변환한다.
+- 웹에 좀 더 특화되어있음.
+- Converter 는 모든 타입을 제공하며, 특정 타입을 다른 타입으로 변환한다.
+
+#### OrderService
+- OrderService 는 별도 도메인은 없이 BookClient 를 이용해 BookService 의 데이터를 조회하고, Book 에 대한 정보만 서빙하고 있는 구조
+
+`BookDto`
+```java
+public class BookDto {
+    private Long id;
+    private String title;
+    private String author;
+    private String description;
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+}
+```
+
+`WebConfig`
+```java
+@Configuration
+public class WebConfig {
+
+    @Bean
+    @LoadBalanced
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
+    @Bean
+    @LoadBalanced
+    public WebClient.Builder webClientBuilder() {
+        return WebClient.builder();
+    }
+}
+```
+
+`BookClient`
+```java
+@Component
+public class BookClient {
+    private RestTemplate restTemplate;
+    private WebClient.Builder webClientBuilder;
+
+    public BookClient(@LoadBalanced RestTemplate restTemplate, @LoadBalanced WebClient.Builder webClientBuilder) {
+        this.restTemplate = restTemplate;
+        this.webClientBuilder = webClientBuilder;
+    }
+
+    public List<BookDto> findAll() {
+        ResponseEntity<List<BookDto>> responseEntity = restTemplate.exchange("http://book-service/books", HttpMethod.GET, null, new ParameterizedTypeReference<List<BookDto>>() {});
+        List<BookDto> results = responseEntity.getBody();
+        return results;
+    }
+
+    public BookDto findById(Long bookId) {
+        return restTemplate.getForEntity("http://book-serivce/books/{bookId}", BookDto.class, bookId).getBody();
+    }
+
+    public Flux<BookDto> findAllWebClient() {
+        return webClientBuilder.build()
+                .get()
+                .uri("http://book-service/books")
+                .retrieve().bodyToFlux(BookDto.class);
+    }
+}
+```
+
+`BookFeignClient`
+```java
+@FeignClient("book-service")
+public interface BookFeignClient {
+
+    @GetMapping("/books")
+    List<BookDto> getBooks();
+
+    @GetMapping("/books/{id}")
+    BookDto getBook(@PathVariable Long id);
+}
+```
+
+`BookController`
+```java
+@RestController
+@RequestMapping("/orders")
+public class OrderController {
+    private final BookClient bookClient;
+    private final BookFeignClient bookFeignClient;
+
+    public OrderController(BookClient bookClient, BookFeignClient bookFeignClient) {
+        this.bookClient = bookClient;
+        this.bookFeignClient = bookFeignClient;
+    }
+
+    @GetMapping("/books")
+    public List<BookDto> getBooks() {
+        return bookClient.findAll();
+    }
+
+    @GetMapping("/books/{id}")
+    public BookDto getBook(@PathVariable Long id) {
+        return bookClient.findById(id);
+    }
+
+    @GetMapping("/books/flux")
+    public Flux<BookDto> getBookFlux() {
+        return bookClient.findAllWebClient();
+    }
+
+    @GetMapping("/books/feign")
+    public List<BookDto> getBooksFeign() {
+        return bookFeignClient.getBooks();
+    }
+
+    @GetMapping("/books/{id}/feign")
+    public BookDto getBookFeign(@PathVariable Long id) {
+        return bookFeignClient.getBook(id);
+    }
+}
+```
 
 ## 참고
 - https://sup2is.github.io/2020/04/07/spring-cloud-eureka-with-netfix-feign-client-example.html
