@@ -29,7 +29,7 @@
 
 #### 서비스 메쉬 (Service Mesh)
 - **서비스 메쉬 (Service Mesh)** 란, API 를 사용해서, 마이크로서비스간 통신을 안전하고 빠르게 신뢰할 수 있게 만들기위해 설계된 인프라 계층
-- 구성요소는 Service Discovery, Load Balancing, Dynamic Request Routing, Circuit Breacking, Retry and Timeout, TLS, Distributed Tracing, Metric 수집, Access Control, A/B Testing 기능 등이 있다..
+- 구성요소는 Service Discovery, Load Balancing, Dynamic Request Routing, Circuit Breaking, Retry and Timeout, TLS, Distributed Tracing, Metric 수집, Access Control, A/B Testing 기능 등이 있다..
 
 #### 서비스 메쉬는 왜 필요할까 ?
 - MSA 환경에서 수십개 혹은 그 이상의 인스턴스들이 동작할수 있는데, 관리하기가 매우 힘들다..
@@ -52,7 +52,7 @@
 
 - 서비스 메쉬의 종류는 크게 3가지로 나눌수 있다.
 
-1. PasS (Platform as a Service) 의 일부로 서비스 코드에 포함되는 유형
+1. PaaS (Platform as a Service) 의 일부로 서비스 코드에 포함되는 유형
   - 프레임워크 기반의 프로그래밍 모델
   - Microsoft Azure Service fabric, lagom, SENECA 등
 2. 라이브러리로 구현되어 API 호출을 통해 서비스 메쉬에 결합되는 유형
