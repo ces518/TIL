@@ -28,7 +28,7 @@
 > ps. 그 보수적인 킹공기관 (전자정부 표준 프레임워크) 도... 최근에 스프링 부트와 스프링 클라우드 기반 MSA 가이드가 나온 상황... 
 
 #### 서비스 메쉬 (Service Mesh)
-- **서비스 메쉬 (Service Mesh)** 란, API 를 사용해서, 마이크로서비스간 통신을 안전하고 빠르게 신뢰할 수 있게 만들기위해 설계된 인프라 계층
+- **서비스 메쉬 (Service Mesh)** 란, API 를 사용하는 마이크로서비스간 통신을 안전하고 빠르게 신뢰할 수 있게 만들기위해 설계된 인프라 계층
 - 구성요소는 Service Discovery, Load Balancing, Dynamic Request Routing, Circuit Breaking, Retry and Timeout, TLS, Distributed Tracing, Metric 수집, Access Control, A/B Testing 기능 등이 있다..
 
 #### 서비스 메쉬는 왜 필요할까 ?
