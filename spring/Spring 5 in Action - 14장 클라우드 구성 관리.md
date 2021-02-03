@@ -91,3 +91,38 @@ curl localhost:8888/application/default
   - http://{host}/{spring.application.name}/{profile}/{git-branch}
   - master branch 인 경우 생략이 가능하다.
   - 우리가 요청했던 URI 를 대입해본다면, 8888 로컬 구성서버에, application 으로 지정된 애플리케이션의 default 프로파일 구성을 조회한것이다.
+
+### 구성 데이터 사용하기
+- 중앙 집중식 서버를 제공하는것과 함께 스프링 클라우드 구성서버는 클라이언트 라이브러리도 제공한다.
+- spring-cloud-starter-config 를 의존성에 추가하면 된다.
+
+`pom.xml`
+```xml
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-config-server</artifactId>
+</dependency>
+```
+
+`application.yaml`
+```yaml
+spring:
+  cloud:
+    config:
+      uri: http:localhost:8888
+```
+- 기본적으로 자동-구성은 구성서버가 localhost:8888 에서 실핼중인 것으로 간주한다. 
+- 만약 구성서버의 위치를 명시하고 싶다면 위와 같이 설정이 가능하다.
+
+### 구성서버와 레지스트리
+- 보통 구성 서버로부터 유레카 서비스 레지스트리를 찾도록 마이크로서비스를 구성한다.
+- 애플리케이션의 모든 마이크로서비스에서 레지스트리의 명세를 갖지 않게 하는 통상적인 방법
+- 또 다른 방법은 구성 서버를 유레카에 등록한 뒤 유레카를 통해 구성서버를 찾게 할 수도 있다.
+- spring.cloud.discovery.enable = true 로 설정한다면, 구성서버는 configserver 라는 이름으로 유레카에 등록하게 된다.
+- 이는 두번의 호출을 해야한다는 것이 단점이다.
+
+### 정리
+- 스프링 클라우드 구성서버는 중앙 집중화된 설정들을 마이크로서비스 기반의 모든 서비스에게 제공한다.
+- 구성서버가 제공하는 속성들은 Git, Vault 파일 시스템 등에서 관리된다.
+- 보안에 민감한 속성은 Git 혹은 Vault 의 보안속성으로 저장하여 보안 유지가 가능하다.
+- 실시간 리프레시 기능을 제공하는데, 수동 리프레시와, 깃 웹훅 등을 사용한 자동 리프레시가 가능하다.
