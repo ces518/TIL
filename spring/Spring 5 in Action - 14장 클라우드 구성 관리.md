@@ -86,3 +86,8 @@ spring:
 curl localhost:8888/application/default
 {"name":"application","profiles":["default"],"label":null,"version":"0bbd093c8b9ab3dc5a3781e8a8131f810201a67b","state":null,"propertySour june@bagjun-yeong-ui-MacBook-Pro  ~ 
 ```
+
+- 스프링 클라우드 구성서버를 구성하면 다음과 같은 엔드포인트가 생성된다.
+  - http://{host}/{spring.application.name}/{profile}/{git-branch}
+  - master branch 인 경우 생략이 가능하다.
+  - 우리가 요청했던 URI 를 대입해본다면, 8888 로컬 구성서버에, application 으로 지정된 애플리케이션의 default 프로파일 구성을 조회한것이다.
