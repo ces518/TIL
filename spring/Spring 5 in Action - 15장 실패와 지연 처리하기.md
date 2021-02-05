@@ -126,3 +126,76 @@ public class BookClient {
 > 주의할 점은 fallback 메소드 지정시, 메소드 시그니쳐가 동일해야 한다.
 > 또한 fallback 메소드가 실패할 경우도 있으므로, fallback 메소드에도 Hystrix 를 적용할 수 있으며, 연쇄적인 폴백처리가 가능하다.
 
+### 실패 모니터링하기
+- 서킷 브레이커로 보호되는 메소드는 매번 호출시마다 해당 호출에 관한 데이터가 수집되어 Hystrix 스트림으로 발행된다.
+- 이 스트림은 실행중인 애플리케이션의 건강 상태를 실시간으로 모니터링 하는데 사용가능하다.
+- 이 스트림이 포함하는 데이터는 다음과 같다.
+  1. 메소드의 호출 횟수
+  2. 성공적인 호출 횟수
+  3. 폴백 메소드의 호출 횟수
+  4. 메소드의 타임아웃 횟수
+- Hystrix 스트림은 Actuator endpoint 로 제공되기 때문에 각 서비스마다 actuator 의존성을 추가해 주어야한다.
+
+`pom.xml`
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+```
+
+`Application.yaml`
+```yaml
+management:
+  endpoints:
+    web:
+      exposure:
+        include: hystrix.stream
+```
+> Hystrix 스트림 엔드포인트는 /actuator/hystrix.stream 인데, 대부분의 엔드포인트는 비활성화 되어 있다.
+> 위와 같이 활성화시켜 주어야한다.
+
+### Hystrix 대시보드
+- Hystrix 스트림은 온갖 json 데이터가 가득 차 있으므로, 클라이언트 측에서 데이터 해석을 위한 작업이 많이 필요하다.
+- 이럴 경우 Hystrix 대시보드의 사용을 고려할 수 있다.
+- Hystrix 대시보드를 사용하려면 spring-cloud-starter-netflix-hystrix-dashboard 의존성을 추가해 주어야한다.
+
+`pom.xml`
+```xml
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-netflix-hystrix-dashboard</artifactId>
+</dependency>
+```
+
+`Application.java`
+```java
+@SpringBootApplication
+@EnableHystrixDashboard
+public class Application {
+
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+
+}
+```
+- @EnableHystrixDashboard 애노테이션을 사용해서 자동구성을 하도록 명시한다.
+
+### Hystrix 의 스레드풀
+- 특정 메소드가 해당 요청을 수행하는데 시간이 오래 걸린다면, 해당 서비스가 응답할 때까지 Hystrix 는 응답을 대기하며 관련 스레드를 **블로킹** 한다.
+- 만약 해당 스레드가 호출자와 같은 스레드의 컨텍스트에서 실행중이라면, 호출자는 오랫동안 실행되는 메소드로부터 벗어날 수 없다.
+- 블로킹된 스레드가 요청 제한된 수의 스레드 (톰캣의 요청처리를 수행하는 스레드 등) 이라면 결국 스레드 고갈이 나게 됨
+- 이를 방지하기 위해 Hystrix 는 각 의존성 모듈의 스레드풀을 할당한다. (별도의 스레드풀을 사용한다!! 중요)
+- Hystrix 메소드 중 하나 호출시 이 스레드풀의 스레드를 사용한다.
+- 스레드 풀의 대안으로 **semaphore isolation** 을 사용할 수 있다.
+> 기본적으로 @HystrixCommand 는 별도의 Thread 로 동작하기 때문에, ThreadLocal 이나 Spring 의 @RequestScope, @SessionScope 빈에 접근이 불가능 하다.
+> execution.isolation.strategy: SEMAPHORE 로 지정하여 동일 스레드에서 연산을 지정하도록 실행수 있다.
+> hystrix.shareSecurityContext=true 를 사용해서 스프링 시큐리티 컨텍스트도 공유할 수 있다.
+- https://supawer0728.github.io/2018/03/11/Spring-Cloud-Hystrix/
+
+### 정리
+- 서킷 브레이커 패턴은 유연한 실패 처리를 할 수 있다.
+- Hystrix 는 서킷 브레이커 패턴을 구현한다.
+- Hystrix 가 제공하는 서킷브레이커는 애플리케이션의 상태를 체크하는 목적으로 Hystrix 스트림을 발행한다.
+- Hystrix 가 발행하는 스트림을 수집해서 Hystrix 대시보드로 시각화 할 수 있다.
