@@ -385,6 +385,74 @@ node.ingest: false
 > 코디네이팅 노드를 클라이언트 노드라고도 한다.
 > 코디네이팅 노드를 별도로 분리하는 이유는, 데이터 노드와 코디네이팅 노드의 역할을 동시에 수행하는 경우 해당 노드의 사용량이 높아질수 있음을 방지 (OOM 발생)
 
+### jvm.options
+- ES는 자바 기반 애플리케이션 이기 때문에 힙메모리, GC 등 JVM 설정이 가능하다.
+- ES 애플리케이션의 성능에 직결되는 부분이므로 각 항목을 잘 이해 해야한다.
+
+```yaml
+## JVM configuration
+
+################################################################
+## IMPORTANT: JVM heap size
+################################################################
+##
+## You should always set the min and max JVM heap
+## size to the same value. For example, to set
+## the heap to 4 GB, set:
+##
+## -Xms4g
+## -Xmx4g
+##
+## See https://www.elastic.co/guide/en/elasticsearch/reference/current/heap-size.html
+## for more information
+##
+################################################################
+
+# Xms represents the initial size of total heap space
+# Xmx represents the maximum size of total heap space
+
+-Xms1g
+-Xmx1g
+
+...
+```
+-Xms1g, Xmx1g
+  - JVM 에서 사용할 힙메모리 사이즈를 설정하는 값
+  - Xms 는 최소값, Xmx 는 최대값을 지정한다.
+  - Xms 와 Xmx 값이 동일하지 않는 다면, 최소값을 유지하다가 힙메모리 양이 필요할때마다 메모리 추가 요청작업을 하기 때문에 오버헤드가 발생한다.
+  - Xms 와 Xmx 값은 동일하게 유지하는것을 권고한다.
+- 8-13:-XX:+UseConcMarkSweepGC
+  - JVM CMS GC 를 사용한다는 설정
+  - ES 가 기본으로 사용하는 GC 방식이며, 대부분의 경우 좋은 성능을 낸다.
+- 8-13:-XX:CMSInitiatingOccupancyFraction=75
+  - CMS GC 사용시 힙 메모리 사용량이 일정량 초과할 경우 old GC 를 수행하는데, 해당 상한치를 지정한다.
+  - old GC 발생시 **STW (Stop The World)** 가 발생하므로 주의 해야 한다.
+  - 기본 값은 75%
+- 8-13:-XX:+UseCMSInitiatingOccupancyOnly
+  - old GC 수행시 GC 통계 데이터를 근거로 하지 않고 위 설정을 기준으로 old GC 를 수행한다는 의미
+
+> 외에도 G1 GC 설정등 다양한 설정이 존재한다.
+> G1 GC 는 다양한 이슈가 발생 할 수 있기 때문에 반드시 테스트를 진행해야한다.
+> jvm.options 항목 설정시 대부분 힙메모리 관련 설정만 변경해 주면 된다.
+> 특히 힙 메모리는 ES 공식문서에 따르면 32GB 를 넘지 않도록, 시스템 메모리의 절반 정도를 힙메모리로 설정할 것을 권고한다.
+
+`힙 메모리를 32GB 이상 설정하면 안되는 이유 ?`
+- JVM 은 32bit 기반으로 동작함... 32bit 라면 이론상 힙메모리는 최대 4GB 까지 밖에 표현하지 못한다.
+- 힙을 늘린다고해서 무작정 64비트로 늘리는건 비효율적임
+- 이에 대한 해결책으로 1비트가 들어갈 자리에 8비트를 넣어 압축시켜 마치 4기가를 32기가처럼 사용한다.
+- 힙 메모리 할당을 32 기가 까지만 할당할 경우 32비트 기반 을 사용할 수 있으며 성능 저하 문제를 피할수 있음
+> 추가 정리 필요, https://kwonnam.pe.kr/wiki/java/memory
+
+`시스템 메모리의 절반을 힙 메모리로 할당해야 하는 이유 ?`
+- ES 는 색인된 데이터를 세그먼트 단위로 파일에 저장한다.
+- 빈번한 I/O 작업이 일어나면 성능 저하가 발생함..
+- 이를 위해 OS 는 **페이지 캐시** 기법을 활용한다.
+
+## 정리
+- ES는 클러스터로 운영되는 애플리케이션 이며, 각 노드의 설정에 정의된 역할 수행하며 운영된다.
+- 각 노드는 하나의 역할 만 수행하는것이 아닌 하나의 노드는 다수의 역할을 수행할 수 있다.
+- 클러스터 구성시 마스터 노드와 데이터 노드는 분리해서 구축하는것이 확장에 용이하다.
+
 ## 참고
 - https://www.elastic.co/guide/en/elasticsearch/reference/current/settings.html
 - https://esbook.kimjmin.net/02-install/2.3-elasticsearch/2.3.2-elasticsearch.yml
