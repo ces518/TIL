@@ -315,3 +315,13 @@ curl http://localhost:9200/my_users?pretty
 }
 ```
 > 다수의 인덱스에 걸쳐서 알리아스를 지정할 수 있는데, 다수의 인덱스에 설정된 별칭은 '색인' 에 사용이 불가능하며 '검색' 만 가능하다.
+
+`rollover API`
+
+| ![rolling api 원리](./images/rolling_api.jpeg){: width=50% height=50%} |
+| :--: |
+| *rolling api 원리* |
+
+- 인덱스에 특정 조건을 설정하고, 해당 조건을 만족하면 인덱스를 새로 생성한뒤 그 인덱스로 요청을 받는 API
+- aliases API 를 통해 별칭 설정이 반드시 필요하다.
+- 쉽게 생각하면 인덱스에 대해 rolling 처리를 해준다고 이해하면 된다.
