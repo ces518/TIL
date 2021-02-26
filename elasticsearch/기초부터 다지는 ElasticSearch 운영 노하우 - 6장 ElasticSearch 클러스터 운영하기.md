@@ -323,3 +323,265 @@ curl http://localhost:9200/my_users?pretty
 - 인덱스에 특정 조건을 설정하고, 해당 조건을 만족하면 인덱스를 새로 생성한뒤 그 인덱스로 요청을 받는 API
 - aliases API 를 통해 별칭 설정이 반드시 필요하다.
 - 쉽게 생각하면 인덱스에 대해 rolling 처리를 해준다고 이해하면 된다.
+
+`rollover api 설정`
+```shell
+// 최초 별칭 생성
+curl -XPUT -H 'Content-Type: application/json' http://localhost:9200/log-001?pretty -d '
+{
+  "aliases": { "log-today": {} }
+}
+'
+
+// rollover 조건 지정
+curl -XPUT -H 'Content-Type: application/json' http://localhost:9200/log-today/_rollover?pretty -d '
+{
+  "conditions": {
+    "max_age": "7d",
+    "max_docs": 2,
+    "max_size": "5gb"
+  }
+}
+'
+```
+
+| 옵션 | 설명 |
+| --- | --- |
+| max_age | 인덱스가 생성된 순간부터의 시간 |
+| max_docs | 인덱스에 저장된 문서 건수 |
+| max_size | 인덱스 프라이머리 샤드 크기 |
+
+`dry-run 모드`
+
+- 롤 오버가 진행되면 새롭게 인덱스가 생성되므로 의도치 않게 롤오버가 되는 경우 롤백이 어려울 수 있다.
+- 이런 문제를 해결하기 위해 dry_run 모드를 지원한다.
+- dry_run 모드는 실제 적용이 되지 않고, 적용시 어떤게 변화되는지 확인하는 모드
+
+```shell
+curl -XPOST -H 'Content-Type: applicaion/json' http://localhost:9200/log-001/_rollover/new_index?dry_run&pretty -d '
+  ... 생략
+'
+```
+
+> 인덱스의 용량이 너무 커져서 새로운 인덱스를 새롭게 생성해야 하는등에 활용할 수 있다.
+> 클라이언트 입장에서는 설정된 별칭을 바라보기 때문에 영향이 없음
+> VIP 와 같다고 이해하면 쉬울듯..
+
+`refresh API`
+
+- refresh api 는 refresh_interval 설정과 상관없이 메모리 버퍼캐시에 존재하는 문서를 바로 세그먼트에 저장하는 API
+- 일종의 flush 기능을 제공하는 api 라고 이해하면 쉽다.
+
+```shell
+curl -XPOST -H 'Content-Type: application/json' http://localhost:9200/users/_refresh?pretty
+```
+
+`forcemerge API`
+
+![forcemerge api](./images/forcemerge_api.jpeg)
+
+- 인덱스의 샤드를 구성하는 세그먼트들을 강제로 병합하는 API
+
+```shell
+curl -XPOST -H 'Content-Type: application/json' http://localhost:9200/users/_forcemerge?max_num_segments=10&pretty
+```
+
+- max_num_segments 파라메터로 샤그 내 세그먼트들을 몇 개의 세그먼트로 합칠 것인지 지정한다.
+- 이는 성능과 직결되는 부분이므로 유의해야한다.
+- 너무 많은 대상의 세그먼트를 지정하면 오버헤드가 발생함
+- 문서의 색인작업이 진행중인 인덱스라면 세그먼트에 대한 작업이 게속 일어나기 때문에 forcemerge api 는 호출하지 않는것이 좋다.
+- 과거에 색인된 로그 데이터와 같은 인덱스에 적용하는 것이 좋다.
+  - 디스크 용량도 절약되며 검색 성능이 향상됨
+
+`reindex API`
+
+- 인덱스를 복제하는 기능
+- 인덱스의 analyzer 변경 혹은 클러스터 마이그레이션시 주로 사용된다.
+- 기존에 색인된 인덱스는 검색 결과나 성능 향상을 위해 analyzer 를 변경한다고 해도 이미 색인이 완료된 상태이기 때문에 효과가 없다.
+- 이를 위해 reindex API 로 인덱스를 복제해서 새롭게 변경된 analyzer 로 색인 된다.
+
+```shell
+curl -XPOST -H 'Content-Type: application/json' http://localhost:9200/_reindex?pretty -d '
+{
+  "source": {
+    "index": "users"
+  },
+  "dest": {
+    "index": "new_users"
+  }
+}
+'
+```
+
+`클러스터간 마이그레이션시`
+
+- elasticsearch.yml 설정 파일의 whitelist 설정을 이용해야 한다.
+- 원본 클러스터에 접근 가능한 도메인 혹은 IP 를 기준으로 와일드카드 패턴 매칭 지원
+- 목적지 클러스터의 노드들에 존재하는 whitelist 설정을 통해 원본 클러스터로 부터 인덱스 복제가 가능하다.
+
+```yaml
+reindex.remote.whitelist: "data1-es-com:9200, 127.0.10.*:9200, localhost:*"
+```
+
+```shell
+curl -XPOST -H 'Content-Type: application/json' http://localhost:9200/_reindex?pretty -d '
+{
+  "source": {
+    "remote": {
+      "host": "http://data-1.es.com:9200"
+    },
+    "index": "test"
+  },
+  "dest": {
+    "index": "dest_test"
+  }
+}
+'
+```
+
+### 템플릿 활용
+
+- 인덱스 생성시 마다 인덱스 API 를 통해 동적으로 설정을 변경해야 한다면 이는 매우 번거로운 일이다.
+- 이를 위해 ES 에서는 템플릿 API 를 제공한다.
+- 특정 패턴의 이름을 가진 인덱스에 설정이 자동 반영되도록 하는 인터페이스를 제공
+
+`템플릿으로 정의 가능한 항목`
+
+| 항목 | 설명 |
+| --- | --- |
+| settings | 인덱스 설정값 |
+| mappings | 인덱스 매핑정보 |
+| aliases | 인덱스 alias 정보 |
+
+`인덱스 템플릿 생성`
+
+```shell
+curl -XPUT -H 'Content-Type: application/json' http://localhost:9200/_template/mytemplate1?pretty -d '
+  {
+    "index_patterns": ["test*"],
+    "order": 1,
+    "settings": {
+      "number_of_shards": 3,
+      "number_of_replicas": 1
+    },
+    "mappings": {
+      "properties": {
+        "test": {
+          "type": "text"
+        }
+      }
+    },
+    "aliases": {
+      "alias1": {}
+    }
+  }
+'
+```
+- order
+  - 동일한 매칭이 되는 템플릿이 존재한다면, order 에 따라 적용 우선순위를 설정한다.
+- 7.x 부터 매핑정보에 type 명시가 무의미해짐 제거..
+- 7.8 버전 부터 _index_template 으로 변경됨.. 문서 참조
+
+`템플릿 설정 정보 확인`
+
+```shell
+curl http://localhost:9200/_template/mytemplate1?pretty
+
+{
+  "mytemplate1" : {
+    "order" : 1,
+    "index_patterns" : [
+      "test*"
+    ],
+    "settings" : {
+      "index" : {
+        "number_of_shards" : "3",
+        "number_of_replicas" : "1"
+      }
+    },
+    "mappings" : {
+      "properties" : {
+        "test" : {
+          "type" : "text"
+        }
+      }
+    },
+    "aliases" : {
+      "alias1" : { }
+    }
+  }
+}
+```
+
+`전체 템플릿 목록 확인`
+
+```shell
+curl http://localhost:9200/_cat/templates?pretty
+
+.monitoring-logstash            [.monitoring-logstash-7-*]   0          7000199
+.monitoring-kibana              [.monitoring-kibana-7-*]     0          7000199
+.watches                        [.watches*]                  2147483647 11
+.slm-history                    [.slm-history-2*]            2147483647 2
+.ml-config                      [.ml-config]                 0          7070199
+.triggered_watches              [.triggered_watches*]        2147483647 11
+.monitoring-beats               [.monitoring-beats-7-*]      0          7000199
+.ml-anomalies-                  [.ml-anomalies-*]            0          7070199
+.ml-stats                       [.ml-stats-*]                0          7070199
+.ml-inference-000001            [.ml-inference-000001]       0          7070199
+.monitoring-es                  [.monitoring-es-7-*]         0          7000199
+.ml-notifications-000001        [.ml-notifications-000001]   0          7070199
+.watch-history-11               [.watcher-history-11*]       2147483647 11
+mytemplate1                     [test*]                      1
+.transform-notifications-000002 [.transform-notifications-*] 0          7070199
+.logstash-management            [.logstash]                  0
+.ml-meta                        [.ml-meta]                   0          7070199
+ilm-history                     [ilm-history-2*]             2147483647 2
+.monitoring-alerts-7            [.monitoring-alerts-7]       0          7000199
+.transform-internal-005         [.transform-internal-005]    0          7070199
+.ml-state                       [.ml-state*]                 0          7070199
+```
+
+
+`인덱스 생성 후 확인`
+
+```shell
+// 인덱스 생성
+curl -XPUT -H 'Content-Type: application/json' http://localhost:9200/test-1?pretty
+
+// 인덱스 정보 확인
+curl http://localhost:9200/test-1?pretty
+
+{
+  "test-1" : {
+    "aliases" : {
+      "alias1" : { }
+    },
+    "mappings" : {
+      "properties" : {
+        "test" : {
+          "type" : "text"
+        }
+      }
+    },
+    "settings" : {
+      "index" : {
+        "creation_date" : "1614341135710",
+        "number_of_shards" : "3",
+        "number_of_replicas" : "1",
+        "uuid" : "Eke_IDPaS8yWfrrOjK0X0Q",
+        "version" : {
+          "created" : "7070199"
+        },
+        "provided_name" : "test-1"
+      }
+    }
+  }
+}
+```
+
+## 정리
+
+- ES 클러스터 운영 중 버전업이 필요하다면 RollingRestart 방식을 사용할 수 있다.
+- 클러스터 API를 통해 샤드 배치 방식등 수정이 가능하다.
+- 인덱스 API 를 통해 인덱스의 다양한 설정값 변경이 가능하다.
+- 템플릿 API 를 통해 인덱스가 생성될 때 기본으로 적용되는 설정값을 변경할 수 있다. 
