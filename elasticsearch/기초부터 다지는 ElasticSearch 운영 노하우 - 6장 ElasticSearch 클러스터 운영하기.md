@@ -318,9 +318,7 @@ curl http://localhost:9200/my_users?pretty
 
 `rollover API`
 
-| ![rolling api 원리](./images/rolling_api.jpeg){: width=50% height=50%} |
-| :--: |
-| *rolling api 원리* |
+![rolling api 원리](./images/rolling_api.jpeg)
 
 - 인덱스에 특정 조건을 설정하고, 해당 조건을 만족하면 인덱스를 새로 생성한뒤 그 인덱스로 요청을 받는 API
 - aliases API 를 통해 별칭 설정이 반드시 필요하다.
