@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BranchesTreeState">
+    <expand />
+    <select />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="1a450594-ce0d-4b10-a444-3d1ebf72912b" name="Default Changelist" comment="9장 제네릭스" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Pull.Settings">
+    <option name="BRANCH" value="master" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1j62MnM6WOStcU1tTzil2vGc4lH" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.tslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="ArquillianTestNG" factoryName="" nameIsGenerated="true">
+      <option name="arquillianRunConfiguration">
+        <value>
+          <option name="containerStateName" value="" />
+        </value>
+      </option>
+      <option name="TEST_OBJECT" value="CLASS" />
+      <properties />
+      <listeners />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="1a450594-ce0d-4b10-a444-3d1ebf72912b" name="Default Changelist" comment="" />
+      <created>1603110174348</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1603110174348</updated>
+      <workItem from="1603110175383" duration="30000" />
+      <workItem from="1603110208412" duration="1695000" />
+      <workItem from="1603198328321" duration="900000" />
+      <workItem from="1603278005797" duration="5613000" />
+      <workItem from="1603885238158" duration="2460000" />
+    </task>
+    <task id="LOCAL-00001" summary="8장 고차함수 파라미터와 반환 값으로 람다 사용">
+      <created>1603112100904</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1603112100904</updated>
+    </task>
+    <task id="LOCAL-00002" summary="8장 고차함수 파라미터와 반환 값으로 람다 사용">
+      <created>1603199215345</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1603199215345</updated>
+    </task>
+    <task id="LOCAL-00003" summary="8장 고차함수 파라미터와 반환 값으로 람다 사용">
+      <created>1603283972459</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1603283972459</updated>
+    </task>
+    <task id="LOCAL-00004" summary="9장 제네릭스">
+      <created>1603887718386</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1603887718386</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="1">
+          <value>
+            <State>
+              <option name="SHOW_ONLY_AFFECTED_CHANGES" value="true" />
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="HEAD" />
+                      </list>
+                    </value>
+                  </entry>
+                  <entry key="roots">
+                    <value>
+                      <list>
+                        <option value="$PROJECT_DIR$" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="8장 고차함수 파라미터와 반환 값으로 람다 사용" />
+    <MESSAGE value="9장 제네릭스" />
+    <option name="LAST_COMMIT_MESSAGE" value="9장 제네릭스" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="2020" y="-957" width="1720" height="857" key="DiffContextDialog" timestamp="1603278173270">
+      <screen x="1920" y="-1057" width="1920" height="1057" />
+    </state>
+    <state x="2020" y="-957" width="1720" height="857" key="DiffContextDialog/1920.-1057.1920.1057/0.23.1680.975/0.-1057.1920.1057@1920.-1057.1920.1057" timestamp="1603278173270" />
+    <state x="2521" y="-760" key="MultipleFileMergeDialog" timestamp="1603278030409">
+      <screen x="1920" y="-1057" width="1920" height="1057" />
+    </state>
+    <state x="2521" y="-760" key="MultipleFileMergeDialog/1920.-1057.1920.1057/0.23.1680.975/0.-1057.1920.1057@1920.-1057.1920.1057" timestamp="1603278030409" />
+    <state x="2480" y="-789" key="Vcs.Push.Dialog.v2" timestamp="1603887727284">
+      <screen x="1920" y="-1057" width="1920" height="1057" />
+    </state>
+    <state x="2480" y="-789" key="Vcs.Push.Dialog.v2/1920.-1057.1920.1057/0.23.1680.973/0.-1057.1920.1057@1920.-1057.1920.1057" timestamp="1603887727284" />
+    <state x="2480" y="-789" key="Vcs.Push.Dialog.v2/1920.-1057.1920.1057/0.23.1680.974/0.-1057.1920.1057@1920.-1057.1920.1057" timestamp="1603199226790" />
+    <state x="2480" y="-789" key="Vcs.Push.Dialog.v2/1920.-1057.1920.1057/0.23.1680.975/0.-1057.1920.1057@1920.-1057.1920.1057" timestamp="1603283986842" />
+    <state x="2545" y="-822" width="670" height="676" key="search.everywhere.popup" timestamp="1603887381454">
+      <screen x="1920" y="-1057" width="1920" height="1057" />
+    </state>
+    <state x="2545" y="-822" width="670" height="676" key="search.everywhere.popup/1920.-1057.1920.1057/0.23.1680.973/0.-1057.1920.1057@1920.-1057.1920.1057" timestamp="1603887381454" />
+    <state x="2545" y="-822" key="search.everywhere.popup/1920.-1057.1920.1057/0.23.1680.975/0.-1057.1920.1057@1920.-1057.1920.1057" timestamp="1603282128536" />
+  </component>
+</project>
