@@ -22,7 +22,7 @@
   - default value
 
 `클러스터 설정의 우선순위`
-1. transitent cluster setting
+1. transient cluster setting
 2. persistent cluster setting
 3. elasticsearch.yml setting
 
@@ -93,7 +93,7 @@ PUT /_cluster/settings
 ```
 
 ### elasticsearch.yml
-- ES 를 구성하기 위해 기본이 디는 환경설정 파일
+- ES 를 구성하기 위해 기본이 되는 환경설정 파일
 - {ES_ROOT}/config 디렉토리 내부에 존재한다.
 
 `elasticsearch.yml`
@@ -146,7 +146,7 @@ node.name: ncucu-1
   - 노드에 설정가능한 커스텀한 항목
   - 사용자 정의 rack 을 통해 HA 구성과 같이 샤드 분배가 가능한 기능
 - node.roles
-  - 노드의 role 을 지정한다.
+  - 노드의 [role](https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-node.html) 을 지정한다.
   - master, data, ingest, remote-eligible, ml, transform ...
   - 여러개의 role 을 지정할 수 있음
 
@@ -303,10 +303,17 @@ cluster.initial_master_nodes: ["ncucu-1"]
 2. discovery.zen.minimum_master_nodes 에 존재하는 모든 네트워크를 탐색하였으나 노드를 찾지 못한 경우
   - 새로운 클러스터 시작
 
-> cluster.initial_master_nodes (discovery.zen.minimum_master_nodes) / spin brain 현상 정리
+> 6.x 버전 까지는 discovery.zen.minimum_master_nodes 옵션을 사용했는데, 이 수치 설정이 매우 중요했다. (split brain 현상 발생 여지)
 > 7.x 이후로는 split brain 현상은 발생하지 않는다.
 
-- https://discuss.elastic.co/t/avoid-split-brain-with-new-elasticsearch-7-0-after-discovery-zen-minimum-master-nodes-removal/176877
+`split brain 현상`
+- 여기서 brain 은 ES 클러스터의 master 노드를 의미한다.
+- ES 는 클러스터당 마스터 노드가 하나만 존재할 수 있다.
+  - H/A 를 위해 마스터 후보 노드들이 존재
+- 마스터 노드와 마스터 후보 노드들간의 통신이 일시적으로 끊어 졌을때, 서로 다른 마스터 노드를 가진 클러스터가 생겨날 수 있다.
+- 이러한 현상을 **split brain** 현상이라고 한다.
+
+> https://discuss.elastic.co/t/avoid-split-brain-with-new-elasticsearch-7-0-after-discovery-zen-minimum-master-nodes-removal/176877
 
 #### Gateway 영역
 - 클러스터 복구와 관련된 설정
@@ -324,7 +331,7 @@ cluster.initial_master_nodes: ["ncucu-1"]
 - gateway.expected_nodes
   - 로컬 샤드를 복구하기 위해 클러스터에 존재해야하는 노드의 수
   - 기본값은 0
-  - 7.7버전 이후로 depreacted
+  - 7.7버전 이후로 deprecated
   - gateway.expected_data_nodes 를 사용할것.
 - gateway.recover_after_time
   - 복구를 진행하기전 지정한 시간만큼 대기한다.
@@ -447,6 +454,9 @@ node.ingest: false
 - ES 는 색인된 데이터를 세그먼트 단위로 파일에 저장한다.
 - 빈번한 I/O 작업이 일어나면 성능 저하가 발생함..
 - 이를 위해 OS 는 **페이지 캐시** 기법을 활용한다.
+- 페이지 캐시를 위해 애플리케이션이 사용하지 않는 미 사용 메모리를 충분히 확보해 두는것이 좋음..
+> 공식 문서에서는 시스템 메모리의 절반 정도를 힙 메모리로 할당하는 것을 권고하고 있고, 많은 양이 필요 없다면 절반 이하로 할당해도 좋다.
+
 
 ## 정리
 - ES는 클러스터로 운영되는 애플리케이션 이며, 각 노드의 설정에 정의된 역할 수행하며 운영된다.
