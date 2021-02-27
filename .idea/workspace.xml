@@ -1,37 +1,92 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+<<<<<<< Updated upstream
   <component name="BranchesTreeState">
     <expand />
     <select />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1a450594-ce0d-4b10-a444-3d1ebf72912b" name="Default Changelist" comment="9장 제네릭스" />
+=======
+  <component name="ChangeListManager">
+    <list default="true" id="53d0f4c1-d2fb-42df-96e7-5ca97e06f0b6" name="Default Changelist" comment="" />
+>>>>>>> Stashed changes
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+<<<<<<< Updated upstream
   <component name="Git.Pull.Settings">
     <option name="BRANCH" value="master" />
+=======
+  <component name="DatabaseView">
+    <option name="SHOW_INTERMEDIATE" value="true" />
+    <option name="GROUP_DATA_SOURCES" value="true" />
+    <option name="GROUP_SCHEMA" value="true" />
+    <option name="GROUP_CONTENTS" value="false" />
+    <option name="SORT_POSITIONED" value="false" />
+    <option name="SHOW_EMPTY_GROUPS" value="false" />
+    <option name="AUTO_SCROLL_FROM_SOURCE" value="false" />
+    <option name="HIDDEN_KINDS">
+      <set />
+    </option>
+    <expand />
+    <select />
+>>>>>>> Stashed changes
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+<<<<<<< Updated upstream
   <component name="ProjectId" id="1j62MnM6WOStcU1tTzil2vGc4lH" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
+=======
+  <component name="GitRewordedCommitMessages">
+    <option name="commitMessagesMapping">
+      <RewordedCommitMessageMapping>
+        <option name="originalMessage" value="기초부터 다지는 ElasticSearch 운영노하우 - 4장 ElasticSearch 기본 개념" />
+        <option name="rewordedMessage" value="기초부터 다지는 ElasticSearch 운영노하우 - 4장 ElasticSearch 기본 개념&#10;&#10;&#10;기초부터 다지는 ElasticSearch 운영노하우 - 4장 ElasticSearch 기본 개념" />
+      </RewordedCommitMessageMapping>
+    </option>
+    <option name="currentCommit" value="1" />
+    <option name="onto" value="8d6330f00967fb36135a577af720c20937c390fa" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
+  <component name="ProjectId" id="1j340o1wFMqpI2w9aTKucdSG1g5" />
+  <component name="ProjectViewState">
+    <option name="abbreviatePackageNames" value="true" />
+>>>>>>> Stashed changes
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+<<<<<<< Updated upstream
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
+=======
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1602926895090" />
+    <property name="jdk.selected.JAVA_MODULE" value="1.8" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/elasticsearch/images" />
+>>>>>>> Stashed changes
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
     <property name="node.js.path.for.package.tslint" value="project" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
+<<<<<<< Updated upstream
   </component>
   <component name="RunManager">
     <configuration default="true" type="ArquillianTestNG" factoryName="" nameIsGenerated="true">
@@ -91,6 +146,598 @@
       <updated>1603887718386</updated>
     </task>
     <option name="localTasksCounter" value="5" />
+=======
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="project.structure.last.edited" value="Modules" />
+    <property name="project.structure.proportion" value="0.0" />
+    <property name="project.structure.side.proportion" value="0.0" />
+    <property name="settings.editor.selected.configurable" value="Errors" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/elasticsearch/images" />
+      <recent name="$PROJECT_DIR$/elasticsearch" />
+      <recent name="$PROJECT_DIR$/spring" />
+      <recent name="$PROJECT_DIR$/spring/images" />
+      <recent name="$PROJECT_DIR$/database/images" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/conference/개발자가_일_더잘하는법" />
+      <recent name="$PROJECT_DIR$/web/images" />
+      <recent name="$PROJECT_DIR$/design-pattern/images" />
+      <recent name="$PROJECT_DIR$/database/images" />
+      <recent name="$PROJECT_DIR$/database" />
+    </key>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="53d0f4c1-d2fb-42df-96e7-5ca97e06f0b6" name="Default Changelist" comment="" />
+      <created>1587899582097</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1587899582097</updated>
+      <workItem from="1587899585521" duration="3624000" />
+      <workItem from="1587992280590" duration="2086000" />
+      <workItem from="1587994485407" duration="82000" />
+      <workItem from="1588081192626" duration="1478000" />
+      <workItem from="1588225100514" duration="6856000" />
+      <workItem from="1588364931158" duration="5791000" />
+      <workItem from="1588429896896" duration="339000" />
+      <workItem from="1588485391240" duration="9639000" />
+      <workItem from="1588603193677" duration="1511000" />
+      <workItem from="1588663781417" duration="3279000" />
+      <workItem from="1588861130679" duration="1462000" />
+      <workItem from="1588942835786" duration="3143000" />
+      <workItem from="1589113886880" duration="3327000" />
+      <workItem from="1589196365930" duration="1000000" />
+      <workItem from="1589283353347" duration="1519000" />
+      <workItem from="1589373567964" duration="1266000" />
+      <workItem from="1589415764357" duration="594000" />
+      <workItem from="1589640070759" duration="7047000" />
+      <workItem from="1589727716796" duration="2334000" />
+      <workItem from="1589893724088" duration="3323000" />
+      <workItem from="1589980579701" duration="4758000" />
+      <workItem from="1590212042317" duration="3741000" />
+      <workItem from="1590319113717" duration="3917000" />
+      <workItem from="1590499962652" duration="1565000" />
+      <workItem from="1590583399041" duration="4815000" />
+      <workItem from="1590673154706" duration="3446000" />
+      <workItem from="1590752931686" duration="212000" />
+      <workItem from="1590759789942" duration="79000" />
+      <workItem from="1590821800292" duration="3558000" />
+      <workItem from="1590901530123" duration="509000" />
+      <workItem from="1590932634725" duration="4041000" />
+      <workItem from="1591020615686" duration="2000" />
+      <workItem from="1591192977551" duration="3274000" />
+      <workItem from="1591447601893" duration="3348000" />
+      <workItem from="1591518634669" duration="4090000" />
+      <workItem from="1591526642292" duration="774000" />
+      <workItem from="1591625566716" duration="1805000" />
+      <workItem from="1591711881182" duration="2032000" />
+      <workItem from="1591796751282" duration="46000" />
+      <workItem from="1591884632056" duration="1839000" />
+      <workItem from="1592216669786" duration="36000" />
+      <workItem from="1592308956850" duration="588000" />
+      <workItem from="1594303187331" duration="721000" />
+      <workItem from="1594366866642" duration="599000" />
+      <workItem from="1594439146612" duration="486000" />
+      <workItem from="1595505233466" duration="1149000" />
+      <workItem from="1595686170380" duration="2327000" />
+      <workItem from="1595859498555" duration="2821000" />
+      <workItem from="1595938424979" duration="795000" />
+      <workItem from="1596636518866" duration="281000" />
+      <workItem from="1596723986192" duration="198000" />
+      <workItem from="1596724199877" duration="15000" />
+      <workItem from="1597070490288" duration="853000" />
+      <workItem from="1597154829799" duration="848000" />
+      <workItem from="1597242010938" duration="134000" />
+      <workItem from="1597327597845" duration="511000" />
+      <workItem from="1597372941602" duration="341000" />
+      <workItem from="1597567189405" duration="2645000" />
+      <workItem from="1597574648664" duration="3586000" />
+      <workItem from="1597830690563" duration="279000" />
+      <workItem from="1597933642939" duration="3685000" />
+      <workItem from="1598020217523" duration="937000" />
+      <workItem from="1598191861140" duration="927000" />
+      <workItem from="1598362869262" duration="2278000" />
+      <workItem from="1598449480650" duration="1274000" />
+      <workItem from="1598538980528" duration="2380000" />
+      <workItem from="1598780751538" duration="16000" />
+      <workItem from="1598784429454" duration="1166000" />
+      <workItem from="1598967359706" duration="3075000" />
+      <workItem from="1599139842594" duration="1973000" />
+      <workItem from="1599143088519" duration="179000" />
+      <workItem from="1599229714373" duration="1728000" />
+      <workItem from="1599486746008" duration="4660000" />
+      <workItem from="1599567086841" duration="5412000" />
+      <workItem from="1599739229014" duration="2115000" />
+      <workItem from="1599815233515" duration="989000" />
+      <workItem from="1599995650104" duration="1311000" />
+      <workItem from="1600035356551" duration="1511000" />
+      <workItem from="1600173918245" duration="1597000" />
+      <workItem from="1600266008992" duration="1849000" />
+      <workItem from="1600347302577" duration="694000" />
+      <workItem from="1600608997212" duration="2684000" />
+      <workItem from="1600687038976" duration="3690000" />
+      <workItem from="1600767833595" duration="11001000" />
+      <workItem from="1600815654744" duration="5010000" />
+      <workItem from="1600848980305" duration="4802000" />
+      <workItem from="1600862803687" duration="106000" />
+      <workItem from="1600948784888" duration="9642000" />
+      <workItem from="1601026657061" duration="2333000" />
+      <workItem from="1601102161351" duration="9000" />
+      <workItem from="1601297496352" duration="7089000" />
+      <workItem from="1601358341471" duration="4322000" />
+      <workItem from="1601371046822" duration="2312000" />
+      <workItem from="1601716886211" duration="8090000" />
+      <workItem from="1601822386093" duration="1595000" />
+      <workItem from="1601887849409" duration="8344000" />
+      <workItem from="1601975043712" duration="9248000" />
+      <workItem from="1602066818315" duration="7284000" />
+      <workItem from="1602147267888" duration="12948000" />
+      <workItem from="1602328388768" duration="6223000" />
+      <workItem from="1602416196754" duration="5790000" />
+      <workItem from="1602594701659" duration="2956000" />
+      <workItem from="1602599687528" duration="1272000" />
+      <workItem from="1602666451822" duration="2537000" />
+      <workItem from="1602818964250" duration="8470000" />
+      <workItem from="1603019226318" duration="6479000" />
+      <workItem from="1603115106971" duration="1263000" />
+      <workItem from="1603202000199" duration="185000" />
+      <workItem from="1603202349939" duration="3327000" />
+      <workItem from="1603448691666" duration="8647000" />
+      <workItem from="1603626732394" duration="1000" />
+      <workItem from="1603626742233" duration="6018000" />
+      <workItem from="1603968228894" duration="5664000" />
+      <workItem from="1604140926504" duration="6007000" />
+      <workItem from="1604226942155" duration="6708000" />
+      <workItem from="1604836864894" duration="2722000" />
+      <workItem from="1605012283957" duration="2581000" />
+      <workItem from="1605018986543" duration="39000" />
+      <workItem from="1605101134430" duration="6464000" />
+      <workItem from="1605184942145" duration="2454000" />
+      <workItem from="1605277457625" duration="1047000" />
+      <workItem from="1605341927455" duration="7986000" />
+      <workItem from="1605360809198" duration="2675000" />
+      <workItem from="1605421988550" duration="5734000" />
+      <workItem from="1605434271743" duration="1874000" />
+      <workItem from="1605620779085" duration="5980000" />
+      <workItem from="1605708320622" duration="3242000" />
+      <workItem from="1605770514119" duration="4074000" />
+      <workItem from="1605945365760" duration="130000" />
+      <workItem from="1606035777345" duration="12431000" />
+      <workItem from="1606122817693" duration="10303000" />
+      <workItem from="1606300253667" duration="5503000" />
+      <workItem from="1606399870189" duration="2140000" />
+      <workItem from="1606402044568" duration="5599000" />
+      <workItem from="1606493574193" duration="115000" />
+      <workItem from="1606647691714" duration="3938000" />
+      <workItem from="1606744149623" duration="6750000" />
+      <workItem from="1606812683746" duration="9334000" />
+      <workItem from="1606918712567" duration="22000" />
+      <workItem from="1606918779018" duration="4298000" />
+      <workItem from="1607162957912" duration="1333000" />
+      <workItem from="1607259417122" duration="3654000" />
+      <workItem from="1607340333939" duration="7510000" />
+      <workItem from="1607429114090" duration="4544000" />
+      <workItem from="1607516218533" duration="4323000" />
+      <workItem from="1607609670267" duration="1395000" />
+      <workItem from="1607684744773" duration="7290000" />
+      <workItem from="1607774592187" duration="11901000" />
+      <workItem from="1607952509313" duration="2773000" />
+      <workItem from="1607956455908" duration="1671000" />
+      <workItem from="1608023047039" duration="7400000" />
+      <workItem from="1608127363080" duration="1539000" />
+      <workItem from="1608211387614" duration="2768000" />
+      <workItem from="1608289992580" duration="3153000" />
+      <workItem from="1608375756790" duration="1173000" />
+      <workItem from="1608474140608" duration="1621000" />
+      <workItem from="1608545946667" duration="3658000" />
+      <workItem from="1608732812996" duration="1014000" />
+      <workItem from="1608733865842" duration="2991000" />
+      <workItem from="1608817516616" duration="3102000" />
+      <workItem from="1609071081177" duration="7261000" />
+      <workItem from="1609164155610" duration="2180000" />
+      <workItem from="1609202085101" duration="6913000" />
+      <workItem from="1609304943051" duration="8247000" />
+      <workItem from="1609411592449" duration="4384000" />
+      <workItem from="1609505437282" duration="4773000" />
+      <workItem from="1609543656525" duration="2428000" />
+      <workItem from="1609552840187" duration="4077000" />
+      <workItem from="1609672152179" duration="4572000" />
+      <workItem from="1609844374635" duration="1636000" />
+      <workItem from="1609866392624" duration="597000" />
+      <workItem from="1609931924139" duration="6340000" />
+      <workItem from="1609988425924" duration="5785000" />
+      <workItem from="1610027459022" duration="3172000" />
+      <workItem from="1610096986044" duration="6789000" />
+      <workItem from="1610257423524" duration="1474000" />
+      <workItem from="1610356747306" duration="3941000" />
+      <workItem from="1610457557755" duration="3974000" />
+      <workItem from="1610467240172" duration="5257000" />
+      <workItem from="1610483534947" duration="405000" />
+      <workItem from="1610541122010" duration="5598000" />
+      <workItem from="1610625621994" duration="3538000" />
+      <workItem from="1610800592937" duration="1992000" />
+      <workItem from="1610890642462" duration="598000" />
+      <workItem from="1610965915289" duration="294000" />
+      <workItem from="1610966551539" duration="1713000" />
+      <workItem from="1611149521487" duration="3980000" />
+      <workItem from="1611238262746" duration="1868000" />
+      <workItem from="1611317234176" duration="5966000" />
+      <workItem from="1611382885955" duration="21000" />
+      <workItem from="1611407285412" duration="7478000" />
+      <workItem from="1611556822108" duration="922000" />
+      <workItem from="1611642984970" duration="5656000" />
+      <workItem from="1611667786549" duration="5932000" />
+      <workItem from="1611741922091" duration="3288000" />
+      <workItem from="1611810454102" duration="598000" />
+      <workItem from="1611839617681" duration="4478000" />
+      <workItem from="1611904461952" duration="7251000" />
+      <workItem from="1611961170908" duration="5322000" />
+      <workItem from="1612278330022" duration="3432000" />
+      <workItem from="1612361745518" duration="2018000" />
+      <workItem from="1612430169846" duration="4295000" />
+      <workItem from="1612517025281" duration="3067000" />
+      <workItem from="1612700024581" duration="5136000" />
+      <workItem from="1612786903535" duration="37000" />
+      <workItem from="1612790985352" duration="1705000" />
+      <workItem from="1612872531283" duration="1903000" />
+      <workItem from="1612918196019" duration="6998000" />
+      <workItem from="1613229600763" duration="9589000" />
+      <workItem from="1613483326551" duration="9649000" />
+      <workItem from="1613733255536" duration="1581000" />
+      <workItem from="1613812171933" duration="16651000" />
+    </task>
+    <task id="LOCAL-00248" summary="Spring 5 in Action - 8장 비동기 메시지 전송하기">
+      <created>1610376601441</created>
+      <option name="number" value="00248" />
+      <option name="presentableId" value="LOCAL-00248" />
+      <option name="project" value="LOCAL" />
+      <updated>1610376601443</updated>
+    </task>
+    <task id="LOCAL-00249" summary="Spring 5 in Action - 8장 비동기 메시지 전송하기">
+      <created>1610461933819</created>
+      <option name="number" value="00249" />
+      <option name="presentableId" value="LOCAL-00249" />
+      <option name="project" value="LOCAL" />
+      <updated>1610461933820</updated>
+    </task>
+    <task id="LOCAL-00250" summary="Spring 5 in Action - 8장 비동기 메시지 전송하기">
+      <created>1610542258734</created>
+      <option name="number" value="00250" />
+      <option name="presentableId" value="LOCAL-00250" />
+      <option name="project" value="LOCAL" />
+      <updated>1610542258734</updated>
+    </task>
+    <task id="LOCAL-00251" summary="Spring 5 in Action - 8장 비동기 메시지 전송하기">
+      <created>1610546758888</created>
+      <option name="number" value="00251" />
+      <option name="presentableId" value="LOCAL-00251" />
+      <option name="project" value="LOCAL" />
+      <updated>1610546758889</updated>
+    </task>
+    <task id="LOCAL-00252" summary="Spring 5 in Action - 8장 비동기 메시지 전송하기">
+      <created>1610628697252</created>
+      <option name="number" value="00252" />
+      <option name="presentableId" value="LOCAL-00252" />
+      <option name="project" value="LOCAL" />
+      <updated>1610628697253</updated>
+    </task>
+    <task id="LOCAL-00253" summary="Spring 5 in Action - 9장 스프링 통합하기">
+      <created>1610801991495</created>
+      <option name="number" value="00253" />
+      <option name="presentableId" value="LOCAL-00253" />
+      <option name="project" value="LOCAL" />
+      <updated>1610801991496</updated>
+    </task>
+    <task id="LOCAL-00254" summary="Spring 5 in Action - 10장 리액터 개요">
+      <created>1611152877245</created>
+      <option name="number" value="00254" />
+      <option name="presentableId" value="LOCAL-00254" />
+      <option name="project" value="LOCAL" />
+      <updated>1611152877246</updated>
+    </task>
+    <task id="LOCAL-00255" summary="Spring 5 in Action - 10장 리액터 개요">
+      <created>1611153825244</created>
+      <option name="number" value="00255" />
+      <option name="presentableId" value="LOCAL-00255" />
+      <option name="project" value="LOCAL" />
+      <updated>1611153825245</updated>
+    </task>
+    <task id="LOCAL-00256" summary="Spring 5 in Action - 10장 리액터 개요">
+      <created>1611239128294</created>
+      <option name="number" value="00256" />
+      <option name="presentableId" value="LOCAL-00256" />
+      <option name="project" value="LOCAL" />
+      <updated>1611239128294</updated>
+    </task>
+    <task id="LOCAL-00257" summary="Spring 5 in Action - 11장 리액티브 API 개발하기">
+      <created>1611327123448</created>
+      <option name="number" value="00257" />
+      <option name="presentableId" value="LOCAL-00257" />
+      <option name="project" value="LOCAL" />
+      <updated>1611327123449</updated>
+    </task>
+    <task id="LOCAL-00258" summary="자바 고유락">
+      <created>1611492578669</created>
+      <option name="number" value="00258" />
+      <option name="presentableId" value="LOCAL-00258" />
+      <option name="project" value="LOCAL" />
+      <updated>1611492578670</updated>
+    </task>
+    <task id="LOCAL-00259" summary="뮤텍스와 세마포어">
+      <created>1611493729241</created>
+      <option name="number" value="00259" />
+      <option name="presentableId" value="LOCAL-00259" />
+      <option name="project" value="LOCAL" />
+      <updated>1611493729241</updated>
+    </task>
+    <task id="LOCAL-00260" summary="뮤텍스와 세마포어">
+      <created>1611494024445</created>
+      <option name="number" value="00260" />
+      <option name="presentableId" value="LOCAL-00260" />
+      <option name="project" value="LOCAL" />
+      <updated>1611494024445</updated>
+    </task>
+    <task id="LOCAL-00261" summary="자바 스레드 기본">
+      <created>1611499186088</created>
+      <option name="number" value="00261" />
+      <option name="presentableId" value="LOCAL-00261" />
+      <option name="project" value="LOCAL" />
+      <updated>1611499186088</updated>
+    </task>
+    <task id="LOCAL-00262" summary="자바 스레드 기본">
+      <created>1611499226606</created>
+      <option name="number" value="00262" />
+      <option name="presentableId" value="LOCAL-00262" />
+      <option name="project" value="LOCAL" />
+      <updated>1611499226606</updated>
+    </task>
+    <task id="LOCAL-00263" summary="아파치 카산드라">
+      <created>1611648509018</created>
+      <option name="number" value="00263" />
+      <option name="presentableId" value="LOCAL-00263" />
+      <option name="project" value="LOCAL" />
+      <updated>1611648509018</updated>
+    </task>
+    <task id="LOCAL-00264" summary="Spring 5 in Action - 12장 리액티브 데이터 퍼시스턴스">
+      <created>1611675050765</created>
+      <option name="number" value="00264" />
+      <option name="presentableId" value="LOCAL-00264" />
+      <option name="project" value="LOCAL" />
+      <updated>1611675050766</updated>
+    </task>
+    <task id="LOCAL-00265" summary="Spring 5 in Action - 12장 리액티브 데이터 퍼시스턴스">
+      <created>1611756620399</created>
+      <option name="number" value="00265" />
+      <option name="presentableId" value="LOCAL-00265" />
+      <option name="project" value="LOCAL" />
+      <updated>1611756620400</updated>
+    </task>
+    <task id="LOCAL-00266" summary="Spring 5 in Action - 13장 서비스 탐구하기">
+      <created>1611843755777</created>
+      <option name="number" value="00266" />
+      <option name="presentableId" value="LOCAL-00266" />
+      <option name="project" value="LOCAL" />
+      <updated>1611843755778</updated>
+    </task>
+    <task id="LOCAL-00267" summary="Spring 5 in Action - 13장 서비스 탐구하기">
+      <created>1611909662047</created>
+      <option name="number" value="00267" />
+      <option name="presentableId" value="LOCAL-00267" />
+      <option name="project" value="LOCAL" />
+      <updated>1611909662048</updated>
+    </task>
+    <task id="LOCAL-00268" summary="Spring 5 in Action - 13장 서비스 탐구하기">
+      <created>1611913755588</created>
+      <option name="number" value="00268" />
+      <option name="presentableId" value="LOCAL-00268" />
+      <option name="project" value="LOCAL" />
+      <updated>1611913755588</updated>
+    </task>
+    <task id="LOCAL-00269" summary="Spring 5 in Action - 13장 서비스 탐구하기">
+      <created>1611964016146</created>
+      <option name="number" value="00269" />
+      <option name="presentableId" value="LOCAL-00269" />
+      <option name="project" value="LOCAL" />
+      <updated>1611964016146</updated>
+    </task>
+    <task id="LOCAL-00270" summary="Spring 5 in Action - 13장 서비스 탐구하기">
+      <created>1611964038776</created>
+      <option name="number" value="00270" />
+      <option name="presentableId" value="LOCAL-00270" />
+      <option name="project" value="LOCAL" />
+      <updated>1611964038776</updated>
+    </task>
+    <task id="LOCAL-00271" summary="Spring 5 in Action - 13장 서비스 탐구하기">
+      <created>1611964351562</created>
+      <option name="number" value="00271" />
+      <option name="presentableId" value="LOCAL-00271" />
+      <option name="project" value="LOCAL" />
+      <updated>1611964351562</updated>
+    </task>
+    <task id="LOCAL-00272" summary="Spring 5 in Action - 13장 서비스 탐구하기">
+      <created>1611966439369</created>
+      <option name="number" value="00272" />
+      <option name="presentableId" value="LOCAL-00272" />
+      <option name="project" value="LOCAL" />
+      <updated>1611966439369</updated>
+    </task>
+    <task id="LOCAL-00273" summary="Spring 5 in Action - 14장 스프링 클라우드 구성 관리">
+      <created>1612281746042</created>
+      <option name="number" value="00273" />
+      <option name="presentableId" value="LOCAL-00273" />
+      <option name="project" value="LOCAL" />
+      <updated>1612281746042</updated>
+    </task>
+    <task id="LOCAL-00274" summary="Spring 5 in Action - 14장 스프링 클라우드 구성 관리">
+      <created>1612361965897</created>
+      <option name="number" value="00274" />
+      <option name="presentableId" value="LOCAL-00274" />
+      <option name="project" value="LOCAL" />
+      <updated>1612361965897</updated>
+    </task>
+    <task id="LOCAL-00275" summary="Spring 5 in Action - 14장 스프링 클라우드 구성 관리">
+      <created>1612362766832</created>
+      <option name="number" value="00275" />
+      <option name="presentableId" value="LOCAL-00275" />
+      <option name="project" value="LOCAL" />
+      <updated>1612362766832</updated>
+    </task>
+    <task id="LOCAL-00276" summary="Spring 5 in Action - 15장 실패와 지연 처리하기">
+      <created>1612447430430</created>
+      <option name="number" value="00276" />
+      <option name="presentableId" value="LOCAL-00276" />
+      <option name="project" value="LOCAL" />
+      <updated>1612447430430</updated>
+    </task>
+    <task id="LOCAL-00277" summary="Spring 5 in Action - 15장 실패와 지연 처리하기">
+      <created>1612539811210</created>
+      <option name="number" value="00277" />
+      <option name="presentableId" value="LOCAL-00277" />
+      <option name="project" value="LOCAL" />
+      <updated>1612539811211</updated>
+    </task>
+    <task id="LOCAL-00278" summary="자바 애노테이션">
+      <created>1612701015721</created>
+      <option name="number" value="00278" />
+      <option name="presentableId" value="LOCAL-00278" />
+      <option name="project" value="LOCAL" />
+      <updated>1612701015722</updated>
+    </task>
+    <task id="LOCAL-00279" summary="믹스인">
+      <created>1612710234605</created>
+      <option name="number" value="00279" />
+      <option name="presentableId" value="LOCAL-00279" />
+      <option name="project" value="LOCAL" />
+      <updated>1612710234605</updated>
+    </task>
+    <task id="LOCAL-00280" summary="코틀린을 다루는 기술 4장 - 재귀 공재귀 메모화">
+      <created>1612799579032</created>
+      <option name="number" value="00280" />
+      <option name="presentableId" value="LOCAL-00280" />
+      <option name="project" value="LOCAL" />
+      <updated>1612799579033</updated>
+    </task>
+    <task id="LOCAL-00281" summary="코틀린을 다루는 기술 5장 - 리스트로 데이터 처리하기">
+      <created>1612887378352</created>
+      <option name="number" value="00281" />
+      <option name="presentableId" value="LOCAL-00281" />
+      <option name="project" value="LOCAL" />
+      <updated>1612887378352</updated>
+    </task>
+    <task id="LOCAL-00282" summary="코틀린의 함수 파라미터가 Immutable 한 이유">
+      <created>1612921245046</created>
+      <option name="number" value="00282" />
+      <option name="presentableId" value="LOCAL-00282" />
+      <option name="project" value="LOCAL" />
+      <updated>1612921245046</updated>
+    </task>
+    <task id="LOCAL-00283" summary="Java 8 의 getter 는 Optional 타입을 반환해야 할까">
+      <created>1612923780727</created>
+      <option name="number" value="00283" />
+      <option name="presentableId" value="LOCAL-00283" />
+      <option name="project" value="LOCAL" />
+      <updated>1612923780727</updated>
+    </task>
+    <task id="LOCAL-00284" summary="코틀린을 다루는 기술 6장 - 선택적 데이터 처리하기">
+      <created>1612974251142</created>
+      <option name="number" value="00284" />
+      <option name="presentableId" value="LOCAL-00284" />
+      <option name="project" value="LOCAL" />
+      <updated>1612974251142</updated>
+    </task>
+    <task id="LOCAL-00285" summary="코틀린을 다루는 기술 7장 - 오류와 예외 처리하기">
+      <created>1613234621791</created>
+      <option name="number" value="00285" />
+      <option name="presentableId" value="LOCAL-00285" />
+      <option name="project" value="LOCAL" />
+      <updated>1613234621791</updated>
+    </task>
+    <task id="LOCAL-00286" summary="QueryDSL 묵시적 조인 이슈">
+      <created>1613235830147</created>
+      <option name="number" value="00286" />
+      <option name="presentableId" value="LOCAL-00286" />
+      <option name="project" value="LOCAL" />
+      <updated>1613235830147</updated>
+    </task>
+    <task id="LOCAL-00287" summary="코틀린을 다루는 기술 8장 - 고급 리스트 처리">
+      <created>1613245816346</created>
+      <option name="number" value="00287" />
+      <option name="presentableId" value="LOCAL-00287" />
+      <option name="project" value="LOCAL" />
+      <updated>1613245816347</updated>
+    </task>
+    <task id="LOCAL-00288" summary="MongoDB Index">
+      <created>1613485406806</created>
+      <option name="number" value="00288" />
+      <option name="presentableId" value="LOCAL-00288" />
+      <option name="project" value="LOCAL" />
+      <updated>1613485406807</updated>
+    </task>
+    <task id="LOCAL-00289" summary="기초부터 다지는 ElasticSearch 운영 노하우 - 1장 ElasticSearch 훑어보기">
+      <created>1613576631370</created>
+      <option name="number" value="00289" />
+      <option name="presentableId" value="LOCAL-00289" />
+      <option name="project" value="LOCAL" />
+      <updated>1613576631370</updated>
+    </task>
+    <task id="LOCAL-00290" summary="코틀린을 다루는 기술 9장 - 지연계산 사용하기">
+      <created>1613579462627</created>
+      <option name="number" value="00290" />
+      <option name="presentableId" value="LOCAL-00290" />
+      <option name="project" value="LOCAL" />
+      <updated>1613579462627</updated>
+    </task>
+    <task id="LOCAL-00291" summary="기초부터 다지는 ElasticSearch 운영노하우 - 3장 ElasticSearch 모니터링">
+      <created>1613868086624</created>
+      <option name="number" value="00291" />
+      <option name="presentableId" value="LOCAL-00291" />
+      <option name="project" value="LOCAL" />
+      <updated>1613868086625</updated>
+    </task>
+    <task id="LOCAL-00292" summary="기초부터 다지는 ElasticSearch 운영노하우 - 3장 ElasticSearch 모니터링">
+      <created>1613872680268</created>
+      <option name="number" value="00292" />
+      <option name="presentableId" value="LOCAL-00292" />
+      <option name="project" value="LOCAL" />
+      <updated>1613872680268</updated>
+    </task>
+    <task id="LOCAL-00293" summary="기초부터 다지는 ElasticSearch 운영노하우 - 4장 ElasticSearch 기본 개념">
+      <created>1613878402766</created>
+      <option name="number" value="00293" />
+      <option name="presentableId" value="LOCAL-00293" />
+      <option name="project" value="LOCAL" />
+      <updated>1613878402766</updated>
+    </task>
+    <task id="LOCAL-00294" summary="기초부터 다지는 ElasticSearch 운영노하우 - 4장 ElasticSearch 기본 개념">
+      <created>1613878431357</created>
+      <option name="number" value="00294" />
+      <option name="presentableId" value="LOCAL-00294" />
+      <option name="project" value="LOCAL" />
+      <updated>1613878431357</updated>
+    </task>
+    <task id="LOCAL-00295" summary="기초부터 다지는 ElasticSearch 운영노하우 - 4장 ElasticSearch 기본 개념">
+      <created>1613879929196</created>
+      <option name="number" value="00295" />
+      <option name="presentableId" value="LOCAL-00295" />
+      <option name="project" value="LOCAL" />
+      <updated>1613879929196</updated>
+    </task>
+    <task id="LOCAL-00296" summary="기초부터 다지는 ElasticSearch 운영노하우 - 4장 ElasticSearch 기본 개념">
+      <created>1613880077279</created>
+      <option name="number" value="00296" />
+      <option name="presentableId" value="LOCAL-00296" />
+      <option name="project" value="LOCAL" />
+      <updated>1613880077279</updated>
+    </task>
+    <option name="localTasksCounter" value="297" />
+>>>>>>> Stashed changes
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -124,16 +771,25 @@
             </State>
           </value>
         </entry>
+<<<<<<< Updated upstream
         <entry key="MAIN">
           <value>
             <State />
           </value>
         </entry>
+=======
+      </map>
+    </option>
+    <option name="OPEN_GENERIC_TABS">
+      <map>
+        <entry key="1" value="TOOL_WINDOW" />
+>>>>>>> Stashed changes
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
+<<<<<<< Updated upstream
     <MESSAGE value="8장 고차함수 파라미터와 반환 값으로 람다 사용" />
     <MESSAGE value="9장 제네릭스" />
     <option name="LAST_COMMIT_MESSAGE" value="9장 제네릭스" />
@@ -158,5 +814,37 @@
     </state>
     <state x="2545" y="-822" width="670" height="676" key="search.everywhere.popup/1920.-1057.1920.1057/0.23.1680.973/0.-1057.1920.1057@1920.-1057.1920.1057" timestamp="1603887381454" />
     <state x="2545" y="-822" key="search.everywhere.popup/1920.-1057.1920.1057/0.23.1680.975/0.-1057.1920.1057@1920.-1057.1920.1057" timestamp="1603282128536" />
+=======
+    <MESSAGE value="Spring 5 in Action - 10장 리액터 개요" />
+    <MESSAGE value="Spring 5 in Action - 11장 리액티브 API 개발하기" />
+    <MESSAGE value="자바 고유락" />
+    <MESSAGE value="스핀락" />
+    <MESSAGE value="자바 스레드 기본" />
+    <MESSAGE value="아파치 카산드라" />
+    <MESSAGE value="Spring 5 in Action - 12장 리액티브 데이터 퍼시스턴스" />
+    <MESSAGE value="Spring 5 in Action - 13장 서비스 탐구하기" />
+    <MESSAGE value="Spring 5 in Action - 14장 스프링 클라우드 구성 관리" />
+    <MESSAGE value="Spring 5 in Action - 15장 실패와 지연 처리하기" />
+    <MESSAGE value="자바 애노테이션" />
+    <MESSAGE value="믹스인" />
+    <MESSAGE value="코틀린을 다루는 기술 4장 - 재귀 공재귀 메모화" />
+    <MESSAGE value="코틀린을 다루는 기술 5장 - 리스트로 데이터 처리하기" />
+    <MESSAGE value="코틀린의 함수 파라미터가 Immutable 한 이유" />
+    <MESSAGE value="Java 8 의 getter 는 Optional 타입을 반환해야 할까" />
+    <MESSAGE value="코틀린을 다루는 기술 6장 - 선택적 데이터 처리하기" />
+    <MESSAGE value="코틀린을 다루는 기술 7장 - 오류와 예외 처리하기" />
+    <MESSAGE value="QueryDSL 묵시적 조인 이슈" />
+    <MESSAGE value="코틀린을 다루는 기술 8장 - 고급 리스트 처리" />
+    <MESSAGE value="MongoDB Index" />
+    <MESSAGE value="기초부터 다지는 ElasticSearch 운영 노하우 - 1장 ElasticSearch 훑어보기" />
+    <MESSAGE value="코틀린을 다루는 기술 9장 - 지연계산 사용하기" />
+    <MESSAGE value="기초부터 다지는 ElasticSearch 운영노하우 - 3장 ElasticSearch 모니터링" />
+    <MESSAGE value="기초부터 다지는 ElasticSearch 운영노하우 - 4장 ElasticSearch 기본 개념" />
+    <option name="LAST_COMMIT_MESSAGE" value="기초부터 다지는 ElasticSearch 운영노하우 - 4장 ElasticSearch 기본 개념" />
+  </component>
+  <component name="antWorkspaceConfiguration">
+    <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
+    <option name="FILTER_TARGETS" value="false" />
+>>>>>>> Stashed changes
   </component>
 </project>
