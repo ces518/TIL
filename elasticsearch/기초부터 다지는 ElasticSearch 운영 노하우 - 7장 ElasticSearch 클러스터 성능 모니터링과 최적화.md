@@ -516,3 +516,936 @@ curl http://localhost:9200/_cluster/stats?pretty
 | versions | 클러스터를 구성중인 노드들의 버전 |
 | jvm.versions | 클러스터를 구성중인 노드들의 JVM 버전 |
 
+### 노드 성능 지표 확인
+- 노드의 성능 지표는 _nodes/stats API 로 확인
+
+`성능 지표 확인`
+```shell
+curl http://localhost:9200/_nodes/stats?pretty
+```
+
+`요청 결과`
+```shell
+{
+  "_nodes" : {
+    "total" : 1,
+    "successful" : 1,
+    "failed" : 0
+  },
+  "cluster_name" : "ncucu",
+  "nodes" : {
+    "8h8cJZBXRhe3GbKvvu8BNw" : {
+      "timestamp" : 1614685542703,
+      "name" : "ncucu-1",
+      "transport_address" : "127.0.0.1:9300",
+      "host" : "127.0.0.1",
+      "ip" : "127.0.0.1:9300",
+      "roles" : [
+        "ingest",
+        "master",
+        "transform",
+        "data",
+        "remote_cluster_client",
+        "ml"
+      ],
+      "attributes" : {
+        "ml.machine_memory" : "1927020544",
+        "xpack.installed" : "true",
+        "transform.node" : "true",
+        "ml.max_open_jobs" : "20"
+      },
+      "indices" : {
+        "docs" : {
+          "count" : 10,
+          "deleted" : 0
+        },
+        "store" : {
+          "size_in_bytes" : 39021
+        },
+        "indexing" : {
+          "index_total" : 3,
+          "index_time_in_millis" : 58,
+          "index_current" : 0,
+          "index_failed" : 0,
+          "delete_total" : 0,
+          "delete_time_in_millis" : 0,
+          "delete_current" : 0,
+          "noop_update_total" : 0,
+          "is_throttled" : false,
+          "throttle_time_in_millis" : 0
+        },
+        "get" : {
+          "total" : 0,
+          "time_in_millis" : 0,
+          "exists_total" : 0,
+          "exists_time_in_millis" : 0,
+          "missing_total" : 0,
+          "missing_time_in_millis" : 0,
+          "current" : 0
+        },
+        "search" : {
+          "open_contexts" : 0,
+          "query_total" : 2,
+          "query_time_in_millis" : 37,
+          "query_current" : 0,
+          "fetch_total" : 2,
+          "fetch_time_in_millis" : 19,
+          "fetch_current" : 0,
+          "scroll_total" : 1,
+          "scroll_time_in_millis" : 511,
+          "scroll_current" : 0,
+          "suggest_total" : 0,
+          "suggest_time_in_millis" : 0,
+          "suggest_current" : 0
+        },
+        "merges" : {
+          "current" : 0,
+          "current_docs" : 0,
+          "current_size_in_bytes" : 0,
+          "total" : 1,
+          "total_time_in_millis" : 68,
+          "total_docs" : 3,
+          "total_size_in_bytes" : 9911,
+          "total_stopped_time_in_millis" : 0,
+          "total_throttled_time_in_millis" : 0,
+          "total_auto_throttle_in_bytes" : 545259520
+        },
+        "refresh" : {
+          "total" : 59,
+          "total_time_in_millis" : 141,
+          "external_total" : 56,
+          "external_total_time_in_millis" : 169,
+          "listeners" : 0
+        },
+        "flush" : {
+          "total" : 27,
+          "periodic" : 0,
+          "total_time_in_millis" : 143
+        },
+        "warmer" : {
+          "current" : 0,
+          "total" : 30,
+          "total_time_in_millis" : 7
+        },
+        "query_cache" : {
+          "memory_size_in_bytes" : 0,
+          "total_count" : 0,
+          "hit_count" : 0,
+          "miss_count" : 0,
+          "cache_size" : 0,
+          "cache_count" : 0,
+          "evictions" : 0
+        },
+        "fielddata" : {
+          "memory_size_in_bytes" : 0,
+          "evictions" : 0
+        },
+        "completion" : {
+          "size_in_bytes" : 0
+        },
+        "segments" : {
+          "count" : 8,
+          "memory_in_bytes" : 14560,
+          "terms_memory_in_bytes" : 9152,
+          "stored_fields_memory_in_bytes" : 3904,
+          "term_vectors_memory_in_bytes" : 0,
+          "norms_memory_in_bytes" : 896,
+          "points_memory_in_bytes" : 0,
+          "doc_values_memory_in_bytes" : 608,
+          "index_writer_memory_in_bytes" : 0,
+          "version_map_memory_in_bytes" : 0,
+          "fixed_bit_set_memory_in_bytes" : 0,
+          "max_unsafe_auto_id_timestamp" : -1,
+          "file_sizes" : { }
+        },
+        "translog" : {
+          "operations" : 0,
+          "size_in_bytes" : 1430,
+          "uncommitted_operations" : 0,
+          "uncommitted_size_in_bytes" : 1430,
+          "earliest_last_modified_age" : 0
+        },
+        "request_cache" : {
+          "memory_size_in_bytes" : 0,
+          "evictions" : 0,
+          "hit_count" : 0,
+          "miss_count" : 0
+        },
+        "recovery" : {
+          "current_as_source" : 0,
+          "current_as_target" : 0,
+          "throttle_time_in_millis" : 0
+        }
+      },
+      "os" : {
+        "timestamp" : 1614685542727,
+        "cpu" : {
+          "percent" : 0,
+          "load_average" : {
+            "1m" : 0.0,
+            "5m" : 0.01,
+            "15m" : 0.05
+          }
+        },
+        "mem" : {
+          "total_in_bytes" : 1927020544,
+          "free_in_bytes" : 82350080,
+          "used_in_bytes" : 1844670464,
+          "free_percent" : 4,
+          "used_percent" : 96
+        },
+        "swap" : {
+          "total_in_bytes" : 1073737728,
+          "free_in_bytes" : 1042280448,
+          "used_in_bytes" : 31457280
+        },
+        "cgroup" : {
+          "cpuacct" : {
+            "control_group" : "/",
+            "usage_nanos" : 161971057246244
+          },
+          "cpu" : {
+            "control_group" : "/",
+            "cfs_period_micros" : 100000,
+            "cfs_quota_micros" : -1,
+            "stat" : {
+              "number_of_elapsed_periods" : 0,
+              "number_of_times_throttled" : 0,
+              "time_throttled_nanos" : 0
+            }
+          },
+          "memory" : {
+            "control_group" : "/",
+            "limit_in_bytes" : "9223372036854771712",
+            "usage_in_bytes" : "1667039232"
+          }
+        }
+      },
+      "process" : {
+        "timestamp" : 1614685542728,
+        "open_file_descriptors" : 322,
+        "max_file_descriptors" : 65536,
+        "cpu" : {
+          "percent" : 0,
+          "total_in_millis" : 4162140
+        },
+        "mem" : {
+          "total_virtual_in_bytes" : 3986087936
+        }
+      },
+      "jvm" : {
+        "timestamp" : 1614685542729,
+        "uptime_in_millis" : 819798295,
+        "mem" : {
+          "heap_used_in_bytes" : 683369912,
+          "heap_used_percent" : 63,
+          "heap_committed_in_bytes" : 1073741824,
+          "heap_max_in_bytes" : 1073741824,
+          "non_heap_used_in_bytes" : 132830136,
+          "non_heap_committed_in_bytes" : 144687104,
+          "pools" : {
+            "young" : {
+              "used_in_bytes" : 592445440,
+              "max_in_bytes" : 0,
+              "peak_used_in_bytes" : 642777088,
+              "peak_max_in_bytes" : 0
+            },
+            "old" : {
+              "used_in_bytes" : 90637824,
+              "max_in_bytes" : 1073741824,
+              "peak_used_in_bytes" : 90637824,
+              "peak_max_in_bytes" : 1073741824
+            },
+            "survivor" : {
+              "used_in_bytes" : 286648,
+              "max_in_bytes" : 0,
+              "peak_used_in_bytes" : 39845888,
+              "peak_max_in_bytes" : 0
+            }
+          }
+        },
+        "threads" : {
+          "count" : 50,
+          "peak_count" : 54
+        },
+        "gc" : {
+          "collectors" : {
+            "young" : {
+              "collection_count" : 1028,
+              "collection_time_in_millis" : 18526
+            },
+            "old" : {
+              "collection_count" : 0,
+              "collection_time_in_millis" : 0
+            }
+          }
+        },
+        "buffer_pools" : {
+          "mapped" : {
+            "count" : 13,
+            "used_in_bytes" : 23692,
+            "total_capacity_in_bytes" : 23692
+          },
+          "direct" : {
+            "count" : 25,
+            "used_in_bytes" : 4289270,
+            "total_capacity_in_bytes" : 4289269
+          },
+          "mapped - 'non-volatile memory'" : {
+            "count" : 0,
+            "used_in_bytes" : 0,
+            "total_capacity_in_bytes" : 0
+          }
+        },
+        "classes" : {
+          "current_loaded_count" : 19675,
+          "total_loaded_count" : 19675,
+          "total_unloaded_count" : 0
+        }
+      },
+      "thread_pool" : {
+        "analyze" : {
+          "threads" : 0,
+          "queue" : 0,
+          "active" : 0,
+          "rejected" : 0,
+          "largest" : 0,
+          "completed" : 0
+        },
+        "ccr" : {
+          "threads" : 0,
+          "queue" : 0,
+          "active" : 0,
+          "rejected" : 0,
+          "largest" : 0,
+          "completed" : 0
+        },
+        "fetch_shard_started" : {
+          "threads" : 1,
+          "queue" : 0,
+          "active" : 0,
+          "rejected" : 0,
+          "largest" : 4,
+          "completed" : 16
+        },
+        "fetch_shard_store" : {
+          "threads" : 0,
+          "queue" : 0,
+          "active" : 0,
+          "rejected" : 0,
+          "largest" : 0,
+          "completed" : 0
+        },
+        "flush" : {
+          "threads" : 1,
+          "queue" : 0,
+          "active" : 0,
+          "rejected" : 0,
+          "largest" : 1,
+          "completed" : 28
+        },
+        "force_merge" : {
+          "threads" : 0,
+          "queue" : 0,
+          "active" : 0,
+          "rejected" : 0,
+          "largest" : 0,
+          "completed" : 0
+        },
+        "generic" : {
+          "threads" : 6,
+          "queue" : 0,
+          "active" : 0,
+          "rejected" : 0,
+          "largest" : 6,
+          "completed" : 1326265
+        },
+        "get" : {
+          "threads" : 0,
+          "queue" : 0,
+          "active" : 0,
+          "rejected" : 0,
+          "largest" : 0,
+          "completed" : 0
+        },
+        "listener" : {
+          "threads" : 0,
+          "queue" : 0,
+          "active" : 0,
+          "rejected" : 0,
+          "largest" : 0,
+          "completed" : 0
+        },
+        "management" : {
+          "threads" : 5,
+          "queue" : 0,
+          "active" : 1,
+          "rejected" : 0,
+          "largest" : 5,
+          "completed" : 1156553
+        },
+        "ml_datafeed" : {
+          "threads" : 0,
+          "queue" : 0,
+          "active" : 0,
+          "rejected" : 0,
+          "largest" : 0,
+          "completed" : 0
+        },
+        "ml_job_comms" : {
+          "threads" : 0,
+          "queue" : 0,
+          "active" : 0,
+          "rejected" : 0,
+          "largest" : 0,
+          "completed" : 0
+        },
+        "ml_utility" : {
+          "threads" : 1,
+          "queue" : 0,
+          "active" : 0,
+          "rejected" : 0,
+          "largest" : 4,
+          "completed" : 64
+        },
+        "refresh" : {
+          "threads" : 1,
+          "queue" : 0,
+          "active" : 0,
+          "rejected" : 0,
+          "largest" : 1,
+          "completed" : 11769797
+        },
+        "rollup_indexing" : {
+          "threads" : 0,
+          "queue" : 0,
+          "active" : 0,
+          "rejected" : 0,
+          "largest" : 0,
+          "completed" : 0
+        },
+        "search" : {
+          "threads" : 3,
+          "queue" : 0,
+          "active" : 0,
+          "rejected" : 0,
+          "largest" : 3,
+          "completed" : 3
+        },
+        "search_throttled" : {
+          "threads" : 0,
+          "queue" : 0,
+          "active" : 0,
+          "rejected" : 0,
+          "largest" : 0,
+          "completed" : 0
+        },
+        "security-token-key" : {
+          "threads" : 0,
+          "queue" : 0,
+          "active" : 0,
+          "rejected" : 0,
+          "largest" : 0,
+          "completed" : 0
+        },
+        "snapshot" : {
+          "threads" : 1,
+          "queue" : 0,
+          "active" : 0,
+          "rejected" : 0,
+          "largest" : 1,
+          "completed" : 2
+        },
+        "transform_indexing" : {
+          "threads" : 0,
+          "queue" : 0,
+          "active" : 0,
+          "rejected" : 0,
+          "largest" : 0,
+          "completed" : 0
+        },
+        "warmer" : {
+          "threads" : 0,
+          "queue" : 0,
+          "active" : 0,
+          "rejected" : 0,
+          "largest" : 0,
+          "completed" : 0
+        },
+        "watcher" : {
+          "threads" : 0,
+          "queue" : 0,
+          "active" : 0,
+          "rejected" : 0,
+          "largest" : 0,
+          "completed" : 0
+        },
+        "write" : {
+          "threads" : 2,
+          "queue" : 0,
+          "active" : 0,
+          "rejected" : 0,
+          "largest" : 2,
+          "completed" : 5
+        }
+      },
+      "fs" : {
+        "timestamp" : 1614685542740,
+        "total" : {
+          "total_in_bytes" : 53675536384,
+          "free_in_bytes" : 46830702592,
+          "available_in_bytes" : 46830702592
+        },
+        "least_usage_estimate" : {
+          "path" : "/home/deploy/elasticsearch-7.7.1/data/nodes/0",
+          "total_in_bytes" : 53675536384,
+          "available_in_bytes" : 46830702592,
+          "used_disk_percent" : 12.752241063845915
+        },
+        "most_usage_estimate" : {
+          "path" : "/home/deploy/elasticsearch-7.7.1/data/nodes/0",
+          "total_in_bytes" : 53675536384,
+          "available_in_bytes" : 46830702592,
+          "used_disk_percent" : 12.752241063845915
+        },
+        "data" : [
+          {
+            "path" : "/home/deploy/elasticsearch-7.7.1/data/nodes/0",
+            "mount" : "/ (rootfs)",
+            "type" : "rootfs",
+            "total_in_bytes" : 53675536384,
+            "free_in_bytes" : 46830702592,
+            "available_in_bytes" : 46830702592
+          }
+        ],
+        "io_stats" : {
+          "devices" : [
+            {
+              "device_name" : "vda1",
+              "operations" : 244990,
+              "read_operations" : 14091,
+              "write_operations" : 230899,
+              "read_kilobytes" : 280044,
+              "write_kilobytes" : 1479535
+            }
+          ],
+          "total" : {
+            "operations" : 244990,
+            "read_operations" : 14091,
+            "write_operations" : 230899,
+            "read_kilobytes" : 280044,
+            "write_kilobytes" : 1479535
+          }
+        }
+      },
+      "transport" : {
+        "server_open" : 0,
+        "rx_count" : 0,
+        "rx_size_in_bytes" : 0,
+        "tx_count" : 0,
+        "tx_size_in_bytes" : 0
+      },
+      "http" : {
+        "current_open" : 1,
+        "total_opened" : 91
+      },
+      "breakers" : {
+        "request" : {
+          "limit_size_in_bytes" : 644245094,
+          "limit_size" : "614.3mb",
+          "estimated_size_in_bytes" : 0,
+          "estimated_size" : "0b",
+          "overhead" : 1.0,
+          "tripped" : 0
+        },
+        "fielddata" : {
+          "limit_size_in_bytes" : 429496729,
+          "limit_size" : "409.5mb",
+          "estimated_size_in_bytes" : 0,
+          "estimated_size" : "0b",
+          "overhead" : 1.03,
+          "tripped" : 0
+        },
+        "in_flight_requests" : {
+          "limit_size_in_bytes" : 1073741824,
+          "limit_size" : "1gb",
+          "estimated_size_in_bytes" : 0,
+          "estimated_size" : "0b",
+          "overhead" : 2.0,
+          "tripped" : 0
+        },
+        "accounting" : {
+          "limit_size_in_bytes" : 1073741824,
+          "limit_size" : "1gb",
+          "estimated_size_in_bytes" : 14560,
+          "estimated_size" : "14.2kb",
+          "overhead" : 1.0,
+          "tripped" : 0
+        },
+        "parent" : {
+          "limit_size_in_bytes" : 1020054732,
+          "limit_size" : "972.7mb",
+          "estimated_size_in_bytes" : 683369912,
+          "estimated_size" : "651.7mb",
+          "overhead" : 1.0,
+          "tripped" : 0
+        }
+      },
+      "script" : {
+        "compilations" : 1,
+        "cache_evictions" : 0,
+        "compilation_limit_triggered" : 0
+      },
+      "discovery" : {
+        "cluster_state_queue" : {
+          "total" : 0,
+          "pending" : 0,
+          "committed" : 0
+        },
+        "published_cluster_states" : {
+          "full_states" : 2,
+          "incompatible_diffs" : 0,
+          "compatible_diffs" : 32
+        }
+      },
+      "ingest" : {
+        "total" : {
+          "count" : 0,
+          "time_in_millis" : 0,
+          "current" : 0,
+          "failed" : 0
+        },
+        "pipelines" : {
+          "xpack_monitoring_6" : {
+            "count" : 0,
+            "time_in_millis" : 0,
+            "current" : 0,
+            "failed" : 0,
+            "processors" : [
+              {
+                "script" : {
+                  "type" : "script",
+                  "stats" : {
+                    "count" : 0,
+                    "time_in_millis" : 0,
+                    "current" : 0,
+                    "failed" : 0
+                  }
+                }
+              },
+              {
+                "gsub" : {
+                  "type" : "gsub",
+                  "stats" : {
+                    "count" : 0,
+                    "time_in_millis" : 0,
+                    "current" : 0,
+                    "failed" : 0
+                  }
+                }
+              }
+            ]
+          },
+          "xpack_monitoring_7" : {
+            "count" : 0,
+            "time_in_millis" : 0,
+            "current" : 0,
+            "failed" : 0,
+            "processors" : [ ]
+          }
+        }
+      },
+      "adaptive_selection" : { }
+    }
+  }
+}
+```
+
+| 필드 명 | 설명 |
+| --- | --- |
+| nodes.${ID} | 노드의 ID 클러스터 내부에서 임의의 값을 부여한다.
+| nodes.name | 노드의 이름 |
+| nodes.roles | 노드의 역할 |
+| indices.docs.count | 노드가 가지고 있는 문서의 수 |
+| indices.store.size_in_bytes | 노드가 저장하고 있는 문서의 크기 |
+| indices.indexing.index_total | 노드가 색인한 문서의 수 <br/>이 값은 1분마다 갱신되며, 1분 전가 1분 후의 값을 보면 1분당 색인 성능을 확인할 수 있는 지표이다. |
+| indices.indexing.index_time_in_millis | 색인에 소요된 시간 |
+| get | REST API Get 요청에 대한 성능 지표 *검색 보다는 문서를 가져오는 성능* |
+| search | 검색 성능에 대한 지표 |
+| merges | 세그먼트 병합에 대한 성능 지표 *중요한 이유는 I/O 병목 여부 를 판단 가능함* |
+| query_cache | 쿼리 캐시와 관련된 지표 |
+| fielddata | 필드데이터 캐시와 관련된 지표 |
+| segments | 세그먼트와 관련된 지표 |
+| cpu.percent | 노드의 CPU 사용률 <br/> 이 수치가 높다면 노드의 부하 (처리할 량이 많음) 를 의심 |
+| cpu.load_average | 노드의 Load Average <br/> 이 수치가 높지만 cpu 사용률이 낮다면, I/O 병목을 의심 |
+| gc.collectors | GC 와 관련된 지표 |
+| thread_pool | 노드의 스레드풀 관련 지표 <br/> rejected 가 매우 중요하다. 현재 노드가 처리가능한 양보다 요청의 수가 많기 때문에 거절한다는 의미 |
+| fs.total | 디스크의 사용량 |
+
+### 성능 확인 및 문제 해결
+
+| 지표 | 설명 |
+| 색인 성능 | 초당 몇 개의 문서를 색인할 수 있는지, 각 문서를 색인하는 데 소요되는 시간 |
+| 검색 성능 | 초당 몇 개의 쿼리를 처리할 수 있는지, 각 쿼리를 처리하는 데 소요되는 시간 |
+| GC 성능 | STW 가 얼마나 자주, 오래 발생하는지 |
+| rejected | 클러스터가 처리할 수 없는 수준의 쿼리가 들어오면 요청을 거절하는데, 거절한 횟수를 의미 |
+
+#### 색인 성능
+- 클러스터의 색인 성능은 stats API 를 통해 확인 가능
+
+`성능 확인`
+```shell
+curl http://localhost:9200/_stats?pretty | more
+```
+
+`요청 결과`
+```shell
+ % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0{
+  "_shards" : {
+    "total" : 51,
+    "successful" : 26,
+    "failed" : 0
+  },
+  "_all" : {
+    "primaries" : {
+      "docs" : {
+        "count" : 10,
+        "deleted" : 0
+      },
+      "store" : {
+        "size_in_bytes" : 39021
+      },
+      "indexing" : {
+        "index_total" : 3,
+        "index_time_in_millis" : 58,
+        "index_current" : 0,
+        "index_failed" : 0,
+        "delete_total" : 0,
+        "delete_time_in_millis" : 0,
+        "delete_current" : 0,
+        "noop_update_total" : 0,
+        "is_throttled" : false,
+        "throttle_time_in_millis" : 0
+      },
+      "get" : {
+        "total" : 0,
+        "time_in_millis" : 0,
+        "exists_total" : 0,
+        "exists_time_in_millis" : 0,
+        "missing_total" : 0,
+        "missing_time_in_millis" : 0,
+        "current" : 0
+      },
+      "search" : {
+        "open_contexts" : 0,
+        "query_total" : 2,
+        "query_time_in_millis" : 37,
+        "query_current" : 0,
+        "fetch_total" : 2,
+        "fetch_time_in_millis" : 19,
+        "fetch_current" : 0,
+        "scroll_total" : 1,
+        "scroll_time_in_millis" : 511,
+        "scroll_current" : 0,
+        "suggest_total" : 0,
+        "suggest_time_in_millis" : 0,
+        "suggest_current" : 0
+      },
+      "merges" : {
+        "current" : 0,
+        "current_docs" : 0,
+```
+- _all.primaries, indexing.index_total, indexing.index_time_in_millis
+  - 프라이머리 샤드에 대한 색인 성능 지표
+- total, indexing.index_total, indexing.index_time_in_millis
+  - 전체 샤드에 대한 색인 성능
+- index_total
+  - 호출 시점까지 색인이 완료된 총 문서의 수
+- index_time_in_millis
+  - 색인하는 데 소요된 총 시간
+
+> 하나의 문서를 색인하는 데에 얼마나 소요 되는지를 중요한 성능 지표로 삼아야 한다.
+
+#### 검색 성능
+
+`Query 와 Fetch`
+
+![query fetch](./images/query_fetch.jpeg)
+
+- **Query** 는 search API 를 통해 노드 A 에 검색 요청을 했을때, 노드 A 가 노드 B 와 노드 C 에 해당 쿼리를 전달하고
+- 자신이 가진 샤드 내에 해당 문서가 있는지 찾는 과정 을 이야기 한다.
+- **Fetch** 는 이렇게 검색해서 찾은 문서들을 리스트 형태로 정리하는 과정을 이야기 하낟.
+- 검색 성능 측정시 Query 와 Fetch 의 과정이 모두 끝나야 응답이 만들어 지므로 모두 포함하는 것이 좋다. 
+
+#### GC 성능
+- GC 는 각 노드에서 발생하기 때문에 nodes/stats API 를 통해 살펴볼 수 있다.
+
+`성능 확인`
+```shell
+curl http://localhost:9200/_nodes/stats?pretty | more
+```
+
+`요청 결과`
+```shell
+...
+"jvm" : {
+        "timestamp" : 1614698046575,
+        "uptime_in_millis" : 832302141,
+        "mem" : {
+          "heap_used_in_bytes" : 387878184,
+          "heap_used_percent" : 36,
+          "heap_committed_in_bytes" : 1073741824,
+          "heap_max_in_bytes" : 1073741824,
+          "non_heap_used_in_bytes" : 133232168,
+          "non_heap_committed_in_bytes" : 144949248,
+          "pools" : {
+            "young" : {
+              "used_in_bytes" : 296747008,
+              "max_in_bytes" : 0,
+              "peak_used_in_bytes" : 642777088,
+              "peak_max_in_bytes" : 0
+            },
+            "old" : {
+              "used_in_bytes" : 90940928,
+              "max_in_bytes" : 1073741824,
+              "peak_used_in_bytes" : 90940928,
+              "peak_max_in_bytes" : 1073741824
+            },
+            "survivor" : {
+              "used_in_bytes" : 190248,
+              "max_in_bytes" : 0,
+              "peak_used_in_bytes" : 39845888,
+              "peak_max_in_bytes" : 0
+            }
+          }
+        },
+        "threads" : {
+          "count" : 50,
+          "peak_count" : 54
+        },
+        "gc" : {
+          "collectors" : {
+            "young" : {
+              "collection_count" : 1044,
+              "collection_time_in_millis" : 18830
+            },
+            "old" : {
+              "collection_count" : 0,
+              "collection_time_in_millis" : 0
+            }
+          }
+        },
+...
+```
+- GC 성능관련해서 봐야할 부분은 jvm.gc.collectors.young, jvm.gc.collectors.old 영역이다.
+- 각각 young gc, old gc 의 발생 횟수와 소요 시간을 의미 한다.
+- 이들은 모두 카운터 형식의 값이기 때문에 특정 시간동안 얼마나 변화했는지 측정해야 한다.
+
+`GC 가 ES 운영에 미치는 영향`
+- STW (Stop The World)
+  - 수 초간 애플리케이션이 응답 불가 상태가 될 수 있음
+- OOM (Out Of Memory)
+  - 애플리케이션이 비정상 종료 될 수 있음
+
+> GC 관련 성능은 보통 수십에서 수백 ms 정도 성능을 내는것이 안정적이다.
+
+#### rejected 
+- ES 클러스터에서 현재 처리량이 부족하다는 지표중 하나이다.
+- 처리가능한 요청의 수를 넘어서면 Request Queue 에 쌓아 놓는데, 더이상 쌓아놀 수 업슨 상태가 되면 rejected 예외를 발생 시킨다.
+- nodes/stats API 를 통해 확인이 가능하다.
+
+`성능 확인`
+```shell
+curl http://localhost:9200/_nodes/stats?pretty | more
+```
+
+`요청 결과`
+```shell
+...
+     "thread_pool" : {
+        "analyze" : {
+          "threads" : 0,
+          "queue" : 0,
+          "active" : 0,
+          "rejected" : 0,
+          "largest" : 0,
+          "completed" : 0
+        },
+        "ccr" : {
+          "threads" : 0,
+          "queue" : 0,
+          "active" : 0,
+          "rejected" : 0,
+          "largest" : 0,
+          "completed" : 0
+        },
+        "fetch_shard_started" : {
+          "threads" : 1,
+          "queue" : 0,
+          "active" : 0,
+          "rejected" : 0,
+          "largest" : 4,
+          "completed" : 16
+        },
+        "fetch_shard_store" : {
+          "threads" : 0,
+          "queue" : 0,
+          "active" : 0,
+          "rejected" : 0,
+          "largest" : 0,
+          "completed" : 0
+        },
+        "flush" : {
+          "threads" : 1,
+          "queue" : 0,
+          "active" : 0,
+          "rejected" : 0,
+          "largest" : 1,
+          "completed" : 28
+        },
+        "force_merge" : {
+          "threads" : 0,
+          "queue" : 0,
+          "active" : 0,
+          "rejected" : 0,
+          "largest" : 0,
+          "completed" : 0
+        },
+...
+```
+- rejected 는 각 스레드 별로 확인이 가능하다.
+- rejected 가 발생하는 경우는 크게 두가지
+  1. 요청이 점점 늘어나 클러스터 처리량이 부족한 경우
+  2. 요청이 순간적으로 폭증한 경우
+- 첫 번째의 경우 데이터 노드를 증설하는 것 외에 방법이 없다.
+- 두 번째의 경우 큐를 늘리는 방법이 대안이 될 수 있다.
+
+`스레드별 큐 설정`
+```yaml
+// elasticsearch.yml
+thread_pool.write_queue_size: 10000
+thread_pool.search.max_queue_size: 10000
+```
+> thread_pool{설정하고자 하는 스레드 명}.{attribute} 순으로 설정이 가능하다.
+
+`스레드 풀 타입별 설정 방법`
+
+| 스레드 명 | 스레드 풀 타입 | 설정 방법 |
+| --- | --- | --- |
+| get <br/>write<br/>analyze | fixed | thread_pool.{스레드 명}.queue_size |
+| search | fixed_auto_queue_size | thread_pool.{스레드 명}.max_queue_size |
+
+> max_queue_size 는 8.x 에서 제거 될 예정
+
+### 정리
+- cat/heath API 로 클러스터의 상태가 확인 가능
+- cat/nodes API 로 클러스터를 구성하는 노드들의 상태 확인 가능
+- cat/indices API 로 클러스터 내의 인덱스 상태 확인 가능
+- cat API 는 공통적으로 h 파라미터를 제공하여 추가 항목들을 볼 수 있다.
+- 클러스터의 상태는 green, yellow, red 3가지 상태이다.
+- 클러스터의 상태는 인덱스 상태와 직결 된다. red 상태가 되었다고 해서 모든 인덱스에서 데이터 유실이 발생하는 것은 아니다.
+- nodes/stats API 로 노드들의 성능 정보를 확인할 수 있다.
+- GC 중 old GC 를 모니터링 하는것이 중요하다.
+- rejected 는 클러스터가 처리 가능한 양보다 요청이 많은 경우 발생하기 때문에 큐를 늘리거나 데이터 노드를 증설하여 대응할 수 있다.
