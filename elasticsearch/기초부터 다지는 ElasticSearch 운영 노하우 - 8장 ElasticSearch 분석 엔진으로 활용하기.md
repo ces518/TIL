@@ -54,4 +54,88 @@ output.logstash:
   hosts: ['logstashserver:5044']
 ```
 - nginx 의 access log 를 수집 대상으로 지정하고, 로그스테시 서버로 전송하는 예제
-- /home/deploy/elasticsearch-7.7.1/logs/ncucu.log
+
+> 파일빗의 로그는 /var/log/filebeat 디렉터리에 존재한다.
+
+### Logstash 설치
+- Filebeat 와 마찬가지로 rpm 을 통해서 설치가 가능하다.
+- Logstash 는 자바가 설치되어 있어야 한다.
+- 만약 자바가 설치되어 있지 않다면, could not find java; set JAVA_HOME ... 과 같은 에러가 발생한다.
+- 설치가 완료되면 /etc/logstash 디렉터리가 생성되며 환경설정을 위한 파일이 생성 된다.
+
+| 파일 명 | 설명 |
+| --- | --- |
+| logstash.yml | Logstash 와 관련된 설정을 할 수 있는 기본 설정파일 |
+| conf.d | 파싱에 사용할 플러그인과 파싱 룰을 정의하는 설정파일이 존재하는 디렉터리 |
+| jvm.options | Logstash 실행시 설정할 JVM 옵션들을 설정하는 파일 |
+| log4j.properties | 로깅 관련 설정 파일 |
+
+- Logstash 에서 제공하는 기본 설정 값은 특별히 수정할 곳이 없다.
+- 하지만 성능을 끌어낼 필요가 있을 경우 worker 나 batch size 와 같은 값을 튜닝해서 사용한다.
+
+`성능 튜닝을 위한 옵션`
+
+| 파일 명 | 설명 |
+| --- | --- |
+| pipeline.workers | Logstash 가 파싱을 수행할 때 사용할 워커의 개수를 지정한다.<br/> 기본적으로 CPU 코어수로 설정되어 있으며, CPU Usage 를 높이고 더 많은 양을 처리하고 싶다면 CPU 코어 수 보다 많게 설정한다. |
+| pipeline.batch.size | 하나의 워커가 파싱하기 위한 로그의 단위 <br/> 기본 값은 125 이며 로그를 125개씩 모아서 파싱한다. |
+| pipeline.batch.delay | 하나의 워커가 파싱하기 위한 로그를 모으는 시간 <br/> batch.size 만큼 모이지 않더라도 해당 시간이 지나면 파싱한다. |
+
+`nginx-logs.conf`
+
+```shell
+input {
+  beats {
+    port => "5044"
+  }
+}
+
+filter {
+  grok {
+    match => { "message" => "${NUMBER:request_time:float}" }
+    %{NUMBER:upstream_response_time:float} %{IPORHOST:clientip}
+    (?:-|(%{WORD})) ${USER:ident} \[%{HTTPDATE:timestamp}\]
+    "(?:${WORD:verb} ${NOTSPACE:request}(?: HTTP/${NUMBER:httpversion})?|${DATA:rawrequest})"
+    %{NUMBER:respose} (?:%{NUMBER:bytes}|-)${QS:referrer} %{QS:agent} %{QS:forwarder} }
+  }
+}
+
+output {
+  file {
+    path => "/var/log/logstash/output.log"
+  }
+}
+```
+- input
+  - Filebeat 를 통해 입력 받는 포트 설정
+- filter
+  - Logstash 에서 제공하는 패턴 매치 방식중 GROK 패턴을 이용해서 로그 파일에 대한 파싱 룰 정의
+- output
+  - 파싱 결과를 파일로 출력
+
+> Logstash 의 로그 파일 위치는 /var/log/logstash/logstash-plain.log
+
+### 키바나
+- 사용법 이므로 생략
+
+### Elastic Stack 이중화
+
+| 구성 요소 | 이중화 방법 |
+| --- | --- |
+| Filebeat | 로그 수집대상이 되는 서버에서 동작하기 때문에 이중화 구성이 필요 없다. |
+| Logstash | 1. 로드밸런서를 사용 <br/> 2. Filebeat 서버에 환경설정 시 다수의 Logstash 를 지정 |
+| Kibana | Active/Standby |
+
+`Logstash 이중화시 장단점`
+
+| 방법 | 장점 | 단점 |
+| --- | --- | --- |
+| LB | Logstash 서버 증설/축소가 자유로움 | 하드웨어 혹은 소프트웨어 LB 가 필요 |
+| 리스팅 기반 | 별도의 하드웨어 혹은 소프트웨어 LB 가 필요 없음 | Logstash 서버 증설/축소시 Filebeat 서버 설정을 모두 변경 해야함 |
+
+## 정리
+- Elastic Stack 은 Filebeat, Logstash, ElasticSearch Kibana 이렇게 여러 개의 컴포넌트들을 조합해서 로그를 수집, 분석, 시각화 하는 시스템
+- Filebeat 는 로그가 발생하는 애플리케이션서버에서 동작하며 Logstash 로 전달하는 역할
+- Logstash 는 Filebeat 로 부터 받은 로그들을 파싱하여 JSON 형태로 변환한 다음 ElasticSearch 에 전달한다.
+- ElasticSearch 는 해당 문서를 저장하는 역할
+- Kibana 는 ElasticSearch 에 저장된 문서를 조회 및 시각화 하는 역할
