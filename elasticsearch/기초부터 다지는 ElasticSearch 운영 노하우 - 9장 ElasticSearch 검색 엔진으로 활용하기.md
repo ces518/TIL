@@ -888,6 +888,16 @@ curl -XPOST -H 'Content-Type: application/json' http://localhost:9200/users/_doc
 > 또한 검색 성능이 중요하다면, Filter Context 에 넣을 수 있는 조건은 Filter Context 에 넣는 것이 중요하다.
 > 만약 매칭의 정도가 중요한 조건이라면, Query Context 에서 실행되도록 조건을 작성해야 한다.
 
+## 정리
+- ES 는 analyzer 로 문서의 각 필드를 분석해 토큰을 생성한다.
+- analyzer 를 통해 생성된 토큰은 inverted index 에 저장된다.
+- analyzer 를 변경하면 기존에 생성된 inverted index 가 의미가 없기 때문에 인덱스를 재생성 해야한다.
+- 어떤 analyzer 를 사용하냐에 따라 검색의 품질이 달라진다.
+- search API 는 다양한 옵션을 제공하며, 이를 통해 검색 결과를 정렬하거나 페이징처리를 할 수 있다.
+- query 문은 query context 와 filter context 로 구분된다.
+- query context 와 filter context 의 가장 큰 차이는 검색어를 analyze 하느냐 여부이다.
+- 또한 filter context 는 캐싱이 되기때문에 좋은 성능을 보여준다.
+- bool query 를 통해 query context 와 filter context 를 조합해서 사용할 수 있다.
 
 
 
