@@ -169,7 +169,9 @@ new_users           0     r      UNASSIGNED
 | node | 샤드가 배치된 데이터 노드의 이름 |
 
 `샤드의 상태`
+
 | 값 | 설명 |
+| --- | --- |
 | STARTED | 정상 |
 | INITIALIZING | 초기화 하는 상태 |
 | RELOCATION | 샤드가 다른 노드로 이동중인 상태 |
