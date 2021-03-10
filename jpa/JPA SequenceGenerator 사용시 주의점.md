@@ -70,10 +70,10 @@ public enum GenerationType {
 
 | 속성 명 | 설명 |
 | --- | --- |
-| name | 식별자 생성기의 이름 \n 필수 값 |
-| sequenceName | 데이터베이스에 등록된 시퀀스 명 \n 기본 값은 hibernate_sequence |
-| initialValue | 시퀀스의 시작 값 \n 최초 생성시에 사용된다. \n 기본 값은 1 |
-| allocationSize | 시퀀스 호출시 마다 증가하는 값 \n 성능 최적화에 사용된다. \n 데이터베이스 시퀀스 값이 1씩 증가하도록 설정되어 있다면, 반드시 1로 지정해야 한다. \n 기본 값은 50 |
+| name | 식별자 생성기의 이름 <br/> 필수 값 |
+| sequenceName | 데이터베이스에 등록된 시퀀스 명 <br/> 기본 값은 hibernate_sequence |
+| initialValue | 시퀀스의 시작 값 <br/> 최초 생성시에 사용된다. <br/> 기본 값은 1 |
+| allocationSize | 시퀀스 호출시 마다 증가하는 값 <br/> 성능 최적화에 사용된다. <br/> 데이터베이스 시퀀스 값이 1씩 증가하도록 설정되어 있다면, 반드시 1로 지정해야 한다. \n 기본 값은 50 |
 
 ##### allocateSize 의 기본값이 50인 이유
 - allocateSize 의 값이 1인 경우, 매번 persist 할 때 마다, sequence.nextVal 로 DB 를 호출하게 되어 성능 이슈가 존재한다.
@@ -100,13 +100,13 @@ public enum GenerationType {
 
 | 속성 명 | 설명 |
 | --- | --- |
-| name | 식별자 생성기의 이름 \n 필수 값 |
-| table | 키 생성 테이블 명 \n 기본 값은 hibernate_sequences |
-| pkColumnName | 시퀀스 컬럼 명 \n 기본 값은 sequence_name |
+| name | 식별자 생성기의 이름 <br/> 필수 값 |
+| table | 키 생성 테이블 명 <br/> 기본 값은 hibernate_sequences |
+| pkColumnName | 시퀀스 컬럼 명 <br/> 기본 값은 sequence_name |
 | valueColumnName | 시퀀스 값 컬럼 명 기본 값은 next_val |
-| pkColumnKey | 키로 사용할 값 이름 \n 기본 값은 엔티티 명 |
-| initialValue | 시퀀스의 시작 값 \n 기본 값은 0 |
-| allocationSize | 시퀀스 호출시 마다 증가하는 값 \n 성능 최적화에 사용된다 |
+| pkColumnKey | 키로 사용할 값 이름 <br/> 기본 값은 엔티티 명 |
+| initialValue | 시퀀스의 시작 값 <br/> 기본 값은 0 |
+| allocationSize | 시퀀스 호출시 마다 증가하는 값 <br/> 성능 최적화에 사용된다 |
 
 ### 하이버네이트의 자동 키 생성 전략
 
