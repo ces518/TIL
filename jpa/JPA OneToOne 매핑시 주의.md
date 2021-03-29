@@ -20,7 +20,6 @@
 @Setter
 @Entity
 public class Author {
-
 	@Id
 	@GeneratedValue
 	private Long id;
