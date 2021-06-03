@@ -181,6 +181,59 @@
 `Redis-sPiped`
 - Redis Server 로 전송되는 데이터를 암호화 할 수 있게 해주는 확장 모듈
 
-### 2-7. Lua Function & Script
+### 2.7 Lua Function & Script
 - Redis Server 에 내장된 Lua Interpreter 를 통해 미리 작성된 Lua Script/Function 을 사용할 수 있다.
 - 기본적으로 다양한 Lua Function 을 제공한다.
+
+## 3. 트랜잭션 제어 & 사용자 관리
+
+### 3.1 Isolation & Lock
+- Hadoop 과 같은 파일 시스템 기반은 기본적인 단위의 트랜잭션을 제어할 수 없다.
+- 이 때문에 제공되는 기술이 NoSQL (하지만 모든 NoSQL 제품이 트랜잭션을 지원하는 것은 아님)
+- RDB 의 Commit, Rollback 처럼 트랜잭션 제어가 가능한것 중 하나가 Redis (이를 Read UnCommitted 라고 표현한다.)
+- Commit, Rollback 을 지원하면 초당 10만 ~ 20만 이상의 빠른 쓰기/읽기 성능을 보장하기 힘들다.
+- 이를 보완하기 위해 Redis 는 Read Committed 트랜잭션 제어도 제공한다.
+
+`DBMS 락 매커니즘`
+- Global Lock
+- Database Lock
+- Object Lock
+- Page Lock
+- Key/Value Lock (Data Sets Lock)
+
+> Redis 4.0 버전은 데이터-셋 레벨의 락 매커니즘을 제공한다.
+
+### 3.2 CAS (Check And Set)
+- 트랜잭션 충돌시 이를 인지할 수 있어야 하는데, 이를 Redis 에서는 CAS (Check And Set) 라고 표현한다.
+
+> Redis 의 Watch 명령어를 통해 다중 트랜잭션이 발생하는지 여부를 모니터링 한다.
+
+### 3.3 commit & rollback
+- Redis 는 변경한 데이터를 최종 저장할때 EXEC, 취소시 DISCARD 명령어를 사용한다.
+
+### 3.4 Index 유형과 생성
+- Redis 는 기본적으로 하나의 Key 와 Field/Element 값으로 구성된다.
+- Key 는 빠른 검색을 위해 기본적으로 인덱스가 생성되는데 이를 **Primary Key Index** 라고 한다.
+- 사용자 필요에 따라 추가적으로 인덱스 생성이 가능한데 이를 **Secondary Index** 라고 한다.
+- 인덱스 키를 통해 검색시 유일한 값을 검색하는 경우 **Exact Match by a Secondary Index**
+- 일정 범위의 값을 검색조건으로 사용하는 경우 **Range by a Secondary Index** 라고 한다.
+
+### 3.5 사용자 생성 및 인증/보안/Roles
+
+`Access Control Privilege`
+- 가장 기본적인 접속 권한 중 하나인 액세스 컨트롤
+- 미리 사용자 계정 및 암호를 생성해두고, Redis 접근시 인증을 받는 방식
+- Standalone Redis 서버 접속시 기본적인 액세스 컨트롤 권한을 부여할 수 있지만, 여러대의 서버로 분산 및 복제 시스템으로 구축하는 경우에는
+- Master, Slave, Sentinel, Partition, Replication 서버 간에 **네트워크 액세스 컨트롤 권한** 이 추가로 필요하다.
+- 이를 활성화 시키려면 conf 파일내에 requirepass, masterauth 파라메터로 설정해 주어야함
+
+`Authorization Method`
+- Redis 는 2가지 인증 방법을 제공한다.
+- 1) OS 인증 방법, conf 파일에 접속할 IP 주소를 미리 지정해 둔다.
+- 2) Internal 인증 방법, Redis 에 접속한 뒤 auth 명령어로 미리 생성한 계정과 암호로 권한을 부여 받는다.
+    
+> 커뮤니티 에디션은 Standalone 서버를 구축하는 경우 기본적으로 사용자 계정을 사용자가 직접 생성할 수 없다. \n
+> 엔터프라이즈 에디션은 직접 설계 및 생성할 수 있으며, 사용자 정의 롤을 생성하여 부여할 수 있다.
+
+
+
