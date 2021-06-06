@@ -700,3 +700,87 @@ replica-lazy-flush no
 - 특정 노드에 장애가 발생하더라도 다른 서버에 존재하는 데이터를 참조할 수 있기 때문에 위험 분산이 가능하다.
 
 > Redis 는 **마스터-슬레이브 (Master-Slave)**, **마스터-슬레이브-센티널 (Master-Slave-Sentinel)**, **파티션 클러스터 (Partition Cluster)** 기능을 통해 데이터 복제 및 분산 처리가 가능하다.
+
+`Partition 과 유형`
+- 분산 서버는 최소 2대부터 운영이 가능하다.
+- 하지만 서버 장애 발생시 지속적인 분산처리가 불가능하기 때문에 최소 3대 이상 구성하는 것을 권장한다.
+    - 한대 서버 장애 발생시 남은 2대의 서버로 분산 처리가 가능하기 때문
+
+- 1) Range Partition
+    - **최소 서버 대수를 몇대로 구성** 할 것인가 ? 는 범위 파티션에서 매우 **중요한 요소** 이다.
+    - 특정 범위의 키-값을 어느 서버에 저장할 것인지 사전에 결정해야 하기 때문이다.
+    - 범위 파티션은, Redis 서버에 저장되는 **Key 값을 기준으로 특정 범위의 데이터를 특정 파티션 서버로 분산 저장** 한다.
+    - ex) 1번 서버는 1~100번, 2번서버는 101~200번 3번 서버는 201~300번 
+> 사용자가 특정 서버로 특정 범위 값을 지정할 수 있지만, 분산도가 떨어질 수가 있다.
+
+- 2) Hash Partition
+    - 해시 파티션은, Hash Algorithm 으로 인해 각 서버당 골고루 분산 저장해주는 개념
+        - 모듈러 연산을 통해 골고루 분산시킴
+
+`Partition 구현 방법`
+- 1) Client Side Partitioning
+    - 각 서버에 저장될 데이터 성격과 양을 **사용자가 직접 설계하고 결정하는 방법**
+    - 가장 원초적인 방법이지만 가장 정확하기도 하다.
+    - Master-Slave 혹은 **Redis Cluster Data Sharding** 기능을 통해 구현할 수 있다.
+- 2) Proxy Assisted Partitioning
+    - 위 방식은 기술에 대한 이해와 설계 능력이 있어야 하기 때문에 결코 쉬운 방식이 아니다.
+    - Proxy Assisted Partitioning 방식은 분선서버 외에 별도의 Proxy Server 가 필요하다.
+    - Proxy Server 는 현재 **분산 서버의 모든 상태 정보를 수집 및 저장** 하고, 가장 적절한 분산 서버를 찾아 데이터를 저장한다.
+> 이 방식은 Redis 에서 기본적으로 제공하진 않고, Twemproxy Cluster 와 같은 오픈소스와 연동하여 구축해야 한다.
+- 3) Query Routing
+    - 해시 파티션 방식으로 데이터를 분산저장 해주고, 특정 서버에 장애가 발생하면 사용가능한 Slave 서버로 Redirection 해준다.
+    - redis-rb 혹은 Predis 솔루션을 통해 구현이 가능하다.
+
+`Redis Paritition 단점`
+- Redis Server 는 파티셔닝을 통한 분산 처리는 권장하지 않는다.
+- 2개의 데이터 셋이 여러 인스턴스에 저장되어 있는 경우 효과적인 처리 및 트랜잭션 제어까지 수행하는 것은 쉬운작업도 아니고 완벽하게 지원하지 않는다.
+- 신규 노드 추가 및 노드를 제거하는 작업은 하나의 큰 파티션 영역을 새롭게 분할 및 합병하는 작업이 빈번하게 요구된다.
+    - RDB 와 AOF 파일을 백업 및 이전해야 함
+- 런타임시 노드 추가 및 제거시 ReBalancing 작업이 필요한데 성능 지연 및 기술적 한계에 부딪힐 수 있다.
+
+`Twemproxy Cluster`
+- Memcached ASCII, Redis Protocol 을 위해서 트위터 에서 개발 및 지원되는 솔루션이다.
+- C 로 개발되었고, 단일 스레드를 지원하며 Apache 2.0 라이센스
+- 다수 Redis 인스턴스에 자동 파티셔닝을 해주지만, Redis Cache 용으로 사용하는 경우에만 가능하다.
+
+### 6.2 Master Slave Sentinel
+
+`시스템 설정`
+- Redis 에서 제공하는 가장 기본적인 복제 시스템은 Master-Slave / Master-Slave-Sentinel
+
+`Master-Slave`
+- Master 서버는 사용자의 데이터를 실시간으로 처리하고, Slave 서버는 Master 의 데이터가 실시간으로 복제된다.
+- Slave 는 오직 읽기 작업만 수행할 수 있다.
+- Master 장애시 Fail-Over 작업이 자동으로 되지 않음, Slave 서버를 이용해 수동으로 복구해야 한다.
+
+`Master-Slave-Sentinel`
+- Sentinel 서버는 Master 와 Slave 서버를 지속적으로 모니터링 하다가, 장애 발생시 Fail-Over 작업을 해준다.
+- Sentinel 서버는 오직 모니터링하는 역할을 수행하기 때문에 좋은 하드웨어가 필요하지 않음
+- 안정적인 시스템 구성을 위해 Sentinel 서버도 3대를 권장한다.
+
+`Sentinel`
+- 마스터-슬레이브 서버를 실시간으로 HeartBeat 을 통해 감시 및 관련 정보를 제공한다.
+- 관련 파라메터
+    - sentinel monitor mymaster 1.192.0.1 5000 1
+        - mymaster: Master 서버에 대한 Alias
+        - 1.192.0.1: Master 서버의 IP
+        - 5000: Port
+        - 1: Quirum (정족수)
+            - 센티넬 서버 3대인 경우 2대 이상의 센티넬에서 Master 가 Down 이라고 판단하면 장애처리 작업을 수행한다.
+            - 전체 3대 중에 3/2+1 이상을 정족수라고 한다.
+    - sentienl auth-pass mypaster redis 123
+        - Master / Slave 접속시 적용할 암호
+    - sentinel down-after-milliseconds mymaster 3000
+        - 센티넬 서버가 3000 밀리초 동안 Master 서버를 인식하지 못하면 다운된것으로 간주한다.
+
+`Redis Server ShutDown 없이 Step Down`
+
+```shell
+info
+role:slave
+CONFIG SET slave-read-only no   -- Read Only Mode 해제
+set a 1
+SLAVEOF NO ONE                  -- Step Down (Slave 를 Master 로 전환)
+INFO
+role:master
+```
