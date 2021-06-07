@@ -784,3 +784,196 @@ SLAVEOF NO ONE                  -- Step Down (Slave 를 Master 로 전환)
 INFO
 role:master
 ```
+
+`장애처리 방법`
+- 센티널 서버는 매초마다 HeartBeat 를 통해 Master / Slave 서버의 동작 여부를 확인한다.
+    - 지정한 Timeout 동안 응답이 없으면 장애가 발생한 것으로 간주하는데, 이를 **주관적 다운 (Subjectively Down)** 이라고 한다.
+    - Timeout = sentinel.conf > down-after-milliseconds 에 설정된 값 (default 3000 ms)
+    - 로그 파일에 +sdown 으로 표기됨
+- 하나의 센티널 서버가 장애를 인지한 것이 주관적 다운이라면, 객관적 다운은 모든 센티넬 서버가 장애 상태를 인지한 것이다.
+    - 다른 센티널 서버와 함께 전체 정족수 (Quorum) 를 확인한 뒤 실제 다운되었음을 판단한다.
+    - 로그 파일에 +odown 으로 표기됨
+- 주관적 다운 및 객관적 다운이 확인되면 장애조치 프로세스가 수행된다.
+    - 다수의 센티넬 서버로 구성된 경우 **센티넬 리더** 를 선출해야 한다. (내부적으로 선출과정으로 반복적으로 수행됨)
+    - 리더로 결정된 센티널 서버가 장애가 발생한 Master 를 대신한 Slave 를 선정
+    - 선정된 Slave 는 Master 로 승격된다.
+    - 남은 Slave 가 새로이 승격된 Master 를 모니터링 한다.
+    - 작업 완료후 센티널 정보를 갱신하고 프로세스를 마친다.
+
+`특정 서버를 센티넬 리더로 결정하는 방법`
+- 다수의 서버로 센티넬을 구성한 경우 리더 결정시 시간 낭비 최소화 혹은 서버 관리자 의도대로 장애 조치를 수행해야 하는 경우 우선순위 결정이 필요하다.
+- down-after-milliseconds 값을 각각 다르게 준다면 이를 이용해 우선순위 지정이 가능하다.
+- ex) 1 번서버 = 1000, 2번 서버 = 1500, 3번 서버 2000 지정시 1, 2, 3 번 순으로 우선순위가 할당된다.
+
+`여러 Slave 중 Master 서버가 될 우선 순위 결정 방법`
+- slave-priority 파라메터를 이용해 우선순위 지정이 가능하다. (값이 클수록 우선순위가 높음)
+
+`Sentinel 명령어`
+
+```shell
+info sentinel -- 센티넬 서버 상태 및 Master, Slave 상태 조회
+
+sentinel remove mymaster -- 모니터링 설정된 Master 서버 해제
+
+sentinel set mymaster quorum 2 -- 센티넬 서버의 정족수 변경
+
+sentienl masters -- 센티넬 서버가 모니터링중인 모든 Master 서버 정보
+
+sentinel slaves mymaster -- Slave 서버의 상태 조회
+
+sentinel reset mymaster -- 센티넬 상태 정보를 초기화 (Master, Slave 정보도 Refresh 됨)
+
+sentinel ckquorum mymaster -- 현재 설정된 quorum 값의 적정 여부 체크
+
+seninel simulate-failure crash-after-election -- 장애처리중 시뮬레이션 목적으로 센티넬 서버를 임의로 다운
+
+sentinel simulate-failure-crash-after-promotion -- Slave 를 Master 승격 후 센티넬 서버를 임의로 다운
+
+sentinel simulate-failure -- 센티넬 서버 임의다운 취소
+
+sentinel set mymaster down-after-milliseconds 1000 -- 센티넬 서버 환경 파라메터 값 변경
+```
+
+### 6.3 부분 동기화
+- Redis 복제 시스템은 Master-Slave, Master-Slave-Sentinel, Partition-Replication 방식이 있다.
+- Master 는 R/W 가 가능하지만 Slave Read Only 로 동작한다.
+- 이런 경우 Master 에 장애가 발생하면 데이터 유실이 발생한다.
+- Redis 3.2 버전 이전을 기준으로, 이를 방지하기 위해 레플리카 서버에 실시간 전체 동기화 작업이 수행된다.
+- Redis 4.0 버전 이후부터는 부분 동기화 작업이 가능하도록 지원한다.
+    - repl-backlog-size 파라메터제공, 10mb 이상 권장함
+    
+```shell
+repl-backlog-szie 10mb 
+```
+
+### 6.4 Redis Cluster 구축 및 운영
+
+`Cluster 서버`
+- 빅데이터가 발생하는 비즈니스 환경이라면, 하나의 Standalone 서버만으로 처리하기 힘들어, 성능 지연 및 다양한 장애 현상이 빈번하게 발생한다.
+- 이를 해결하는 방법으로 스케일-업 과 스케일-아웃 이 있는데 주로 스케일-아웃 방식을 사용한다.
+- 스케일-아웃 방식을 이용해 여러대의 서버로 분산하는 방법을 파티셔닝이라고 한다.
+- 데이터 파티셔닝시에도 장애로 인해 데이터 유실이 발생할 수 있는데, 이를 위해 분산 서버마다 복제서버를 함께 구축해서 운영 한다.
+- 이를 Redis 클러스터 (Shard-Replication) 이라고 한다.
+
+> 클러스터 서버 환경에서는 센티넬 서버가 요구되지 않는다.
+
+- Redis Cluster System 을 구축하는 방법은 Cluster 명령어를 통해 직접 구축하는 방법과, redis-trib.rb 유틸리를 이용해 자동 설정하는 방법 두가지가 있다.
+
+`Redis Cluster 주요 특징`
+- Redis 3.0 버전 부터 제공
+- 클러스터 모드는 Database 0 번만 사용이 가능하다
+- 클러스터 모드 사용시 MSET 명령어 실행이 불가능하고, Hash-Tag 를 통해 데이터를 표현 하고 분산 저장한다.
+- 기본적으로 Master-Slave 로만 구성되며, Sentinel 서버는 요구되지 않는다.
+- Redis 서버는 기본적으로 **16,384 개의 슬롯** 을 가지는데, 여러 대의 서버에 분산 저장시 슬롯을 이용해 범위 분산을 하게 된다.
+- 해시 파티션을 통해 데이터 분산 저장을 하는데, CRC16 (Cycle Redundancy Check) 함수를 사용한다.
+
+`Cluster 명령어로 직접 수동 설정`
+- Master 서버는 적정 3대가 권장 된다.
+- 안정성 확보가 우선이라면, Master 1 - Slave 1 - Slave 2 와 같이 Slave 2 를 추가 확보했을때 가장 이상적이다.
+    - Master 2 - Slave 2 (최소)
+    - Master 3 - Slave 3 (권장)
+    - Master 3 - Slave 1 3대 - Slave 2 3대 (최적)
+- NoSQL 의 분산/복제 클러스터 환경은 Master : Slave (1:1) 매핑되는 환경으로 제공되지만, Redis 는 반드시 1:1 매핑이 되어야 할 필요는 없다.
+- redis-trib.rb 유틸리티를 이용할 경우 의도한 대로 구축할 수 없을 수 있다.
+
+`Redis Cluster Parameters`
+- CLUSTER-ENABLED YES
+    - Redis 클러스터 모드 설정을 위한 기본 파라미터
+- CLUSTER-CONFIG-FILE
+    - Redis 클러스터 노드 상태를 기록하는 Binary 파일의 경로를 지정
+- CLUSTER-NODE-TIMEOUT
+    - 클러스터 노드가 다운된 상태인지 판단하기 위한 타임아웃 (밀리초)
+    
+`Cluster 명령어`
+
+```shell
+cluster info -- 클러스터 상태 정보
+
+cluter nodes -- 클러스터에 할당된 모든 노드 정보
+
+cluster keyslot 1101 -- key 1101 이 저장되어 있는 슬롯 번호
+```
+
+`redis-trib.rb`
+- redis-trib.rb 유틸리티를 활용하여 클러스터 구축시 등록된 서버들 중 마스터 / 슬레이브 서버는 자동화된 메커니즘에 의해 결정된다.
+- 보통 명시된 순서대로 마스터를 선정하고 나머지는 슬레이브 서버로 결정된다.
+- 주요 특징중 하나는, 마스터 / 슬레이브 서버가 물리적으로 분리된 서버 대수를 충분히 보장하지 못한느 경우, 마스터와 슬레이브 서버를 같은 서버에 배치하지 않고, 물리적으로 분리된 서버에 배치해주는 기능도 제공한다.
+
+> 위 특징으로 인해 어떤 Master 서버는 Slave 서버가 할당되지 않고, 어떤 Master 는 2대의 Slave 가 할당 될 수도 있다.
+
+### 6.5 Redis Cluster 장애 복구
+
+### 6.6 Client for Redis Server
+
+`JEDIS`
+- JAVA 에서 제공하는 Redis Client API
+- Java 의 표준 Redis Client
+- spring boot 1.x 의 default client
+- Blocking I/O 이고 동기적으로 동작한다.
+- **Thread-Safe 하지 않으며** , 커넥션 풀을 이용해야 한다.
+- 공식적으로 **Read from Slave 를 지원하지 않는다.**
+- https://github.com/xetorthio/jedis
+
+> 2016.9 이후 개발이 중단되었다가, 2018.11 부터 릴리즈되기 시작함
+
+`Lettuce`
+- Netty 프레임워크를 기반으로 개발된 비동기 Client API
+- spring boot 2.x 의 default client 
+- 비동기 통신 지원
+- **Thread-Safe** 하기 때문에 하나의 커넥션으로 공유해서 사용할 수 있다.
+- https://github.com/lettuce-io/lettuce-core/wiki/ReadFrom-Settings
+
+`Redisson`
+- Netty 프레임워크를 기반으로 개발된 비동기 Client API
+- **Thread-Safe** 하기 때문에 하나의 커넥션으로 공유해서 사용할 수 있다.
+- 사용하기 까다롭고, low-level 메소드를 지원한다.
+- https://github.com/redisson/redisson/wiki/2.-Configuration#readmode
+
+`Spring-data Redis`
+- Jedis, Lettuce 만 공식 지원
+
+`Java Embedded Redis`
+- it.ozimov.embedded-redis (아래 모듈이 개발 중단되어 대체제)
+- kstyrc.embedded-redis
+
+> 현재까지는 Lettuce 가 우세인듯.. https://lettuce.io/core/release/reference/
+
+### 6.7 Logging & Monitoring
+
+`Logging Parameters`
+- loglevel
+    - Redis 서버 내에서 발생하는 다양한 상태정보를 얼마나 구체적으로 수집할 것인지 결정한다.
+    - 파일 표시
+    - DEBUG : .
+    - INFO : -
+    - NOTICE : *
+    - WARNING : #
+- logfile
+    - 로그 파일 저장 위치
+
+> default level 은 notice 이다. 
+
+`Monitoring`
+
+```shell
+config set latency-monitor-threshold 25 -- 25 밀리초 이상 소요되는 작업을 수집 및 분석
+```
+
+### 6.8 Pub/Sub
+- Redis 서버 / 클라이언트 간에 메세지 송수신 기능 제공
+- Pub = 메세지 송신, Sub = 메세지 수신
+
+`특징`
+- SUBSCRIBE 는 클라잉너트로 부터 해당 Channel 로 보낸 메세지를 푸시한다.
+- 하나 이상의 Channel 에 가입한 클라이언트는 Channel 해제는 가능하지만 메세지는 보낼 수 없다.
+- SUBSCRIBE 명령어를 실행하면 일관된 메세지 스트림을 수행할 수 있다.
+- UNSUBSCRIBE 명령어는 메세지 수신을 취소할때 실행한다.
+- PUB/SUB 은 KEY-Value 저장 공간과 관련이 없다.
+- PSUBSCRIBE 는 사용자가 지정한 특정 패턴의 메세지만 수신한다.
+
+### Server Monitor
+- Redis-Cli 의 monitor 명령어를 이용해 Redis Server 내에서 실행되는 모든 이벤트 정보를 모니터링 할 수 있다.
+
+### 참고
+- https://www.programmersought.com/article/53444748023/
+- http://redisgate.kr/redis/clients/redisson_intro.php
