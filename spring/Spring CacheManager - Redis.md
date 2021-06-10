@@ -2,7 +2,7 @@
 
 ## GenericJacksonSerializer
 - JSON 형태로 변환시 사용한다.
-- JACKSON 특성상 타읍 정보가 필요한데, 만약 타입 정보를 함께 저장하지 않는다면, LinkedHashMap 으로 변환되어 다음과 같은 에러를 자주 보게 된다..
+- JACKSON 특성상 타입 정보가 필요한데, 만약 타입 정보를 함께 저장하지 않는다면 (ObjectMapper 옵션으로 Json 변환시 타입 정보를 함께 저장할 수 있다), LinkedHashMap 으로 변환되어 다음과 같은 에러를 자주 보게 된다..
     - java.util.LinkedHashMap cannot be cast to tutorial.Person with root cause blah..blah..blah...
 - 이는 deSerialize 하는 코드를 보면 알 수 있다.
 
