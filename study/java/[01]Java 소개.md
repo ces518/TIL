@@ -190,7 +190,7 @@ public final class HelloSingleton {
         - Young, Old, Perm 세가지 영역으로 구분된다.
         - Young : 새롭게 생성된 객체가 저장되고, 대부분의 객체가 여기서 사라진다.
         - Old : Young 에서 살아남은 reachable (참조중인 상태) 상태를 가진 객체가 여기로 이동된다.
-        - Perm : Method Area 라고도 하며 클래스와 메소드 메타 정보가 저장된다.
+        - Perm : Method Area 라고도 하며 클래스와 메소드 메타 정보가 저장된다. (8버전 부터 제거됨)
     - **Stacks**
         - 로컬변수, 메소드 연산 결과를 저장하며 이렇게 생성된 변수는 변수가 생성되는 스레드의 지역성을 띄고 있다.
         - 각 스레드들은 각자의 JVM Stack 을 가지고 있고, 스레드 생성과 동시에 Stack 이 생성된다.
@@ -466,3 +466,4 @@ S1: Survivor 1
 - https://d2.naver.com/helloworld/1230
 - https://d2.naver.com/helloworld/1329
 - https://www.kdata.or.kr/info/info_04_view.html?field=&keyword=&type=techreport&page=19&dbnum=183668&mode=detail&type=techreport
+- https://perfectacle.github.io/2019/05/11/jvm-gc-advanced/
