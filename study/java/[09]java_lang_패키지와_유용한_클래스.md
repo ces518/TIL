@@ -266,7 +266,7 @@ open class Wow(
 	val name: String,
 	val age: Int,
 	val children: List<@JvmSuppressWildcards Wow>
-	)
+)
 ```
 
 `getClass()`
