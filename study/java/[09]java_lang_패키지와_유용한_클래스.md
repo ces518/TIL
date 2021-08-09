@@ -247,7 +247,7 @@ public interface List<out E> : Collection<E> {
 - 원인은 out 이라는 키워드 때문... 코틀린 -> 자바 로 변환하는 과정에서 공변 반환타입을 처리하는 방식
 
 > Proxy 객체등을 사용한다거나 할 경우 문제가 됨... 실체 타입을 찾을 수 없음.. <br/>
-> 실제 Hibernate 구현체에서 이와 관련된 이슈가 있었음
+> 실제 Hibernate 에서 이와 관련된 이슈가 있었음
 
 - 해결방법 1
     - MutableList 로 변경한다.
@@ -261,13 +261,12 @@ open class Wow(
 
 - 해결방법 2
   - @JvmSuppressWildcards
-```java
-public class WowExtender extends Wow {
-
-	public WowExtender(@NotNull String name, int age, @NotNull List<Wow> children) {
-		super(name, age, children);
-	}
-}
+```kotlin
+open class Wow(
+	val name: String,
+	val age: Int,
+	val children: List<@JvmSuppressWildcards Wow>
+	)
 ```
 
 `getClass()`
