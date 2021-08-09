@@ -5,7 +5,7 @@
 - import 문 없이도 사용이 가능하다
   - 컴파일러가 암묵적으로 추가해 줌
 
-`Object 클래스`
+### Object 클래스
 - 모든 클래스의 조상이 되는 클래스
 
 | 메소드 | 설명 |
@@ -13,7 +13,7 @@
 | clone() | 객체 자신의 복사본을 반환 |
 | **equals()** | 인자로 들어온 객체와 자신이 동일한 객체인지 반환 |
 | finalize() | 객체 소멸시 GC 에 의해 자동 호출 / 이때 수행될 코드가 있다면 오버라이딩 한다. |
-| getClass() | 클래스 정보를 가지고 있는 Class 인스턴스를 반환 |
+| getClass() | 클래스 정보를 가지고 있는 Class 인스턴스를 반환 (Class 가 로드될때 Class 타입 객체가 생성됨) |
 | **hashCode()** | 자신의 해시코드를 반환 |
 | **toString()** | 자신의 정보를 문자열로 반환 |
 | notify() | 객체 자신을 사용하기 위해 대기중인 스레드 하나를 깨운다. |
@@ -37,6 +37,7 @@ public boolean equals(Object obj) {
 - 추후 배울 Collection 에서 이를 사용해 동일한 요소인지 판단을 할때 사용됨
 - Object 클래스에 정의된 구현은 **객체의 주소값** 을 이용해 해시코드를 생성한다.
 - 때문에 절대 동일한 해시코드 값을 가질 수 없다.
+- 객체마다 다른 값을 반환하기 때문에 **객체의 지문** 이라고 표현하기도 한다.
 
 > 해시코드시 **소수** 가 사용된다.
 
@@ -130,18 +131,163 @@ Second, the good sense: Suppose MULT were 26, and consider hashing a hundred-cha
 > 롬복이 생성해주는 hashCode() 는 31을 사용하지 않고, 59를 사용하고 있다. (1.16.20 버전 부터..) <br/>
 > 기존에 277 을 사용중이 었지만, 127 보다 작은 소수를 사용하기로 결정했고 59로 변경된것으로 확인..
 
-`Kotlin 에서 구현하는 hashCode`
-// 정리 필요
+`Kotlin 에서 구현하는 equals 와 hashCode`
+- data class : equals / hashCode / toString/ copy 함수를 자동으로 생성해주는 클래스
+- 코틀린에서도 hashCode 구현시 소수 (31) 을 사용하고 있다.
+```kotlin
+data class Wow(
+    val name: String,
+    val age: Int,
+)
+```
+
+```java
+public final class Wow {
+    // ... 중략 
+    
+   public int hashCode() {
+      int result = this.name.hashCode();
+      result = result * 31 + Integer.hashCode(this.age);
+      return result;
+   }
+
+   public boolean equals(@Nullable Object other) {
+      if (this == other) {
+         return true;
+      } else if (!(other instanceof Wow)) {
+         return false;
+      } else {
+         Wow var2 = (Wow)other;
+         if (!Intrinsics.areEqual(this.name, var2.name)) {
+            return false;
+         } else {
+            return this.age == var2.age;
+         }
+      }
+   }
+}
+
+```
 
 `이펙티브 자바 - equals 재정의시 hashCode 도 재정의 하라`
 - equals 메서드를 재정의한 클래스 모두에서 hashCode도 재정의해야 한다. 
 - **hashCode의 일반 규약** 을 어기게 되므로 해당 클래스의 인스턴스를 HashMap이나 HashSet 같은 컬렉션의 원소로 사용할 때 문제를 일으키게 된다.
 
+`hashcode 규약`
+1. equals비교에 사용되는 정보가 변경되지 않았다면, 객체의 hashcode 메서드는 몇번을 호출해도 항상 일관된 값을 반환해야 한다.
+   - (단, Application을 다시 실행한다면 값이 달라져도 상관없다. (메모리 소가 달라지기 때문))
+2. equals메서드 통해 두 개의 객체가 같다고 판단했다면, 두 객체는 똑같은 hashcode 값을 반환해야 한다.
+3. equals메서드가 두 개의 객체를 다르다고 판단했다 하더라도, 두 객체의 hashcode가 서로 다른 값을 가질 필요는 없다. (Hash Collision)
+   - 단, 다른 객체에 대해서는 다른 값을 반환해야 해시테이블의 성능이 좋아진다.
+
+`최악의 해시코드 구현`
+
 ```text
-첫 번째, equals 비교에 사용되는 정보가 변경되지 않았다면, 그 객체의 hashCode 메서드는 몇 번을 호출하더라도 애플리케이션이 실행되는 동안 매번 같은 값을 반환해야 한다. 단, 애플리케이션을 다시 실행한다면 값이 달라져도 상관없다.
-두 번째, equals(Object)의 결과가 두 객체를 같다고 판단했다면, 두 객체의 hashCode는 같은 값을 반환해야 한다.
-세 번째, equals(Object)의 결과가 두 객체를 다르다고 판단했더라도, 두 객체의 hashCode 가 서로 다른 값을 반환할 필요는 없다. 단, 다른 객체에 대해서는 다른 값을 반환해야 해시 테이블(hash table)의 성능이 좋아진다.
+@Override
+public int hashCode() {
+  return 42;
+}
 ```
+- 모든 객체에 대해 같은 해시코드를 반환하다 보니 같은 해시테이블의 버킷에 담기고, 평균 수행시간이 O(1) -> O(n) 으로 느려져 해시테이블의 장점을 잃게됨..
+
+`hashcode 를 생성하는 방법`
+1. IDE 자동생성 기능
+2. Objects.hash()
+3. Lombok 의 @EqualsAndHashCode
+4. Google @AutoValue
+
+`hashcode 재정의시 주의`
+- 불변 객체의 경우 hashcode 를 캐싱하여 성능 향상을 꾀할 수 있음
+- 성능을 위해 hashcode 계산시 핵심 필드를 누락시켜서는 안된다.
+- hashcode 생성 규칙을 사용자에게 공표하지 말것
+  - 사용자가 hashcode 에 의존한 코드를 짤 가능성이 있음
+  - 다음 릴리즈에 성능 개선 여지 마련
+  
+`toString()`
+- 인스턴스에 대한 정보를 **문자열 (String)** 로 제공할 목적
+- Object 클래스에 정의된 toString() 메소드는 클래스명 + 16진수 해시코드를 얻게 된다.
+
+```java
+public String toString() {
+    return getClass().getName() + "@" + Integer.toHexString(hashCode());
+}
+```
+  
+`clone()`
+- 자신을 복제해서 새로운 인스턴스를 생성후 반환
+- Object 클래스에 정의된 clone 메소드는 단순 인스턴스 **변수의 값** 만 복사한다.
+- Cloneable 인터페이스를 구현해야 한다.
+- 접근 제어자를 protected -> public 으로 변경해야 한다.
+
+`얕은 복사와 깊은 복사`
+
+> 5장에서 살펴 봤으니 생략..
+
+`공변 반환타입 (convariant return type)`
+- JDK 1.5 부터 공변 반환타입 이 추가되었다.
+- 오버라이딩시 조상 메소드의 반환타입을 자손 클래스 타입으로 변경을 허용한다.
+
+`kotlin 클래스를 자바에서 상속받을때의 문제`
+
+```kotlin
+open class Wow(
+    val name: String,
+    val age: Int,
+    val children: List<Wow>
+)
+```
+
+![kotlin-covariance](./images/kotlin-covariance.png)
+
+```kotlin
+public interface List<out E> : Collection<E> {
+	
+}
+```
+- 원인은 out 이라는 키워드 때문... 코틀린 -> 자바 로 변환하는 과정에서 공변 반환타입을 처리하는 방식
+
+> Proxy 객체등을 사용한다거나 할 경우 문제가 됨... 실체 타입을 찾을 수 없음.. <br/>
+> 실제 Hibernate 구현체에서 이와 관련된 이슈가 있었음
+
+- 해결방법 1
+    - MutableList 로 변경한다.
+```kotlin
+open class Wow(
+    val name: String,
+    val age: Int,
+    val children: MutableList<Wow>
+)
+```
+
+- 해결방법 2
+  - @JvmSuppressWildcards
+```java
+public class WowExtender extends Wow {
+
+	public WowExtender(@NotNull String name, int age, @NotNull List<Wow> children) {
+		super(name, age, children);
+	}
+}
+```
+
+`getClass()`
+- 자신이 속한 Class 객체를 반환하는 메소드
+- Class 객체는 클래스의 모든 정보를 담고 있고, **클래스당 단 하나만 존재** 한다.
+- 클래스파일이 **클래스로더에 의해 메모리 로드 될 때 생성됨**
+
+`Class 객체를 얻는 방법`
+- 클래스 정보가 핊요한 경우 Class 객체에 대한 참조가 필요하다.
+- 사용 가능한 방법 3가지
+
+```java
+Class cObj = new Card().getClass(); // 생성된 객체로 부터 얻는 방법
+Class cObj = Card.class; // 클래스 리터럴로 부터 얻는 방법
+Class cObj = Class.forName("Card"); // 클래스 이름으로부터 얻는 방법
+```
+> Class.forName 은 특정 클래스파일 / JDBC 드라이버를 메모리에 로드할때 주로 사용하는 방법이다.
+
+### String 클래스
+
 
 // TODO String - @Stable 살펴보기
 
@@ -149,3 +295,8 @@ Second, the good sense: Suppose MULT were 26, and consider hashing a hundred-cha
 ## 참고
 - https://johngrib.github.io/wiki/Object-hashCode/
 - https://bytes.com/topic/c/answers/537762-why-mult-31-hash-function-string
+- https://jaehun2841.github.io/2019/01/12/effective-java-item11/
+- https://bcho.tistory.com/1072
+- https://d2.naver.com/helloworld/831311
+- https://www.baeldung.com/introduction-to-autovalue
+- https://www.youtube.com/watch?v=Ou_-DFaAUhQ&list=PLdHtZnJh1KdaM0AfxPA7qGK1UuvhpvffL&index=7
