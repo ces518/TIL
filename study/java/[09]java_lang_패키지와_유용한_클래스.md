@@ -286,6 +286,132 @@ Class cObj = Class.forName("Card"); // 클래스 이름으로부터 얻는 방�
 > Class.forName 은 특정 클래스파일 / JDBC 드라이버를 메모리에 로드할때 주로 사용하는 방법이다.
 
 ### String 클래스
+- String 클래스는 문자열을 저장하기 위해 char 배열 변수를 인스턴스 변수로 가지고 있다.
+- 한번 생성된 문자열을 변경할 수 없다. (Immutable) 
+- \+ 연산을 통해 문자열을 결합하는 경우 새로운 문자열이 담긴 인스턴스가 생성된다.
+- 문자열 결합/추출 등의 연산이 많은 경우 StringBuffer/Builder 를 사용하는 것이 좋다.
+
+`문자열 생성`
+- 문자열을 생성하는 방법은 두가지
+- **리터럴** 을 지정하는 방법 / 생성자를 이용하는 방법
+- 리터럴은 지정하는 방법은 이미 존재하는 것을 **재사용** 한다.
+  - 컴파일 타임에 동일한 값을 가지는 인스턴스가 1번만 생성됨 (상수풀)
+- 생성자를 이용하는 방법은 매번 새로운 인스턴스가 재 생성된다.
+
+`문자열 비교`
+- equals 와 == 비교 두가지 방식이 있다.
+- == 은 **주소** 를 비교하기 때문에 리터럴을 지정한 경우에만 true 가 반환된다.
+- 반면 equals() 메소드는 인스턴스 내부의 실제 값을 비교하기 때문에 리터럴/생성자 방식 모두 true 가 반환됨
+
+`빈 문자열 (empty string)`
+- 길이가 0인 배열을 내부적으로 가진 인스턴스
+- C 언어에서는 길이가 0인 배열을 선언할 수 없다.
+
+> C 언어에서는 널 문자를 이용해 문자열의 끝을 알리고, 자바에서는 널 문자를 사용하지 않고 문자열의 길이 정보를 별도로 저장한다.
+
+`StringBuilder 와 StringBuffer`
+- 신입 개발자 단골 질문..
+- StringBuilder 와 StringBuffer 의 가장 큰 차이는 **동기화 여부** Thread-Safe 한가 ..
+- StringBuilder 의 경우 Thread-Safe 하지 않지만 퍼포먼스는 StringBuffer 보다 뛰어남
+
+> JDK 1.5 버전 부터 String 의 + 연산은 컴파일 타임에 StringBuilder 를 사용하도록 최적화가 되어 있다.
+
+`StringBuilder 로 항상 변환될까 ?`
+- 결론부터 말하자면, **항상 변환되지 않는다.**
+
+```java
+// case 1
+String result = "a" + "b" + "c";
+// case 1 컴파일 후
+String result = "abc";
+
+// case 2
+String result = "";
+result += "a";
+result += "b";
+result += "c";
+
+// case 2 컴파일 후
+String result = "";
+result = (new StringBuilder()).append(result).append("0").toString();
+result = (new StringBuilder()).append(result).append("1").toString();
+result = (new StringBuilder()).append(result).append("2").toString();
+
+// case 3
+String result = "";
+for (int i = 0; i < 10; i ++) {
+    result += i;
+}
+// case 3 컴파일 후
+String result = "";
+for (int i = 0; i < 10; i ++) {
+    result = (new StringBuilder()).append(result).append("0").toString();
+}
+```
+
+> 디컴파일러 옵션에 따라 정확한 코드가 확인 안될 수 있음 CFR 디컴파일러도 그런 케이스 <br/>
+> 정확한 확인을 위해서는 ByteCode 를 보는게 가장 좋음
+> JDK1.5 ~ 1.8 까지는 StringBuilder 로 변환되고 / Java9 부터는 최적화 방식이 완전히 달라졌다.
+
+![String-InvokeDynamic](./images/string_invokedynamic.png)
+
+- InvokeDynamic (JDK 함수를 호출) 을 사용해 컴파일된 코드라도 JDK 버전업에 따른 최적화를 받을 수 있도록 함
+    - JDK 11 기준 StringConcatFactory 를 사용한다.
+
+![StringConcatFactory](./images/StringConcatFactory.png)
+
+`intern()`
+- JNI 를 통해 상수풀에 해당 인스턴스를 등록하는 메소드
+  - 이미 존재한다면 해당 주소값 반환
+- intern 을 통해 동일한 문자열을 가지는 인스턴스는 **하나만 존재** 하도록 할 수 있음 
+
+```java
+/**
+ * Returns a canonical representation for the string object.
+ * <p>
+ * A pool of strings, initially empty, is maintained privately by the
+ * class {@code String}.
+ * <p>
+ * When the intern method is invoked, if the pool already contains a
+ * string equal to this {@code String} object as determined by
+ * the {@link #equals(Object)} method, then the string from the pool is
+ * returned. Otherwise, this {@code String} object is added to the
+ * pool and a reference to this {@code String} object is returned.
+ * <p>
+ * It follows that for any two strings {@code s} and {@code t},
+ * {@code s.intern() == t.intern()} is {@code true}
+ * if and only if {@code s.equals(t)} is {@code true}.
+ * <p>
+ * All literal strings and string-valued constant expressions are
+ * interned. String literals are defined in section 3.10.5 of the
+ * <cite>The Java&trade; Language Specification</cite>.
+ *
+ * @return  a string that has the same contents as this string, but is
+ *          guaranteed to be from a pool of unique strings.
+ * @jls 3.10.5 String Literals
+ */
+public native String intern();
+```
+- 메모리를 효율적으로 사용할 수 있는 것 처럼 보이지만 치명적인 단점이 존재함
+- 상수풀에 존재하는 문자열에 equals() 로 모두 비교해야한다.
+- 상수풀에 위치함으로 인해 GC 이 대상이 될 수 없다 (1.7 이전)
+
+`유니코드 보충문자`
+- 기존에는 유니코드가 2bytes (16bit) 문자 체계였다.
+- 하지만 유니코드가 늘어남에 따라 20비트로 확장하게 됨
+- 하나의 문자를 char 타입으로 다루지 못하는 상황이 발생하여 int 타입으로 다루게 되었다.
+- 메소드 인자를 보면 char / int 두가지가 존재하는데 int 타입을 인자로 가진다면 유니코드 보충문자까지 지원하는 함수라고 생각하면 된다.
+
+`format()`
+- printf() 와 같이 형식화된 문자열을 만들어내는 메소드
+
+```java
+String.format("%d 더하기 %d 는 %d 이다.", 3, 5, 3 + 5);
+```
+
+`valueOf()`
+- 문자열 타입으로 변환하는 메소드
+- String 뿐 아니라 추후에 살펴볼 Wrapper 클래스에도 valueOf 메소드가 존재하는데 Null Handling / 캐싱 으로 인한 이점이 있음
 
 
 // TODO String - @Stable 살펴보기
@@ -299,3 +425,7 @@ Class cObj = Class.forName("Card"); // 클래스 이름으로부터 얻는 방�
 - https://d2.naver.com/helloworld/831311
 - https://www.baeldung.com/introduction-to-autovalue
 - https://www.youtube.com/watch?v=Ou_-DFaAUhQ&list=PLdHtZnJh1KdaM0AfxPA7qGK1UuvhpvffL&index=7
+- https://siyoon210.tistory.com/160
+- https://gist.github.com/benelog/b81b4434fb8f2220cd0e900be1634753
+- https://dzone.com/articles/jdk-9jep-280-string-concatenations-will-never-be-t
+- https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/invoke/StringConcatFactory.html
