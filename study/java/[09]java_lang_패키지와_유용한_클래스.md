@@ -313,7 +313,7 @@ Class cObj = Class.forName("Card"); // 클래스 이름으로부터 얻는 방�
 - 신입 개발자 단골 질문..
 - StringBuilder 와 StringBuffer 의 가장 큰 차이는 **동기화 여부** Thread-Safe 한가 ..
 - StringBuilder 의 경우 Thread-Safe 하지 않지만 퍼포먼스는 StringBuffer 보다 뛰어남
-
+- 기본 생성자의 capacity 는 16
 > JDK 1.5 버전 부터 String 의 + 연산은 컴파일 타임에 StringBuilder 를 사용하도록 최적화가 되어 있다.
 
 `StringBuilder 로 항상 변환될까 ?`
@@ -413,8 +413,364 @@ String.format("%d 더하기 %d 는 %d 이다.", 3, 5, 3 + 5);
 - 문자열 타입으로 변환하는 메소드
 - String 뿐 아니라 추후에 살펴볼 Wrapper 클래스에도 valueOf 메소드가 존재하는데 Null Handling / 캐싱 으로 인한 이점이 있음
 
+### Math 클래스
+- 기본적인 수학 계산에 유용한 메소드들이 구성되어 있다.
+- Math 클래스는 Util 성 클래스 / 인스턴스를 생성할 수 없고, 모두 static 메소드로 구성되어 있다.
 
-// TODO String - @Stable 살펴보기
+`자주 사용하는 메소드`
+
+| 메소드 명 | 설명 |
+| --- | --- |
+| ceil() | 올림 |
+| floor() | 내림 |
+| round() | 반올림 |
+| random() | 랜덤 |
+| max() | 최대 |
+| min() | 최소 |
+
+- random 의 경우 Random 클래스를 사용하는 것을 권장
+  - 반복적인 Random 작업이 이뤄질 경우 Random 클래스의 경우 한 객체를 재사용 할 수 있기에 효율적
+  - Random 클래스의 경우 다양한 범위의 랜덤 범위 및 추가 작업시 유리하다. (seed 값 지정, ThreadLocalRandom 등)
+
+`예외를 발생시키는 메소드`
+- 메소드 명에 **Exact** 가 포함된 메소드들이 JDK 1.8 부터 추가됨
+- 정수형 연산중 발생가능한 오버플로우를 감지하기 위한것
+- 연산자는 결과만 반환할뿐 오버플로우에 대한 예외는 알려주지 않는다.
+- 하지만 exact 가 포함된 메소드들은 오버플로우 발생시 ArithmeticException 을 발생시킨다.
+
+```java
+int addExact(int x, int y);
+int subtractExact(int x, int y);
+int multiplyExact(int x, int y);
+int incrementExact(int x, int y);
+int decrementExact(int x, int y);
+int negateExact(int x, int y);
+int toIntExact(int x, int y);
+```
+
+`StrictMath 클래스`
+- Math 클래스는 퍼포먼스 향상을 위해 JVM 의 OS 에 의존적인 계산을 하고 있다.
+- 반올림 처리 방식이 OS 마다 다를 수 있기 때문에 동일한 프로그램이더라도 컴퓨터마다 결과가 달라질 수 있다.
+- 이런 문제를 해결하기 위해 성능을 포기하는 다신 일관성을 유지하기 위한 클래스
+
+### 래퍼 (Wrapper) 클래스
+- 객체지향 개념에서 모든 것은 객체로 다루어 져야 한다.
+- 자바는 8개의 기본형 타입을 객체로 취급하지 않고 있음 (자바가 완전한 객체지향 언어가 아니라는 얘길 듣는 이유)
+- 기본형 타입도 객체로 다뤄야할 경우가 있는데, 이를 위한 것이 래퍼 클래스
+  - 객체 생성시 내부적으로 각 자료형에 알맞은 값을 저장하고 있다.
+  - 기본형을 Wrapping 하고 있기 때문에 래퍼 클래스라고 한다.
+
+| 기본형 | 래퍼클래스 |
+| --- | --- |
+| boolean | Boolean |
+| char | Character |
+| byte | Byte |
+| short | Short |
+| int | Integer |
+| long | Long |
+| float | Float |
+| double | Double |
+
+`오토박싱 (autoboxing) 과 언박싱 (unboxing)`
+- JDK 1.5 이전에는 기본형과 참조형 간의 연산이 불가능 했다.
+- 1.5 이후부터는 기본형과 참조형 간의 연산이 가능해졌다. (컴파일러가 변환)
+- 기본형 -> 래퍼클래스로 자동변환 하는것을 **오토박싱**
+- 참조형 -> 기본형 으로 변환하는 것을 **언박싱**
+
+> 헷갈릴 수 있는데, 기본형을 래핑 (박싱), 래핑 된것을 언래핑 (언박싱) 이라고 생각하면 좀 더 쉬울 것이다.
+
+`Number 클래스`
+
+![Number Class](./images/NumberClass.png)
+- 내부적으로 숫자를 멤버변수로 가지는 래퍼 클래스 들의 조상 클래스 이며 추상클래스 이다.
+- Number 의 자손으로 BigInteger, BigDecimal 등이 있는데, 이는 long 이나 double 로 다룰 수 없는 큰 범위의 수를 처리하기 위한 것들이다.
+
+## 유용한 클래스
+
+### java.util.Objects
+- Object 클래스의 보조 클래스이며 Math 클래스처럼 모든 메소드가 static 이다.
+- 객체비교 혹은 널 체크시 유용하다.
+
+> https://pupupee9.tistory.com/192
+
+### java.util.Random
+- 보통 난수값을 생성할때 Math.random() 을 사용한다.
+  - Math 클래스도 내부적으로 Random 클래스를 사용한다.
+- 난수 생성시 Random 클래스 사용을 권장한다.
+  - 반복적인 Random 작업이 이뤄질 경우 Random 클래스의 경우 한 객체를 재사용 할 수 있기에 효율적
+  - Random 클래스의 경우 다양한 범위의 랜덤 범위 및 추가 작업시 유리하다. (seed 값 지정, ThreadLocalRandom 등)
+
+### java.util.regex (정규식)
+- 정규식 이란, 텍스트 데이터중 원하는 조건 (pattern) 에 일치하는 문자열을 찾아 내기 위해 사용하는 것
+  - Unix 환경에서 사용되던 것이지만 다양한 언어에서 지원하고 있음
+- 특정 패턴의 문자열인지 검사하거나, 특정 데이터를 뽑아내는 등 다양한 활용이 가능하다.
+
+`Pattern 과 Matcher`
+- Pattern 객체는 Thread-Safe 하지만, Matcher 객체는 Thread-Safe 하지 않다.
+
+```java
+Pattern p = Pattern.compile("c[a-z]*"); //c 로 시작하는 소문자 영단어
+String data = "car";
+Matcher m = p.matcher(data);
+if (m.matches()) {
+    // dosomething..	
+}
+```
+
+`Matcher.appendReplacement() 와 역슬래시(\,backslash) 그리고 $(dolar sign) 문제`
+- matcher.appendReplacement(sb, “역슬래시 혹은 $가 존재하는 값”); 을 실행하면 오류가 발생할 수 있다.
+  - 역슬래시와 $ 기호를 정규표현식의 특수문자로 취급하기 때문
+- 다음과 같이 escape 처리를 해주어야함
+
+```java
+String value = valueToReplace.replaceAll("\\\\", "\\\\\\\\").replaceAll("\\$", "\\\\\\$");
+matcher.appendReplacement(sb, value);
+```
+
+`새줄 기호 (newline) 기준으로 문자열 자르기`
+
+```java
+String[] splited = str.split("[\\r\\n]+"); // 빈 줄은 모두 사라진다.
+
+// java 8 이후
+String[] splited = str.split("\\R"); // 마지막 빈 줄 삭제됨
+// split("\\R",-1) // 마지막 빈 줄 남겨두기
+// split("\\R+") // 빈 줄 삭제
+```
+
+`정규식 그룹화`
+- 정규식의 일부를 괄호 () 로 나누어 그룹화 할 수 있다.
+- 한번 혹은 그 이상 반복을 의미하는 +, * 가 뒤에 오면 그룹화된 부분이 적용 대상이 됨
+- group(int i) 로접근이 가능한데 그룹은 1 부터 시작한다.
+```java
+String pattern = "(0\\d{1,2}) - (\\d{3,4)-(\\d{4)";
+
+Pattern p = Pattern.compile(pattern);
+Matcher m = p.matcher(p);
+
+while(m.find()) {
+	m.group()
+    m.group(1)
+    m.group(2)
+    m.group(3)
+}
+```
+
+### Scanner 클래스
+- 화면/파일/문자열 등 입력소스로 부터 **문자데이터** 를 읽을때 사용할 목적으로 JDK 1.5 부터 추가되었다.
+- 정규식을 이용한 라인 단위 검색을 지원한다.   
+- JDK1.6 부터 **화면 입출력을 전문적으로 담당** 하는 java.io.Console 클래스가 추가됨
+  - 이클립스 같은 IDE 에서는 잘 동작하지 않는다.
+  
+`생성자`
+
+```java
+Scanner(String source)
+Scanner(File source)
+Scanner(InputStream source)
+Scanner(Readable source)
+Scanner(ReadableByteChannel source)
+Scanner(Path source) // JDK1.7 부터 추가됨
+```
+
+```java
+Scanner useDelimiter(Pattern pattern)
+Scanner useDelimiter(String pattern)
+```
+
+`PatternLRUCache`
+- 재밌는 부분을 발견...
+- Scanner 클래스 내부에 PatternLRUCache 를 구현해 두었음
+- Simple 한 LRU Cache...
+
+```java
+// A cache of the last few recently used Patterns
+private PatternLRUCache patternCache = new PatternLRUCache(7);
+
+public Scanner useDelimiter(String pattern) {
+    modCount++;
+    delimPattern = patternCache.forName(pattern);
+    return this;
+}
+
+// Small LRU cache of Patterns.
+private static class PatternLRUCache {
+
+	private Pattern[] oa = null;
+	private final int size;
+
+	PatternLRUCache(int size) {
+		this.size = size;
+	}
+
+	boolean hasName(Pattern p, String s) {
+		return p.pattern().equals(s);
+	}
+
+	void moveToFront(Object[] oa, int i) {
+		Object ob = oa[i];
+		for (int j = i; j > 0; j--)
+			oa[j] = oa[j - 1];
+		oa[0] = ob;
+	}
+
+	Pattern forName(String name) {
+		if (oa == null) {
+			Pattern[] temp = new Pattern[size];
+			oa = temp;
+		} else {
+			for (int i = 0; i < oa.length; i++) {
+				Pattern ob = oa[i];
+				if (ob == null)
+					continue;
+				if (hasName(ob, name)) {
+					if (i > 0)
+						moveToFront(oa, i);
+					return ob;
+				}
+			}
+		}
+
+		// Create a new object
+		Pattern ob = Pattern.compile(name);
+		oa[oa.length - 1] = ob;
+		moveToFront(oa, oa.length - 1);
+		return ob;
+	}
+}
+```
+
+### java.util.StringTokenizer 클래스
+- 문자열을 특정한 구분자 (delimiter) 를 기준으로 토큰이라는 다수의 문자열로 잘라낼때 사용된다.
+
+`StringTokenizer vs Split`
+
+| StringTokenizer | Split |
+| --- | --- |
+| 문자열을 토큰화 하는 레거시 클래스 | String 또는 java.util.regex 패키지의 메소드, 지정된 정규식을 기준으로 토큰화 |
+| 한번에 하나의 문자열을 반환 | 하위 문자 **배열** 을 반환 |
+| EMPTY_STRING 을 처리하지 못함 | "ant, bat, pat" 같은 경우 구분자 뒤의 EMPTY_STRING 을 처리하기 좋음 |
+| 구문적으로 까다로움 | 쉬운 사용 방식 |
+| 구분자를 "문자열" 로 받음 | 구분자를 "정규식" 으로 받음 |
+| Split 보다 약 2배 빠르다 | StringTokenizer 보다 느리다 |
+
+> StringTokenizer 는 한 문자의 구분자만 사용할 수 있다. <br/>
+> "+-*/=()" 로 구분자를 지정했다면 "+-*/=()" 전체가 구분자가 아닌, 각 문자들이 모두 구분자가 된다. <br/>
+> https://www.geeksforgeeks.org/difference-between-stringtokenizer-and-split-method-in-java/
+
+`StringTokenizer 는 정말 빠를까?`
+- 구분자가 한글 집합이라거나, 한자 집합 처럼 **구분자가 매우 많은 경우 StringTokenizer 구현상 매우 비효율적으로 동작한다.**
+
+> https://codingdog.tistory.com/entry/java-split-%EB%A9%94%EC%86%8C%EB%93%9C-stringtokenizer%EB%B3%B4%EB%8B%A4-%ED%95%AD%EC%83%81-%EB%8A%90%EB%A6%B4%EA%B9%8C%EC%9A%94
+
+### java.math.BigInteger 클래스
+- long 타입으로 표현가능한 값은 10진수로 19자리 정도
+- 이보다 큰 값을 계산할 때 사용하기 좋다.
+- BigInteger 은 내부에서 int 배열을 사용해서 값을 다루기 때문에 훨씬 큰 값을 다룰 수 있지만 성능은 떨어진다.
+- 다른 정수형 처럼 2의 보수 형태로 표현한다.
+  - 부호 필드와 실제 값을 담는 배열을 가지고 있음
+- String 과 마찬가지로 Immutable 하다.
+
+![BigInteger](./images/BigInteger.png)
+
+`BigInteger 생성`
+
+```java
+new BigInteger("123456789"); // 문자열로 생성
+new BigInteger("FFFF", 16); // n 진수 (radix) 의 문자열로 생성
+BigInteger.valueOf(123456789L); // 숫자로 생성
+```
+- BigInteger 의 경우 기본형으로 다룰수 없는 범위의 수를 처리하는것이 목적이기 때문에 일반적으로 문자열로 생성을 방법을 많이 사용함
+
+`BigInteger 연산`
+- 정수형 연산에 사용될 수 있는 메소드 들이 정의되어 있다.
+- 기본적인 연산을 지원하는 메소드들의 목록은 다음과 같다.
+
+```java
+BigInteger add(BigInteger val); // 덧셈
+BigInteger subtract(BigInteger val); // 뺄셈
+BigInteger multiply(BigInteger val); // 곱셈
+BigInteger divide(BigInteger val); // 나눗셈
+BigInteger remainder(BigInteger val); // 나머지
+```
+
+> 나머지를 지원하는 remainder, mod 메소드가 있지만, mod 는 나누는 값이 음수일 경우 ArithmeticException 이 발생한다.
+
+
+`비트 연산 메소드`
+- 큰 숫자를 다루는 만큼 성능이 떨어지므로 성능 향상을 위한 다양한 비트 연산 메소드가 있다.
+- BigInteger 가 정수가 짝수인지 확인하고 싶을때 가장 오른쪽 비트는 0일 것이므로 testBit(0) 으로 확인하는 것이 효율적
+
+| 메소드 | 설명 |
+| --- | --- |
+| int bitCount() | 2진수로 표현 했을때, 1의 개수 (음수일 경우 0) 를 반환 |
+| int bitLength() | 2진수로 표현 했을때 값을 표현하는데 필요한 bit 수 |
+| boolean testBit(int n) | 우측에서 n + 1 번째 비트가 1이면 참, 아니면 거짓 |
+| BigInteger setBit(int n) | 우측에서 n + 1 번째 비트를 1로 변경 |
+| BigInteger clearBit(int n) | 우측에서 n + 1 번째 비트를 0으로 변경 |
+| BigInteger flipBit(int n) | 우측에서 n + 1 번째 비트를 전환 (1 은 0으로, 0은 1로) |
+
+### java.math.BigDecimal 클래스
+- double 타입으로 표현가능한 값은 범위가 넓지만 정밀도가 13자리 밖에 되지않아 실수형 특성상 **오차** 를 피할 수 없다.
+  - 10진 실수 -> 2진 실수로 정확히 변환이 불가능함
+- BigDecimal 클래스는 정수를 이용해 실수를 표현한다.
+  - 2진 정수로 변환하여 다룸
+- 정수 저장시 BigInteger 를 사용한다.
+- IEEE 754 의 **Decimal128** 을 지원한다.
+
+`BigDecimal 생성`
+
+```java
+new BigDecimal("123.4567890"); // 문자열로 생성
+new BigDecimal(123.456); // double 리터럴로 생성
+new BigDecimal(123456); // int, long 리터럴로 생성
+BigDecimal.valueOf(123.456); // 생성자 대신 사용..
+```
+- 기본 리터럴로 표현하는 한계가 있기 때문에 일반적으로 문자열로 생성을 방법을 많이 사용한다.
+
+> double 타입의 값을 인자로 받는 생성자로 인스턴스를 생성할 경우 오차가 발생할 수 있음에 유의해야 한다.
+
+`BigDecimal 연산`
+- BigInteger 와 마찬가지로 수학적 연산을 지원하는 다양한 메소드들이 있다.
+- 한 가지 유의할 점은 연산의 결과의 정수, 지수, 정밀도가 달라 질 수 있다.
+- 곱셈의 경우 피연산자의 scale 을 더하고, 나눗셈의 경우에는 빼버린다.
+- 덧셈,뺄셈의 경우에는 둘 중 자리수고 높은 쪽으로 맞추기 위해 scale 이 큰 쪽이 결과가 된다.
+
+`divide 와 setScale`
+- 나눗셈을 처리하기 위한 메소드는 다양하게 제공을 한다.
+- 결과를 어떻게 반올림 처리 할 것인지, 몇 번째 자리 (scale) 에서 반올림 할 것인지 지정이 가능하다.
+- 아무리 오차 없이 실수를 저장하더라도, 나눗셈에서 발생하는 오차는 어쩔 수 없다.
+
+```java
+divide(BigDecimal divisor)
+divide(BigDecimal divisor, int roudingMode)
+divide(BigDecimal divisor, RoundingMode roundingMode)
+divide(BigDecimal divisor, int scale, int roungdingMode)
+divide(BigDecimal divisor, int scale, RoundingMode roungdingMode)
+divide(BigDecimal divisor, int scale, MathContext mc)
+```
+
+`RoundingMode`
+
+| 상수 | 설명 |
+| --- | --- |
+| CEILING | 올림 |
+| FLOOR | 내림 |
+| UP | 양수시 올림, 음수시 내림 |
+| DOWN | UP 과 반대 |
+| HALF_UP | 반올림 (5 기준) |
+| HALF_EVEN | 반올림 (짝수면 HALF_DOWN, 홀수면 HALF_UP) |
+| HALF_DOWN | 반올림 (6 기준) |
+| UNNECESSARY | 나눗셈이 나누어 떨어지지 않는 경우 ArithmeticException 발생 |
+
+> divide 메소드의 결과가 무한소수인 경우 반올림 모드가 지정되지 않았다면 ArithmeticException 가 발생한다.
+
+`java.math.MathContext`
+
+![MathContext](./images/MathContext.png)
+
+- 반올림 모드와 정밀도를 하나로 묶어둔 클래스
+- devide 에서 scale 은 소수점 이하의 자리수 를 의미하지만 MathContext 의 precision 은 정수와 소수점 이하를 포함한 모든 자리수를 의미 한다.
 
 
 ## 참고
@@ -429,3 +785,8 @@ String.format("%d 더하기 %d 는 %d 이다.", 3, 5, 3 + 5);
 - https://gist.github.com/benelog/b81b4434fb8f2220cd0e900be1634753
 - https://dzone.com/articles/jdk-9jep-280-string-concatenations-will-never-be-t
 - https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/invoke/StringConcatFactory.html
+- https://programmingnote.tistory.com/37
+- https://kwonnam.pe.kr/wiki/java/regex
+- https://www.geeksforgeeks.org/difference-between-stringtokenizer-and-split-method-in-java/
+- https://codingdog.tistory.com/entry/java-split-%EB%A9%94%EC%86%8C%EB%93%9C-stringtokenizer%EB%B3%B4%EB%8B%A4-%ED%95%AD%EC%83%81-%EB%8A%90%EB%A6%B4%EA%B9%8C%EC%9A%94
+- https://pridiot.tistory.com/62
