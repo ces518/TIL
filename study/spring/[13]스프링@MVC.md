@@ -679,7 +679,322 @@ public void create(@ModelAttribute UseRequest request, Errors errors) {
 public String requestBody(@RequestBody UserRequest request) {
     return "";
 }
-```ㅇ
+```
+
+`@Value`
+- 빈의 값 주입에 사용하던 @Value 도 메소드 인자로 지원한다.
+- DI 에서 활용하던 프로퍼티나 필드 에 사용하던 방식과 동일하다.
+
+```java
+public String hello(@Value("#{systemProperties['os.name]}") String osName) {
+    // ..
+    return "";    
+}
+```
+
+
+`@Valild`
+- JSR-303 애노테이션을 사용해 검증하도록 지시하는 애노테이션
+- 일반적으로 @ModelAttribute 나 @RequestBody 와 함께 사용한다.
+- 자세한 사용 법은 추후 살펴볼 예정..
+
+### 핸들러 메소드 리턴 타입의 종류
+- @Controller 를 지정한 클래스의 메소드의 리턴타입은 다양한 타입을 지원하는데, 결론적으로 봤을때 다른 정보들과 조합해 최종적으로 **ModelAndView** 타입으로 만들어 진다.
+
+![getModelAndView](./images/get_modeandview.png)
+
+#### 자동 추가 모델 오브젝트와 자동 생성 뷰 이름
+- 다음 네 가지 정보는, 메소드 리턴타입과 관계없이 조건이 맞다면 모델 객체에 자동으로 추가된다.
+
+`@ModelAttribute 모델 객체 또는 커맨드 오브젝트`
+- @ModelAttribute 가 적용된 커맨드 오브젝트는 자동적으로 컨트롤러 반환하는 모델에 추가된다.
+- 기본적으로 **파라미터 타입 명** 을 따르고, 이름을 직접 지정할 수도 있다.
+
+`Map/Model/ModelMap`
+- 핸들러 메소드 인자로 Map, Model, ModelMap 타입 파라미터를 사용하면 사전에 생성된 모델 맵 오브젝트를 받아 사용이 가능하다.
+- 별도로 ModelAndView 를 생성해 리턴하더라도 파라미터로 받은 맵에 추가한 오브젝트는 모두 모델에 추가된다.
+
+`@ModelAttribute 메소드`
+- @ModelAttribute 는 컨트롤러 클래스의 일반 메소드에도 적용이 가능하다.
+- 뷰에서 참고 정보로 사용되는 모델 오브젝트를 만드는 용도로 사용한다.
+
+```java
+@ModelAttribute("codes")
+public List<Code> codes() {
+    return codeService.getAllCodes();    
+}
+```
+
+> 개인적으로 상당히 애용했던 기능.. 예를 들어서 등록/수정 이런 폼에서 ENUM 정보가 지속적으로 참조되는 경우 매우 쓸만함
+
+`BindinResult`
+- @ModelAttribute 와 함께 사용되는 BindingResult 타입 오브젝트도 모델에 자동으로 추가된단.
+- 이때 키는 'org.springframework.validation.BindingResult.<모델명>' 이다.
+- JSP 와 같은 템플릿 엔진에서 커스텀 태그에서참조하기 위함이다.
+
+#### 반환 타입 종류
+
+`ModelAndView`
+- ModelAndView 는 컨트롤러가 반환해야할 대표적인 타입
+- 하지만 이보다 편리한 방법이 많아 직접적으로 많이 사용되지는 않는다.
+- 다양한 반환타입을 지원하는데 결국 최종적으로는 **ModeAndView 타입으로 변환** 된다는 사실을 기억해야 한다.
+
+```java
+@RequestMapping("/hello")
+public ModelAndView hello() {
+    return new ModelAndView("hello");    
+}
+```
+
+`String`
+- 리턴타입이 스트링이라면 이 값은 **뷰 이름** 으로 사용된다.
+- 모델 정보는 모델 맵파라미터라 가져와 추가하는 등의 방법을 사용해야 한다.
+  - 가장 심플하고 간편하기 때문에 가장 많이 사용되는 방식..
+
+```java
+@RequestMapping("/hello")
+public String hello(Model model) {
+    return "hello";    
+}
+```
+
+`void`
+- 메소드 반환타입을 void 로 지정할 수도 있다.
+- 이때는 **RequestToViewNameTranslator** 를 사용해 자동생성되는 뷰 이름이 사용된다.
+- URL 과 뷰 이름이 일관되게 통일 가능하다면 사용을 고려해볼만 하지만 권장하는 방식은 아니다.
+
+```java
+@RequestMapping("/hello")
+public void hello(Model model) {
+}
+```
+
+`모델 오브젝트`
+- 뷰의 이름을 RequestToViewNameTranslator 로 자동생성되는것을 활용하고, Model 오브젝트를 바로 반환하는 방식이다.
+- 스프링은 리턴타입이 미리 지정된 타입이라면 이를 모델 오브젝트로 인지해 자동으로 추가해준다.
+
+```java
+@RequestMapping("/hello")
+public User view() {
+    return new User();
+}
+```
+
+`Map/Model/ModelMap`
+- Map/Model/ModelMap 을 생성해 반환한다면 이는 모델로 사용된다.
+- 하지만 실질적으로 많이 사용되는 방식은 아니다.
+
+```java
+@RequestMapping("/hello")
+public Map view() {
+    return new HashMap();  
+}
+```
+
+`View`
+- 뷰 이름대신 뷰 오브젝트를 사용하고 싶을때 사용한다.
+
+```java
+class UserController {
+    MarshallingView view;
+    
+    @RequestMappping("/view")
+    public View view() {
+        return this.view;
+    }
+    
+}
+```
+
+`@ResponseBody`
+- @ResponseBody 는 @RequestBody 와 유사한 방식으로 동작한다.
+- 이는 메소드가 반환하는 오브젝트를 HttpMessageConverter 를 사용해 응답 본문으로 변환한다.
+- 번외로 @RestController 라는 메타 애노테이션이 존재하는데, 이 애노테이션이 적용된 컨트롤러는 모든 메소드에 @ResponseBody 가 적용된 것과 동일하다.
+
+```java
+@RequestMapping("/hello")
+@ResponseBody
+public String hello() {
+    return "<html><body>hello</body></html>";
+}
+```
+
+### @SessionAttributes/SessionStatus
+- @SessionAttributes 는 컨트롤러 메소드가 생성하는 모델 중 지정한 이름과 동일한 것이 있다면, 세션에 저장해두었다가 이를 재사용한다.
+  - @ModelAttribute 가 지정된 파라미터 중에 이름이 동일한 것이 있다면 이를 세션에서 가져온다.
+- 이름에서 알 수 있듯이 하나 이상의 모델을 세션에 저장하고 활용할 수 있으며, 클래스의 모든 메소드에 적용된다.
+- 이제 더이상 세션에 담아둘 필요가 없을때 SessionStatus 를 참조해 이를 제거하는 것 또한 가능하다.
+  - SessionAttributesHandler/SessionAttributeStore
+  - 기본적으로 SessionScope 으로 Request#setAttribute 를 사용하는 방식을 사용하고, 별도로 커스터마이징 하는것 또한 가능하다.
+  
+```java
+@Controller
+@SessionAttributes("user")
+public class SessionAttributesController {
+
+
+  @RequestMapping(value = "/user/edit", method = RequestMethod.GET)
+  public String editForm(@RequestParam int id, Model model) {
+    model.addAttribute("user", new User());
+    return "user/edit";
+  }
+
+  @RequestMapping(value = "/user/edit", method = RequestMethod.POST)
+  public String submit(@ModelAttribute User user, SessionStatus sessionStatus) {
+    // ... 등록 처리
+    sessionStatus.setComplete(); // 세션에서 제거
+    return "";
+  }
+}
+```
+
+- 여기서 의문은.. 넣어주는건 알겠는데 어디서 가져오는가 ?... (메소드 인자니까 ArgumentResolver 가 하는건 알겠는데..)
+  - ArgumentResolver 들을 살펴보면 모두 공통적으로 ModelAndViewContainer 를 참조하고 있다.
+  - 핵심은 **ModelAndViewContainer**
+
+```java
+public class ModelAndViewContainer {
+
+	private boolean ignoreDefaultModelOnRedirect = false;
+
+	@Nullable
+	private Object view;
+
+	private final ModelMap defaultModel = new BindingAwareModelMap();
+
+	@Nullable
+	private ModelMap redirectModel;
+
+	private boolean redirectModelScenario = false;
+
+	@Nullable
+	private HttpStatus status;
+
+	private final Set<String> noBinding = new HashSet<>(4);
+
+	private final Set<String> bindingDisabled = new HashSet<>(4);
+
+	private final SessionStatus sessionStatus = new SimpleSessionStatus();
+
+	private boolean requestHandled = false;
+
+
+	public ModelMap getModel() {
+		if (useDefaultModel()) {
+			return this.defaultModel;
+		}
+		else {
+			if (this.redirectModel == null) {
+				this.redirectModel = new ModelMap();
+			}
+			return this.redirectModel;
+		}
+	}
+    
+	private boolean useDefaultModel() {
+		return (!this.redirectModelScenario || (this.redirectModel == null && !this.ignoreDefaultModelOnRedirect));
+	}
+
+	public void setBindingDisabled(String attributeName) {
+		this.bindingDisabled.add(attributeName);
+	}
+
+	public boolean isBindingDisabled(String name) {
+		return (this.bindingDisabled.contains(name) || this.noBinding.contains(name));
+	}
+
+	public void setBinding(String attributeName, boolean enabled) {
+		if (!enabled) {
+			this.noBinding.add(attributeName);
+		}
+		else {
+			this.noBinding.remove(attributeName);
+		}
+	}
+
+	public SessionStatus getSessionStatus() {
+		return this.sessionStatus;
+	}
+
+	public void setRequestHandled(boolean requestHandled) {
+		this.requestHandled = requestHandled;
+	}
+
+	public boolean isRequestHandled() {
+		return this.requestHandled;
+	}
+
+	public ModelAndViewContainer addAttribute(String name, @Nullable Object value) {
+		getModel().addAttribute(name, value);
+		return this;
+	}
+    
+	public ModelAndViewContainer addAttribute(Object value) {
+		getModel().addAttribute(value);
+		return this;
+	}
+
+	public ModelAndViewContainer addAllAttributes(@Nullable Map<String, ?> attributes) {
+		getModel().addAllAttributes(attributes);
+		return this;
+	}
+
+	public ModelAndViewContainer mergeAttributes(@Nullable Map<String, ?> attributes) {
+		getModel().mergeAttributes(attributes);
+		return this;
+	}
+
+	public ModelAndViewContainer removeAttributes(@Nullable Map<String, ?> attributes) {
+		if (attributes != null) {
+			for (String key : attributes.keySet()) {
+				getModel().remove(key);
+			}
+		}
+		return this;
+	}
+
+	public boolean containsAttribute(String name) {
+		return getModel().containsAttribute(name);
+	}
+
+}
+```
+- ModelAndViewContainer 를 통해 애트리뷰트를 저장하고, 이를 참조하도록 구현되어 있다.
+
+![InvokeHandlerMethod](./images/request_mapping_handler_adapter_invoke_handler_method.png)
+
+- 예상한대로 HandlerAdapter 에서 ModelAndViewContainer 를 생성하고, 이에대한 초기화 작업을 수행한 뒤 ArgumentResolver 에서 사용하고 있는 것
+
+![ModelFactory#initModel](./images/model_factory_init_model.png)
+
+- 세션에 담아두었던 정보들 (@SessionAttributes 가 적용된 모델) 을 미리 가져와서 ModelAndViewContainer 에 merge 해 주고 있다.. 이로서 모든 의문이 해결..
+
+## 모델 바인딩과 검증
+- @ModelAttribute 가 적용된 파라미터를 사용하면 크게 3가지 작업이 진행된다.
+  1. 파라미터 타입의 오브젝트 생성 / @SessionAttributes 에 의해 저장된 오브젝트가 있다면 이를 가져와 사용한다.
+  2. 모델 오브젝트에 웹 파라미터를 바인딩 해준다.
+  3. 모델의 값을 검증한다.
+- 이번에는 모델 오브젝트에 파라미터 바인딩 과정과 검증에 관해 살펴볼 예정
+
+### PropertyEditor
+- 스프링이 제공하는 기본적인 타입 변환용 API
+- 사실 따져보면 스프링 API 가 아닌 자바빈 표준 인터페이스이다.
+  - 기존 용도는 GUI 컴포넌트에서 활용하기 위함이었음
+- Spring MVC 3.0 이전 까지 주로 사용되었다.
+
+### 디폴트 프로퍼티 에디터
+- 프로퍼티 에디터는 @Controller 파라미터에도 동일하게 적용된다.
+- String 을 Charset 타입으로 변환하기 위해 제공하는 CharsetEditor 를 사용한다면 ?charset=UTF-8 이라는 쿼리파라미터를 핸들러 메소드의 Charset 타입으로 받을 수 있다.
+
+```java
+/**
+ * ?charset=UTF-8 로 들어온다면, Charset.UTF-8 타입으로 받게된다.
+ */
+@RequestMapping("/hello")
+public void hello(@RequestParam Charset charset, Model model){
+
+}
+```
 
 ## 참고
 
