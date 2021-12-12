@@ -1780,6 +1780,306 @@ public class User {
 - 이는 DispatchServlet 에 정적 리소스에 대한 요청을 DefaultServlet 으로 포워딩 하는 기능 추가도 필요함..
 - 스프링 MVC 에서는 mvc:default-servlet-handler 로 관련된 빈을 한번에 등록할 수 있다. 
 
+## 스프링 3.1 의 @MVC
+- 스프링 3.1 에 와서 DispatchServlet 의 전략들이 변경 되었다.
+- 사용방식에 있어서 차이는 없지만 @RequestMapping 의 매핑 조건이나 플래시맵 같은 편리한 기능이 추가되었다.
+- 기능만 봤을때는 큰 변화가 없지만 내부엔 상당한 변화가 이뤄졌다.
+- @RequestMapping 을 주축으로 하는 핸들러 매핑/어댑터/예외처리 전략이 모두 새로운 방식으로 변경되었다.
+
+| DispatcherServlet 전략 | 스프링 3.0 | 스프링 3.1 |
+| --- | --- | --- |
+| HandlerMapping | DefaultAnnotationHandlerMapping | RequestMappingHandlerMapping |
+| HandlerAdapter | AnnotationMethodHandlerAdapter | RequestMappingHandlerAdapter |
+| HandlerExceptionResolver | AnnotationMethodHandlerExceptionResolver | ExceptionHandlerExceptionResolver |
+
+### @RequestMapping 메소드와 핸들러 매핑 전략의 불일치
+- 스프링 3.1 이전에는 @RequestMapping 의 전략이 사실 확장성이 많이 떨어졌다.
+- DefaultAnnotationHandlerMapping 같은 전략 클래스가 DispatchServlet 의 설계 의도와는 맞지 않는 부분이 있었다.
+- HandlerMapping 의 본래 목적은 **요청을 처리할 핸들러를 매핑** 하는 역할
+- HandlerAdapter 의 본래 목적은 **요청을 처리한 핸들러를 실행** 하는 역할
+- 하지만 @RequestMapping 이 초기에 추가된 이후로 전략 구조가 매끄럽지가 않았다.
+- 기존에는 핸들러 매핑이 컨트롤러 빈의 오브젝트만 찾으면 됬으나, 메소드 단위 핸들러를 지원하게 되면서 메소드 단위 매핑이 필요하게 된것
+- 자바 메소드는 오브젝트로 취급되지 않기 때문에 직접적으로 매핑할 방법이 없었다.
+- 때문에 초기의 HandlerMapping 은 컨트롤러 오브젝트만 찾아주고, HandlerAdapter 가 오브젝트 내에서 실행할 메소드를 찾아서 실행하는 역할까지 떠맡게됨 ㅜ
+- 이로 인해 **책임과 역할** 이 난데없이 뒤섞여 있고, 리플렉션을 통한 호출 방식을 택했기 때문에 클래스도 지저분하고, 확장하기 힘든 구조를 가지게 되었다.
+  - 연쇄적으로 핸들러 매핑 의 정보만으로는 핸들러 인터셉터를 선정하기도 힘든 구조가 되어버렸다.
+- 스프링 3.1 부터는 이 전략클래스를 아에 새로운 설계로 갈아 엎으면서 문제들을 해결했다.
+  - 열쇠는 **HandlerMethod** 인터페이스
+
+### HandlerMethod
+
+```java
+public class HandlerMethod {
+
+  /** Logger that is available to subclasses. */
+  protected static final Log logger = LogFactory.getLog(HandlerMethod.class);
+
+  private final Object bean;
+
+  @Nullable
+  private final BeanFactory beanFactory;
+
+  @Nullable
+  private final MessageSource messageSource;
+
+  private final Class<?> beanType;
+
+  private final Method method;
+
+  private final Method bridgedMethod;
+
+  private final MethodParameter[] parameters;
+
+  @Nullable
+  private HttpStatus responseStatus;
+
+  @Nullable
+  private String responseStatusReason;
+
+  @Nullable
+  private HandlerMethod resolvedFromHandlerMethod;
+
+  @Nullable
+  private volatile List<Annotation[][]> interfaceParameterAnnotations;
+
+  private final String description;
+  // ...
+}
+```
+- HandlerMethod 인터페이스는, 핸들러 메소드에 대한 정보를 추상화 해둔 API
+- 빈 오브젝트/메소드/파라미터/리턴/애노테이션 등 다양한 정보를 포함하고 있다.
+- 일반적으로 핸들러 어댑터는, 핸들러 오브젝트를 특정 타입으로 캐스팅해 직접 호출하는 방식이다.
+- 하지만 HandlerMethod 라는 추상화 계층을 거치면서 직접 호출하는게 아닌 간접적인 호출을 하는 구조로 변경되었다.
+
+> RequestMappingHandlerMapping 이 HandlerMethod 라는 추상화된 형태로 저장해 두었다가, 요청에 대한 매핑을 수행할때 HandlerMethod 를 참조해 HandlerAdapter 로 전달하는 구조
+
+### @RequestMapping 핸들러 어댑터
+- 스프링 3.1 부터 추가된 파라미터 타입들을 간략하게 살펴본다.
+
+`@Validated/@Valid`
+- JSR-303 애노테이션을 이용해 검증하기 위한 애노테이션
+- ValidationGroups 라는 개념이 있고, 이를 활용하려면 @Validated 애노테이션을 사용해야 한다. (스프링 제공)
+
+```java
+interface Admin {}
+interface User {}
+
+public class Bean {
+
+  @NotEmpty(groups = {User.class, Admin.class})
+  String name;
+
+  @NotEmpty(groups = {User.class})
+  String userId;
+
+  @NotEmpty(groups = {Admin.class})
+  String adminId;
+
+}
+```
+
+```java
+@Controller
+public class ValidationController {
+
+    /**
+     * UserGroup 으로 벨리데이션 수행
+     */
+    @RequestMapping("/validation")
+    public String save(@ModelAttribute("bean") @Validated(User.class) Bean bean) {
+        return null;
+    }
+
+}
+```
+- @Validated 애노테이션을 사용해 지정한 Group 타입을 명시하면 해당 그룹으로 묶여 있는 벨리데이션만 수행한다.
+- CreateRequest/UpdateRequest 형태로 사용했던 경험이 있음.. 그렇게 활용도가 높진 않은듯..
+
+`@Valid/@RequestBody`
+- @Valid 는 메세지 컨버터를 활용하는 @RequestBody 에도 적용이 가능하다.
+  - @ModelAttribute 를 사용하는 모델 바인딩시 사용법과 동일하다.
+
+`UriComponentsBuilder`
+- UriComponentsBuilder 는 URI/URL 정보를 추상화한 UriComponents 를 쉽게 생성가능하도록 해주는 빌더 클래스
+- 코드 레벨에서 URI 를 생성 또는 가공할때는 UriComponentsBuilder 사용을 권장한다.
+- 이를 스프링 3.1 부터는 핸들러 메소드 인자로 받을 수 있도록 지원한다.
+
+```java
+@Controller
+public class UriComponentController {
+
+    /**
+     * 코드에서 URI 생성 또는 가공할 경우 UriComponentsBuilder 사용을 권장한다.
+     * Spring 3.1 부터 핸들러메소드 인자로 UriComponentsBuilder 를 받을 수 있다.
+     * 이는 현재 URI 기준으로 생성된 빌더를 얻어올 수 있다.
+     */
+    @RequestMapping("/uricomponent")
+    public void uri(UriComponentsBuilder builder) {
+        UriComponents uc = UriComponentsBuilder.fromUriString(
+            "http://www.myshop.com/useres/{user}/order/{order}"
+        ).build();
+        String uriString = uc.expand(1, 1).encode().toUriString();
+
+
+        UriComponentsBuilder.newInstance()
+            .scheme("http")
+            .host("www.myshop.com")
+            .path("/users/{user}/order/{order}")
+            .build();
+
+    }
+}
+```
+
+`@RedirectAttributes/RedirectView`
+- 핸들러 메소드에서 리다이렉트 기능을 사용하려면 RedirectView 를 생성하거나, redirect: 접두어가 붙은 뷰를 리턴하면 된다.
+- 대부분의 경우 RedirectView 를 직접사용하기 보단 문자열 기반의 redirect 방식이 심플하기 때문에 많이 사용한다.
+- 이는 기본적으로 Model 에 들어있던 정보들을 자동으로 쿼리파람으로 붙여준다.
+- Model 에 status=10 이라는 값이 있었다면, ?status=10 이 자동으로 붙게 된다.
+- 하지만 이는 편리하기도 하면서 불편한 부분도 있다.
+- 바로 @ModelAttribute 를 사용해 공통적인 모델을 담아두는 기능을 활용했을 경우이다.
+- 컬렉션 객체를 담고 있거나 한다면, URI 는 상당히 지저분해지고 불필요한 정보까지 노출하게 된다.
+- 이런 경우 사용하기 위해 **RedirectAttributes** 라는 새로운 타입을 지원한다.
+- RedirectAttributes 를 사용하면 Model 대신 RedirectAttributes에 담긴 정보 활용해 쿼리 파람을 생성해준다.
+  - FlashAttributes 기능도 제공한다.
+
+```java
+@Controller
+public class RedirectAttributeController {
+
+    /**
+     * Model 객체의 단점은 리다이렉트시 Model 에 담긴 모든 정보가 URI 파라미터로 담기게 된다.
+     * 컬렉션 객체를 담고있거나 한다면 URI 는 상당히 지저분해지고 불필요한 정보까지 노출하게 된다.
+     * 이를 위해 수동으로 제거하는등 작업이 필요한데, 이를 위해 RedirectAttributes 를 제공해준다.
+     * 이를 사용하면 모델 대신 RedirectAttributes 에 담긴 정보를 활용한다.
+     */
+    @RequestMapping("/redirect-attribute")
+    public void redirect(RedirectAttributes ra) {
+        ra.addAttribute("status", "status");
+        ra.addFlashAttribute("flash", "flash");
+    }
+
+}
+```
+
+## @MVC 확장 포인트
+
+### @EnableWebMvc/WebMvcConfigurer
+- @Configuration 클래스에 @EnableWebMvc 를 붙여주면 mvc:annotation-config 를 xml 설정으로 사용햇을때와 동일한 빈이 등록된다.
+- 지금 까지는 @Configuration 클래스를 생성하고, @Bean 을 사용해 빈을 등록했다.
+- 스프링은 @Enable~~ 로 시작하는 인프라 빈에 대한 설정 방법을 제공해준다.
+- @Enable 전용 애노테이션 설저을 위해 사용되는 빈을 **설정자 또는 컨피규어러** 라고 한다.
+- @EnableWebMvc 가 구현해야 할 인터페이스는 WebMvcConfigurer 이다.
+- WebMvcConfigurer 는 다양한 확장 포인트들을 제공한다.
+
+```java
+public interface WebMvcConfigurer {
+
+	/**
+	 * Help with configuring {@link HandlerMapping} path matching options such as
+	 * whether to use parsed {@code PathPatterns} or String pattern matching
+	 * with {@code PathMatcher}, whether to match trailing slashes, and more.
+	 * @since 4.0.3
+	 * @see PathMatchConfigurer
+	 */
+	default void configurePathMatch(PathMatchConfigurer configurer) {
+	}
+
+	default void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
+	}
+
+	default void configureAsyncSupport(AsyncSupportConfigurer configurer) {
+	}
+
+	default void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
+	}
+
+	default void addFormatters(FormatterRegistry registry) {
+	}
+
+	default void addInterceptors(InterceptorRegistry registry) {
+	}
+    
+	default void addResourceHandlers(ResourceHandlerRegistry registry) {
+	}
+
+	/**
+	 * Configure "global" cross origin request processing. The configured CORS
+	 * mappings apply to annotated controllers, functional endpoints, and static
+	 * resources.
+	 * <p>Annotated controllers can further declare more fine-grained config via
+	 * {@link org.springframework.web.bind.annotation.CrossOrigin @CrossOrigin}.
+	 * In such cases "global" CORS configuration declared here is
+	 * {@link org.springframework.web.cors.CorsConfiguration#combine(CorsConfiguration) combined}
+	 * with local CORS configuration defined on a controller method.
+	 * @since 4.2
+	 * @see CorsRegistry
+	 * @see CorsConfiguration#combine(CorsConfiguration)
+	 */
+	default void addCorsMappings(CorsRegistry registry) {
+	}
+
+	default void addViewControllers(ViewControllerRegistry registry) {
+	}
+
+	/**
+	 * Configure view resolvers to translate String-based view names returned from
+	 * controllers into concrete {@link org.springframework.web.servlet.View}
+	 * implementations to perform rendering with.
+	 * @since 4.1
+	 */
+	default void configureViewResolvers(ViewResolverRegistry registry) {
+	}
+
+	default void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+	}
+
+	default void addReturnValueHandlers(List<HandlerMethodReturnValueHandler> handlers) {
+	}
+
+	default void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+	}
+
+	/**
+	 * Extend or modify the list of converters after it has been, either
+	 * {@link #configureMessageConverters(List) configured} or initialized with
+	 * a default list.
+	 * <p>Note that the order of converter registration is important. Especially
+	 * in cases where clients accept {@link org.springframework.http.MediaType#ALL}
+	 * the converters configured earlier will be preferred.
+	 * @param converters the list of configured converters to be extended
+	 * @since 4.1.3
+	 */
+	default void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+	}
+    
+	default void configureHandlerExceptionResolvers(List<HandlerExceptionResolver> resolvers) {
+	}
+
+	/**
+	 * Extending or modify the list of exception resolvers configured by default.
+	 * This can be useful for inserting a custom exception resolver without
+	 * interfering with default ones.
+	 * @param resolvers the list of configured resolvers to extend
+	 * @since 4.3
+	 * @see WebMvcConfigurationSupport#addDefaultHandlerExceptionResolvers(List, org.springframework.web.accept.ContentNegotiationManager)
+	 */
+	default void extendHandlerExceptionResolvers(List<HandlerExceptionResolver> resolvers) {
+	}
+
+	@Nullable
+	default Validator getValidator() {
+		return null;
+	}
+
+	@Nullable
+	default MessageCodesResolver getMessageCodesResolver() {
+		return null;
+	}
+
+}
+```
+
 ## 참고
 
 - https://github.com/spring-projects/spring-framework/issues/23915
