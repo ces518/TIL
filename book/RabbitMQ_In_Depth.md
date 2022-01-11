@@ -123,3 +123,35 @@
   - 이는 메세지 라우팅시 상당한 유연성을 제공한다.
 
 ![RabbitMQ Binding](./images/RabbitMQ_Binding.png)
+
+## 2. AMQP 와 RabbitMQ 코드 작성
+
+### RPC 전송으로서의 AMQP
+- RabbitMQ 는 AMQP 메세지 브로커로 거의 모든 부분에서 **RPC (Remote Procedure Call)** 패턴으로 엄격하게 통신한다
+  - RPC 란 ?
+    - 한 컴포터에서 다른 컴퓨터의 다른 프로그램이나 메소드를 원격에서 실행하게 해주는 통신 유형
+    - 원격 API 와 통신하는 웹 프로그램이 있다면 이는 일반적인 RPC 패턴 적용의 예
+- RabbitMQ 와 통신할 때 발생하는 RPC 는 일반적인 웹 API 와는 많이 다르다
+  - AMQP 스펙은 서버와 클라이언트 모두 **명령을 실행 할 수 있다**
+  
+### RabbitMQ 와 통신할 때 연결 협상 과정
+- 어떤 사람과 대화를 나눠야할 때 둘 중 한명은 인사말로 대화를 시작한다.
+- 이는 **두 사람이 모두 알고 있는 언어를 서로 확인하는 과정**
+- AMQP 에서는 **프로토콜 헤더 (Protocol Header)** 에 해당하며, 클라이언트 => 서버로 전송한다
+  - 프로토콜 헤더는 요청으로 간주 되어서는 안되고, 다른 통신과 달리 명령도 아니다.
+- Connection.Start
+  - 클라이언트 요청을 받은 RabbitMQ 가 응답
+- Connection.StartOk
+  - 클라이언트는 응답 프레임으로 RPC 요청에 응답
+
+![RabbitMQ Protocol Header](./images/rabbitmq_protocol_header.png)
+
+> RabbitMQ 접속을 완료하기 위한 세 가지 동기식 RPC 요청인 start, tune, open 을 기억해 두어야 한다
+
+### 올바른 채널로 튜닝
+- AMQP 스펙에는 RabbitMQ 와 통신하기 위한 채널이 정의되어 있다
+  - 이는 양방향 라디오 채널과 유사함
+- 연결 협상이 완료된 AMQP 연결을 전송 전송을 위한 파이프라인 처럼 사용하고, **다른 채널로의 대화로 부터 전송을 격리** 한다
+- AMQP 연결은 여러 채널이 있어, 클라이언트와 서버 간의 여러 대화를 수행할 수 있다
+- 이를 **멀티 플렉싱 (multiplexing)** 이라고 하며 멀티스레드 혹은 비동기에 애플리케이션에서 유용함
+
