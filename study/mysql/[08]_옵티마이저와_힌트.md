@@ -169,7 +169,7 @@ SELECT emp_no, fisrt_name, last_name
 
 ![MySQL Two Pass](./images/mysql_two_pass.png)
 
-- 싱글패스를 사용하는 경우는 다음과 같다.
+- 투 패스 방식을 사용하는 경우는 다음과 같다.
   1. 레코드의 크기가 `max_length_for_sort_data` 값 보다 클 경우
   2. BLOB/TEXT 타입 컬럼이 SELECT 대상에 존재하는 경우
 
